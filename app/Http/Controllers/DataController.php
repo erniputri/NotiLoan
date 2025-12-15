@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 
 class DataController extends Controller
@@ -11,7 +12,8 @@ class DataController extends Controller
      */
     public function index()
     {
-        return view('pages.data');
+        $data['dataPeminjaman'] = Peminjaman::all();
+        return view('pages.data.index', $data);
     }
 
     /**
@@ -19,7 +21,7 @@ class DataController extends Controller
      */
     public function create()
     {
-        return view('pages.component.formData');
+        return view('pages.data.create');
     }
 
     /**
@@ -27,7 +29,16 @@ class DataController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+        $data['nama'] = $request->nama;
+        $data['kontak'] = $request->kontak;
+        $data['tgl_peminjaman'] = $request->tgl_peminjaman;
+        $data['tgl_pengembalian'] = $request->tgl_pengembalian;
+        $data['jumlah'] = $request->jumlah;
+
+        Peminjaman::create($data);
+
+        return redirect()->route('data.index')->with('success', 'Penambahan Data Berhasil');
     }
 
     /**
