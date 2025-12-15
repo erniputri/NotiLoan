@@ -9,4 +9,4 @@ Route::get('/', function () {
 });
 
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::resource('data' [DataController::class]);
+Route::resource('data', DataController::class);

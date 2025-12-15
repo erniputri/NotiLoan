@@ -11,7 +11,7 @@ class DataController extends Controller
      */
     public function index()
     {
-        return view ('pages.data');
+        return view('pages.data');
     }
 
     /**
@@ -19,7 +19,7 @@ class DataController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.component.formData');
     }
 
     /**

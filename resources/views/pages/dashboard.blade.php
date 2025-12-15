@@ -1,6 +1,6 @@
 @extends('partials.app')
 @section('content')
-    <div class="main-panel">
+    
         <div class="content-wrapper">
             <div class="row">
                 <div class="col-md-12 grid-margin">
@@ -65,7 +65,7 @@
         </div>
         <!-- content-wrapper ends -->
         <!-- partial:partials/_footer.html -->
-        @include('partials._footer')
+
         <!-- partial -->
     </div>
 @endsection
