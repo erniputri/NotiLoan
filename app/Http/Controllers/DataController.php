@@ -38,7 +38,7 @@ class DataController extends Controller
 
         Peminjaman::create($data);
 
-        return redirect()->route('data.index')->with('success', 'Penambahan Data Berhasil');
+        return redirect()->route('data.index')->with('tambah', 'Penambahan Data Berhasil');
     }
 
     /**
@@ -54,7 +54,8 @@ class DataController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data['dataPeminjaman'] = Peminjaman::findOrFail($id);
+        return view('pages.data.edit', $data);
     }
 
     /**
@@ -62,7 +63,16 @@ class DataController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $peminjaman_id = $id;
+        $peminjaman = Peminjaman::findOrFail($peminjaman_id);
+        $peminjaman->nama = $request->nama;
+        $peminjaman->kontak = $request->kontak;
+        $peminjaman->tgl_peminjaman = $request->tgl_peminjaman;
+        $peminjaman->tgl_pengembalian = $request->tgl_pengembalian;
+        $peminjaman->jumlah = $request->jumlah;
+
+        $peminjaman->save();
+        return redirect()->route('data.index')->with('success', 'Perubahan berhasil di simpan');
     }
 
     /**
@@ -70,6 +80,8 @@ class DataController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $peminjaman = Peminjaman::findOrFail($id);
+        $peminjaman->delete();
+        return redirect()->route('data.index')->with('hapus', 'Data berhasil dihapus');
     }
 }

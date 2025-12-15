@@ -41,7 +41,23 @@
                                                 <td>{{ $item->tgl_peminjaman }}</td>
                                                 <td>{{ $item->tgl_pengembalian }}</td>
                                                 <td>{{ $item->jumlah }}</td>
-                                                <td>Tombol Edit & Tombol Hapus</td>
+                                                <td class="text-center">
+                                                    <a href="{{ route('data.edit', $item->peminjaman_id) }}"
+                                                        class="btn btn-sm btn-warning me-1">
+                                                        <i class="mdi mdi-pencil">Edit</i>
+                                                    </a>
+
+                                                    <form action="{{ route('data.destroy', $item->peminjaman_id) }}" method="POST"
+                                                        class="d-inline" onsubmit="return confirm('Hapus data ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="mdi mdi-delete">Hapus</i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+
                                             </tr>
                                         @endforeach
 
