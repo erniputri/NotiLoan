@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\Notification;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DataController extends Controller
 {
@@ -36,7 +38,23 @@ class DataController extends Controller
         $data['tgl_pengembalian'] = $request->tgl_pengembalian;
         $data['jumlah'] = $request->jumlah;
 
-        Peminjaman::create($data);
+        $peminjaman = Peminjaman::create($data);
+
+        // hitung tanggal notifikasi (H-30)
+        // $tanggalNotifikasi = Carbon::parse($peminjaman->tgl_pengembalian)
+        //     ->subDays(30);
+        $tanggalNotifikasi = now()->subMinute();
+
+
+        // simpan ke tabel notifications
+        Notification::create([
+            'kontak' => $peminjaman->kontak,
+            'message' => 'Yth ' . $peminjaman->nama .
+                ', pinjaman Anda akan jatuh tempo pada ' .
+                $peminjaman->tgl_pengembalian,
+            'send_at' => $tanggalNotifikasi,
+            'status' => 0
+        ]);
 
         return redirect()->route('data.index')->with('tambah', 'Penambahan Data Berhasil');
     }
