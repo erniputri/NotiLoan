@@ -15,4 +15,8 @@ class Peminjaman extends Model
         'tgl_pengembalian',
         'jumlah'
     ];
+    public function notifikasi()
+{
+    return $this->hasOne(Notification::class, 'peminjaman_id', 'peminjaman_id');
+}
 }

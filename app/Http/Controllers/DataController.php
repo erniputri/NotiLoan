@@ -48,13 +48,14 @@ class DataController extends Controller
 
         // simpan ke tabel notifications
         Notification::create([
-            'kontak' => $peminjaman->kontak,
-            'message' => 'Yth ' . $peminjaman->nama .
-                ', pinjaman Anda akan jatuh tempo pada ' .
-                $peminjaman->tgl_pengembalian,
-            'send_at' => $tanggalNotifikasi,
-            'status' => 0
-        ]);
+    'peminjaman_id' => $peminjaman->peminjaman_id,
+    'kontak' => $peminjaman->kontak,
+    'message' => 'Yth ' . $peminjaman->nama .
+        ', pinjaman Anda akan jatuh tempo pada ' .
+        $peminjaman->tgl_pengembalian,
+    'send_at' => now(),
+    'status' => 0
+]);
 
         return redirect()->route('data.index')->with('tambah', 'Penambahan Data Berhasil');
     }

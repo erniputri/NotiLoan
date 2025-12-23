@@ -9,9 +9,15 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
-        'kontak',
-        'message',
-        'send_at',
-        'status'
-    ];
+    'peminjaman_id',
+    'kontak',
+    'message',
+    'send_at',
+    'status'
+];
+
+public function peminjaman()
+{
+    return $this->belongsTo(Peminjaman::class, 'peminjaman_id', 'peminjaman_id');
+}
 }

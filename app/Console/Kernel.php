@@ -13,13 +13,11 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
-    {
-        // $schedule->command('inspire')->hourly();
-        // $schedule->call(new ReminderDinner())->dailyAt('14:00');
-        // $schedule->call(new ReminderLunch())->dailyAt('16:00');
-        $schedule->call(new SendNotificationWa())->everyMinute();
-    }
+    protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
+{
+    $schedule->command('wa:send-notification')
+             ->everyMinute();
+}
 
     /**
      * Register the commands for the application.
