@@ -3,10 +3,7 @@
 
         <!-- LOGO KIRI + NAMA APLIKASI -->
         <a class="navbar-brand brand-logo mr-5 d-flex align-items-center" href="#">
-            <img src="{{ asset('assets/images/logo.png') }}"
-                 alt="logo"
-                 class="mr-2"
-                 style="height:40px;">
+            <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="mr-2" style="height:40px;">
             <span class="navbar-brand-text">Notiloan</span>
         </a>
 
@@ -19,13 +16,6 @@
 
     <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
 
-=======
-        <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="{{ asset('assets/images/logo.png') }}"
-                class="mr-2" alt="logo" /></a>
-        <a class="navbar-brand brand-logo-mini" href="index.html"><img src="{{ asset('assets/images/logo-mini.svg') }}"
-                alt="logo" /></a>
-    </div>
-    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="icon-menu"></span>
         </button>
@@ -39,10 +29,7 @@
                             <i class="icon-search"></i>
                         </span>
                     </div>
-
                     <input type="text" class="form-control" placeholder="Search now">
-                    <input type="text" class="form-control" id="navbar-search-input" placeholder="Search now"
-                        aria-label="search" aria-describedby="search">
                 </div>
             </li>
         </ul>
@@ -83,15 +70,13 @@
 
             <!-- LOGO KANAN (BARU) -->
             <li class="nav-item d-flex align-items-center ml-3">
-                <img src="{{ asset('assets/images/logo.png') }}"
-                     alt="logo"
-                     class="navbar-right-logo">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="navbar-right-logo">
             </li>
 
         </ul>
 
-        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
-            type="button" data-toggle="offcanvas">
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+            data-toggle="offcanvas">
             <span class="icon-menu"></span>
         </button>
 
