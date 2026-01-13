@@ -6,7 +6,7 @@
                 <div class="col-md-12 grid-margin">
                     <div class="row">
                         <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                            <h3 class="font-weight-bold">Welcome Notiloan</h3>
+                            <h3 class="font-weight-bold">Welcome {{Auth::user()->name}}</h3>
                             <h6 class="font-weight-normal mb-0">Dashboard </h6>
                         </div>
                         <div class="col-12 col-xl-4">
@@ -38,7 +38,7 @@
                             <div class="card card-tale">
                                 <div class="card-body">
                                     <p class="mb-4">Total Data</p>
-                                    <p class="fs-30 mb-2">{{}}</p>
+                                    <p class="fs-30 mb-2">0</p>
                                 </div>
                             </div>
                         </div>
