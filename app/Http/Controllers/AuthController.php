@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // ================= LOGIN =================
+    // ================= VIEW =================
     public function loginView()
     {
         return view('pages.auth.login');
@@ -20,47 +20,66 @@ class AuthController extends Controller
     {
         return view('pages.auth.register');
     }
+    public function index(){
+        if(Auth::check()){
+            return redirect()->route('dashboard');
+        }
+        return redirect()->route('login');
+    }
 
+    // ================= LOGIN =================
     public function login(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($request->only('email','password'))) {
+        if (Auth::attempt($credentials)) {
+            // penting untuk keamanan
             $request->session()->regenerate();
+
             return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
             'email' => 'Email atau password salah'
-        ]);
+        ])->withInput();
     }
 
+    // ================= REGISTER =================
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed'
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
+        // simpan user
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password'])
         ]);
 
-        return redirect('/login')->with('success','Registrasi berhasil');
+        // LOGIN LANGSUNG KE SESSION
+        Auth::login($user);
+
+        // regenerasi session (anti session fixation)
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard');
     }
 
+    // ================= LOGOUT =================
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
