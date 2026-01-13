@@ -3,10 +3,7 @@
 
         <!-- LOGO KIRI + NAMA APLIKASI -->
         <a class="navbar-brand brand-logo mr-5 d-flex align-items-center" href="#">
-            <img src="{{ asset('assets/images/logo.png') }}"
-                 alt="logo"
-                 class="mr-2"
-                 style="height:40px;">
+            <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="mr-2" style="height:40px;">
             <span class="navbar-brand-text">Notiloan</span>
         </a>
 
@@ -73,15 +70,13 @@
 
             <!-- LOGO KANAN (BARU) -->
             <li class="nav-item d-flex align-items-center ml-3">
-                <img src="{{ asset('assets/images/logo.png') }}"
-                     alt="logo"
-                     class="navbar-right-logo">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="navbar-right-logo">
             </li>
 
         </ul>
 
-        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
-            type="button" data-toggle="offcanvas">
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+            data-toggle="offcanvas">
             <span class="icon-menu"></span>
         </button>
 
