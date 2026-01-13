@@ -47,6 +47,12 @@
         white-space: nowrap;
     }
 
+    .navbar-right-logo {
+        height: 28px;
+        width: auto;
+        opacity: 0.95;
+    }
+
     .sidebar-menu-header {
         margin: 12px 15px 8px;
         padding: 8px 12px;
@@ -62,4 +68,5 @@
     .sidebar .nav {
         margin-top: 0;
     }
+    
 </style>

@@ -1,6 +1,10 @@
-<footer class="footer">
-          <div class="d-sm-flex justify-content-center justify-content-sm-between">
-            <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Region <a href="https://www.ptpn4.co.id/en" target="_blank">PTPN 4</a> </span>
-            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> <i class="ti-heart text-danger ml-1"></i></span>
-          </div>
-        </footer>
+<footer class="footer footer-sticky">
+  <div class="d-flex justify-content-center align-items-center">
+    <span class="text-muted text-center">
+      © {{ date('Y') }} Regional III
+      <a href="https://app.reg3.ptpn4.co.id/en" target="_blank">
+        PT. Perkebunan Nusantara 4
+      </a>
+    </span>
+  </div>
+</footer>
