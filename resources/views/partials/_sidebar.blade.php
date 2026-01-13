@@ -1,28 +1,37 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link" href="{{route('dashboard')}}">
-              <i class="icon-grid menu-icon"></i>
-              <span class="menu-title">Dashboard</span>
+
+    <div class="sidebar-menu-header">
+        MENU
+    </div>
+
+    <ul class="nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('dashboard') }}">
+                <i class="icon-grid menu-icon"></i>
+                <span class="menu-title">Dashboard</span>
             </a>
-          </li>
-           <li class="nav-item">
-            <a class="nav-link" href="{{route('data.index')}}">
-              <i class="icon-paper menu-icon"></i>
-              <span class="menu-title">Data</span>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('data.index') }}">
+                <i class="icon-paper menu-icon"></i>
+                <span class="menu-title">Data</span>
             </a>
-          </li>
-          <li class="nav-item">
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link" href="{{ route('notif.index') }}">
-              <i class="icon-bell menu-icon"></i>
-              <span class="menu-title">Notifikasi</span>
+                <i class="icon-bell menu-icon"></i>
+                <span class="menu-title">Notifikasi</span>
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="">
-              <i class="icon-grid menu-icon"></i>
-              <span class="menu-title">Pembayaran</span>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="icon-grid menu-icon"></i>
+                <span class="menu-title">Pembayaran</span>
             </a>
-          </li>
-        </ul>
-      </nav>
+        </li>
+    </ul>
+
+</nav>
