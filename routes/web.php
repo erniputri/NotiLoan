@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\NotifikasiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 
 //Fitur Route
 
@@ -23,3 +24,6 @@ Route::get('/register', [AuthController::class, 'registerView'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/peminjaman/export', [ExportController::class, 'export']);
+

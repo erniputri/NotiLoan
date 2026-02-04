@@ -8,6 +8,7 @@ class Peminjaman extends Model
 {
     protected $table = 'peminjaman';
     protected $primaryKey = 'peminjaman_id';
+
     protected $fillable = [
         'nama',
         'kontak',
@@ -15,8 +16,4 @@ class Peminjaman extends Model
         'tgl_pengembalian',
         'jumlah'
     ];
-    public function notifikasi()
-{
-    return $this->hasOne(Notification::class, 'peminjaman_id', 'peminjaman_id');
-}
 }
