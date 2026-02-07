@@ -13,16 +13,16 @@
                                 <div class="d-flex justify-content-end gap-2 mt-3">
                                     <input type="text" class="form-control form-control-sm search-input"
                                         placeholder="Cari Data...">
-                                    <a href="{{ route('data.create.step1') }}">
-                                        <button class="btn btn-success">
-                                            Tambah Data
-                                        </button>
-                                    </a>
-                                    <a href="{{ route('data.export.excel') }}" class="btn btn-success">
-                                        <i class="mdi mdi-file-excel"></i> Export Excel
+
+                                    <a href="{{ route('data.create.step1') }}" class="btn btn-primary btn-action">
+                                        <i class="mdi mdi-plus-circle-outline me-1"></i>
+                                        Tambah Data
                                     </a>
 
-
+                                    <a href="{{ route('data.export.excel') }}" class="btn btn-success btn-action">
+                                        <i class="mdi mdi-file-excel-outline me-1"></i>
+                                        Export Excel
+                                    </a>
                                 </div>
                             </div>
                             <div class="table-responsive pt-3">
