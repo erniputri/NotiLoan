@@ -45,7 +45,7 @@
                         </a>
 
                         <button class="btn btn-primary">
-                            Lanjut ke Step 3 →
+                            Next
                         </button>
                     </div>
 

@@ -8,7 +8,7 @@
             <div class="card-body">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Step 2</h4>
+                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Data Pinjaman</h4>
                     <a href="{{ route('data.create.step1') }}" class="btn btn-secondary">
                         ← Kembali
                     </a>
@@ -79,7 +79,7 @@
 
                     <div class="d-flex justify-content-end mt-4">
                         <button type="submit" class="btn btn-primary">
-                            Lanjut ke Step 3 →
+                            Next
                         </button>
                     </div>
 
@@ -128,4 +128,3 @@
     document.querySelector('[name="tgl_peminjaman"]').addEventListener('change', hitung);
 </script>
 @endsection
-    

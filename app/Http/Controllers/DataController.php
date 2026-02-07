@@ -17,6 +17,12 @@ class DataController extends Controller
         return view('pages.data.index', compact('dataPeminjaman'));
     }
 
+    public function show($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+        return view('pages.data.show', compact('peminjaman'));
+    }
+
     /* =========================
      * STEP 1 – DATA MITRA
      * ========================= */

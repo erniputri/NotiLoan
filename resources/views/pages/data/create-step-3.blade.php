@@ -8,7 +8,7 @@
             <div class="card-body">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Step 3</h4>
+                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Administrasi Dan Jaminan</h4>
                     <a href="{{ route('data.create.step2') }}" class="btn btn-secondary">
                         ← Kembali
                     </a>

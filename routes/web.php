@@ -40,6 +40,9 @@ Route::group(['middleware' => ['checkislogin']], function () {
         // DELETE
         Route::delete('/delete/{id}', [DataController::class, 'destroy'])->name('destroy');
 
+        //SHOW
+        Route::get('/{id}', [DataController::class, 'show'])->name('show');
+
         // =========================
         // WIZARD TAMBAH DATA
         // =========================

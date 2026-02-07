@@ -42,25 +42,29 @@
                                                 <td>{{ $item->tgl_jatuh_tempo }}</td>
                                                 <td>Rp {{ number_format($item->pokok_pinjaman_awal) }}</td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('data.edit.step1', $item->id) }}"
-                                                        class="btn btn-sm btn-warning me-1">
-                                                        <i class="mdi mdi-pencil">Edit</i>
+
+                                                    <a href="{{ route('data.show', $item->id) }}"
+                                                        class="btn btn-sm btn-info me-1">
+                                                        <i class="mdi mdi-eye"></i> Detail
                                                     </a>
 
-                                                    <form action="{{ route('data.destroy', $item->id) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Hapus data ini?')">
+                                                    <a href="{{ route('data.edit.step1', $item->id) }}"
+                                                        class="btn btn-sm btn-warning me-1">
+                                                        <i class="mdi mdi-pencil"></i> Edit
+                                                    </a>
+
+                                                    <form action="{{ route('data.destroy', $item->id) }}" method="POST"
+                                                        class="d-inline" onsubmit="return confirm('Hapus data ini?')">
                                                         @csrf
                                                         @method('DELETE')
-
                                                         <button type="submit" class="btn btn-sm btn-danger">
-                                                            <i class="mdi mdi-delete">Hapus</i>
+                                                            <i class="mdi mdi-delete"></i> Hapus
                                                         </button>
                                                     </form>
+
                                                 </td>
 
                                             </tr>
-
                                         @endforeach
 
                                     </tbody>

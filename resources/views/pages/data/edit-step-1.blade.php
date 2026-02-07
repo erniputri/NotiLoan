@@ -58,7 +58,7 @@
 
                     <div class="d-flex justify-content-end">
                         <button class="btn btn-primary">
-                            Lanjut ke Step 2 →
+                            Next
                         </button>
                     </div>
 

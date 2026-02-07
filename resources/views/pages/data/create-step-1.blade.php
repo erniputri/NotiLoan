@@ -8,7 +8,7 @@
             <div class="card-body">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Step 1</h4>
+                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Data Mitra</h4>
                     <a href="{{ route('data.index') }}" class="btn btn-secondary">Batal</a>
                 </div>
 
@@ -67,7 +67,7 @@
 
                     <div class="d-flex justify-content-end mt-4">
                         <button type="submit" class="btn btn-primary">
-                            Lanjut ke Step 2 →
+                            Next
                         </button>
                     </div>
 
