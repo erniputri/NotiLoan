@@ -31,7 +31,7 @@
                                     <tbody>
                                         @forelse ($dataPeminjaman as $item)
                                             <tr>
-                                                <td>{{ $item->nama }}</td>
+                                                <td>{{ $item->nama_mitra }}</td>
                                                 <td>{{ $item->kontak }}</td>
 
                                                 <td class="text-center">
@@ -46,8 +46,8 @@
                                                     @endif
                                                 </td>
 
-                                                <td>{{ $item->tgl_pengembalian }}</td>
-                                                <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                                <td>{{ $item->tgl_jatuh_tempo }}</td>
+                                                <td>Rp {{ number_format($item->pokok_pinjaman_awal, 0, ',', '.') }}</td>
 
                                                 <td class="text-center">
                                                     @if (!$item->notifikasi || !$item->notifikasi->status)

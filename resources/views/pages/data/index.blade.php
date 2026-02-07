@@ -13,7 +13,7 @@
                                 <div class="d-flex justify-content-end gap-2 mt-3">
                                     <input type="text" class="form-control form-control-sm search-input"
                                         placeholder="Cari Data...">
-                                    <a href="{{ route('data.create') }}">
+                                    <a href="{{ route('data.create.step1') }}">
                                         <button class="btn btn-success">
                                             Tambah Data
                                         </button>
@@ -25,7 +25,7 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Nama</th>
+                                            <th>Nama Mitra</th>
                                             <th>Kontak</th>
                                             <th>Tanggal Peminjaman</th>
                                             <th>Tanggal Pengembalian</th>
@@ -36,19 +36,20 @@
                                     <tbody>
                                         @foreach ($dataPeminjaman as $item)
                                             <tr>
-                                                <td>{{ $item->nama }}</td>
+                                                <td>{{ $item->nama_mitra }}</td>
                                                 <td>{{ $item->kontak }}</td>
                                                 <td>{{ $item->tgl_peminjaman }}</td>
-                                                <td>{{ $item->tgl_pengembalian }}</td>
-                                                <td>{{ $item->jumlah }}</td>
+                                                <td>{{ $item->tgl_jatuh_tempo }}</td>
+                                                <td>Rp {{ number_format($item->pokok_pinjaman_awal) }}</td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('data.edit', $item->peminjaman_id) }}"
+                                                    <a href="{{ route('data.edit.step1', $item->id) }}"
                                                         class="btn btn-sm btn-warning me-1">
                                                         <i class="mdi mdi-pencil">Edit</i>
                                                     </a>
 
-                                                    <form action="{{ route('data.destroy', $item->peminjaman_id) }}" method="POST"
-                                                        class="d-inline" onsubmit="return confirm('Hapus data ini?')">
+                                                    <form action="{{ route('data.destroy', $item->id) }}"
+                                                        method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Hapus data ini?')">
                                                         @csrf
                                                         @method('DELETE')
 
@@ -59,6 +60,7 @@
                                                 </td>
 
                                             </tr>
+
                                         @endforeach
 
                                     </tbody>

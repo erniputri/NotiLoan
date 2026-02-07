@@ -12,13 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-        $table->unsignedInteger('peminjaman_id')->after('id');
-
-        $table->foreign('peminjaman_id')
-              ->references('peminjaman_id')
-              ->on('peminjaman')
-              ->onDelete('cascade');
-    });
+            $table->foreignId('peminjaman_id')
+                ->after('id')
+                ->constrained('peminjaman')
+                ->cascadeOnDelete();
+        });
 
     }
 

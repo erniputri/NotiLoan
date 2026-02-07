@@ -55,9 +55,13 @@
                     <a class="dropdown-item">
                         <i class="ti-settings text-primary"></i> Settings
                     </a>
-                    <a class="dropdown-item">
-                        <i class="ti-power-off text-primary"></i> Logout
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="dropdown-item">
+                            <i class="ti-power-off text-primary"></i>
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </li>
 
