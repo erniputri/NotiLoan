@@ -10,9 +10,14 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h4 class="card-title mb-0">Data NotiLoan</h4>
 
-                                <div class="d-flex justify-content-end gap-2 mt-3">
-                                    <input type="text" class="form-control form-control-sm search-input"
-                                        placeholder="Cari Data...">
+                                <form method="GET" action="{{ route('data.index') }}"
+                                    class="d-flex align-items-center gap-2">
+
+                                    <div class="search-box">
+                                        <i class="mdi mdi-magnify"></i>
+                                        <input type="text" name="search" value="{{ request('search') }}"
+                                            placeholder="Cari nama / kontak..." class="form-control">
+                                    </div>
 
                                     <a href="{{ route('data.create.step1') }}" class="btn btn-primary btn-action">
                                         <i class="mdi mdi-plus-circle-outline me-1"></i>
@@ -23,7 +28,8 @@
                                         <i class="mdi mdi-file-excel-outline me-1"></i>
                                         Export Excel
                                     </a>
-                                </div>
+                                </form>
+
                             </div>
                             <div class="table-responsive pt-3">
                                 <table class="table table-bordered">
@@ -73,6 +79,10 @@
 
                                     </tbody>
                                 </table>
+                                <div class="text-muted mb-2">
+                                    Menampilkan {{ $dataPeminjaman->count() }}
+                                    dari {{ $dataPeminjaman->total() }} data
+                                </div>
                             </div>
                         </div>
                     </div>

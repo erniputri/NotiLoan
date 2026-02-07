@@ -21,7 +21,7 @@
         </button>
 
         <!-- SEARCH -->
-        <ul class="navbar-nav mr-lg-2">
+        {{-- <ul class="navbar-nav mr-lg-2">
             <li class="nav-item nav-search d-none d-lg-block">
                 <div class="input-group">
                     <div class="input-group-prepend hover-cursor" id="navbar-search-icon">
@@ -32,7 +32,7 @@
                     <input type="text" class="form-control" placeholder="Search now">
                 </div>
             </li>
-        </ul>
+        </ul> --}}
 
         <ul class="navbar-nav navbar-nav-right">
 

@@ -13,10 +13,21 @@ class DataController extends Controller
     /* =========================
      * INDEX
      * ========================= */
-    public function index()
+    public function index(Request $request)
     {
-        $dataPeminjaman = Peminjaman::latest()->get();
-        return view('pages.data.index', compact('dataPeminjaman'));
+        $search = $request->search;
+
+        $dataPeminjaman = Peminjaman::when($search, function ($query) use ($search) {
+            $query->where('nama_mitra', 'like', "%{$search}%")
+                ->orWhere('kontak', 'like', "%{$search}%")
+                ->orWhere('kabupaten', 'like', "%{$search}%")
+                ->orWhere('sektor', 'like', "%{$search}%");
+        })
+            ->latest()
+            ->paginate(10)       // ← jumlah per halaman
+            ->withQueryString(); // ← penting agar search ikut pagination
+
+        return view('pages.data.index', compact('dataPeminjaman', 'search'));
     }
 
     public function show($id)
