@@ -1,10 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Exports\PeminjamanExport;
 use App\Models\Notification;
 use App\Models\Peminjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataController extends Controller
 {
@@ -21,6 +23,14 @@ class DataController extends Controller
     {
         $peminjaman = Peminjaman::findOrFail($id);
         return view('pages.data.show', compact('peminjaman'));
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(
+            new PeminjamanExport,
+            'Data-NotiLoan.xlsx'
+        );
     }
 
     /* =========================

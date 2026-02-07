@@ -18,6 +18,10 @@
                                             Tambah Data
                                         </button>
                                     </a>
+                                    <a href="{{ route('data.export.excel') }}" class="btn btn-success">
+                                        <i class="mdi mdi-file-excel"></i> Export Excel
+                                    </a>
+
 
                                 </div>
                             </div>

@@ -54,6 +54,10 @@ Route::group(['middleware' => ['checkislogin']], function () {
 
         Route::get('/create/step-3', [DataController::class, 'createStep3'])->name('create.step3');
         Route::post('/create/step-3', [DataController::class, 'storeFinal'])->name('store.final');
+
+        //Route Exsport
+        Route::get('/export/excel', [DataController::class, 'exportExcel'])
+            ->name('export.excel');
     });
 });
 
