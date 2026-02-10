@@ -66,6 +66,7 @@
         letter-spacing: 0.6px;
     }
 
+
     .sidebar .nav {
         margin-top: 0;
     }
@@ -89,4 +90,8 @@
         transform: translateY(-1px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     }
+    .chart-wrapper {
+    max-width: 380px;     /* ukuran grafik */
+    margin: 0 auto;       /* posisi ke tengah */
+}
 </style>

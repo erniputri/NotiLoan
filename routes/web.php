@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DataController;
-use App\Http\Controllers\NotifikasiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DataController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\PembayaranController;
 
 //Fitur Route
 
@@ -58,6 +59,12 @@ Route::group(['middleware' => ['checkislogin']], function () {
         //Route Exsport
         Route::get('/export/excel', [DataController::class, 'exportExcel'])
             ->name('export.excel');
+    });
+
+    Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
+        Route::get('/', [PembayaranController::class, 'index'])->name('index');
+        Route::get('/create', [PembayaranController::class, 'create'])->name('create');
+        Route::post('/store', [PembayaranController::class, 'store'])->name('store');
     });
 });
 
