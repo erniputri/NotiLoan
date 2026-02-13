@@ -75,3 +75,6 @@ Route::get('/register', [AuthController::class, 'registerView'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
+    ->name('notif.send');

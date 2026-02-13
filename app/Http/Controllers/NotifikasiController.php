@@ -3,7 +3,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\Notification;
 
 class NotifikasiController extends Controller
 {
@@ -14,8 +15,38 @@ class NotifikasiController extends Controller
     {
         $dataPeminjaman = Peminjaman::with('notifikasi')->get();
 
-
         return view('pages.notifikasi.index', compact('dataPeminjaman'));
+    }
+
+    public function send($id)
+    {
+        $peminjaman = Peminjaman::with('notifikasi')->findOrFail($id);
+
+        if (! $peminjaman->notifikasi) {
+            return back()->with('error', 'Notifikasi belum tersedia.');
+        }
+
+        $notif = $peminjaman->notifikasi;
+
+        if ($notif->status == 1) {
+            return back()->with('info', 'Notifikasi sudah terkirim.');
+        }
+
+        // =========================
+        // SIMULASI KIRIM WA
+        // =========================
+        Log::info('WA TERKIRIM MANUAL', [
+            'ke'      => $notif->kontak,
+            'message' => $notif->message,
+        ]);
+
+        // Update status
+        $notif->update([
+            'status'  => 1,
+            'sent_at' => now(),
+        ]);
+
+        return back()->with('success', 'WhatsApp berhasil dikirim.');
     }
 
     /**

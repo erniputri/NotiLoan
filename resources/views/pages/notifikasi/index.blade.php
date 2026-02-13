@@ -51,10 +51,13 @@
 
                                                 <td class="text-center">
                                                     @if (!$item->notifikasi || !$item->notifikasi->status)
-                                                        <a href=""
-                                                            class="btn btn-sm btn-primary">
-                                                            Kirim WA
-                                                        </a>
+                                                        <form action="{{ route('notif.send', $item->id) }}" method="POST"
+                                                            class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                                Kirim WA
+                                                            </button>
+                                                        </form>
                                                     @else
                                                         <span class="text-muted">—</span>
                                                     @endif

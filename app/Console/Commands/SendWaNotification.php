@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Models\Notification;
@@ -7,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendWaNotification extends Command
 {
-    protected $signature   = 'wa:send-notification';
+    protected $signature = 'wa:send-notification';
     protected $description = 'Kirim notifikasi WhatsApp otomatis';
 
     public function handle()
@@ -16,13 +17,27 @@ class SendWaNotification extends Command
             ->where('send_at', '<=', now())
             ->get();
 
+        if ($notifications->isEmpty()) {
+            $this->info('Tidak ada notifikasi yang perlu dikirim.');
+            return;
+        }
+
         foreach ($notifications as $notif) {
-            Log::info('Kirim WA ke: ' . $notif->kontak);
+
+            // SIMULASI KIRIM WA
+            Log::info('SIMULASI WA TERKIRIM', [
+                'ke'      => $notif->kontak,
+                'message' => $notif->message,
+            ]);
+
+            $this->info("WA terkirim ke {$notif->kontak}");
 
             $notif->update([
                 'status'  => 1,
-                'send_at' => now(),
+                'sent_at' => now(),
             ]);
         }
+
+        $this->info('Semua notifikasi berhasil diproses.');
     }
 }
