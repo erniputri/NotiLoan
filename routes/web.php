@@ -80,3 +80,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/peminjaman/export', [ExportController::class, 'export']);
 
+Route::get('/notifikasi', [NotifikasiController::class, 'index'])
+    ->name('notif.index');
+
