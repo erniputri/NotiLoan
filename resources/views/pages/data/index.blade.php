@@ -38,8 +38,8 @@
                                             <th>Nama Mitra</th>
                                             <th>Kontak</th>
                                             <th>Tanggal Peminjaman</th>
-                                            <th>Tanggal Pengembalian</th>
                                             <th>Jumlah</th>
+                                            <th>Kualitas</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -49,8 +49,18 @@
                                                 <td>{{ $item->nama_mitra }}</td>
                                                 <td>{{ $item->kontak }}</td>
                                                 <td>{{ $item->tgl_peminjaman }}</td>
-                                                <td>{{ $item->tgl_jatuh_tempo }}</td>
                                                 <td>Rp {{ number_format($item->pokok_pinjaman_awal) }}</td>
+                                                <td>
+                                                    @if ($item->kualitas_kredit == 'Lancar')
+                                                        <span class="badge bg-success">Lancar</span>
+                                                    @elseif ($item->kualitas_kredit == 'Kurang Lancar')
+                                                        <span class="badge bg-warning">Kurang Lancar</span>
+                                                    @elseif ($item->kualitas_kredit == 'Macet')
+                                                        <span class="badge bg-danger">Macet</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Tidak Diketahui</span>
+                                                    @endif
+                                                </td>
                                                 <td class="text-center">
 
                                                     <a href="{{ route('data.show', $item->id) }}"

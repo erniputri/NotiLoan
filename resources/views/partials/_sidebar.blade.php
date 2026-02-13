@@ -27,7 +27,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{route('pembayaran.index')}}">
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Pembayaran</span>
             </a>

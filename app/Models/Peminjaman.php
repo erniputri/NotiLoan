@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
 
+use App\Models\Pembayaran;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Model;
 
 class Peminjaman extends Model
@@ -34,5 +36,10 @@ class Peminjaman extends Model
     public function notifikasi()
     {
         return $this->hasOne(Notification::class, 'peminjaman_id', 'id');
+    }
+
+    public function pembayarans()
+    {
+        return $this->hasMany(Pembayaran::class);
     }
 }

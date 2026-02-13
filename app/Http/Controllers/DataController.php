@@ -189,6 +189,8 @@ class DataController extends Controller
             'pokok_sisa'          => $step2['pokok_pinjaman_awal'],
             'jasa_sisa'           => $request->administrasi_awal,
             'kualitas_kredit'     => 'Lancar',
+            'pokok_pinjaman_awal' => $request->pokok_pinjaman_awal,
+            'pokok_sisa'          => $request->pokok_pinjaman_awal,
         ]);
 
         // INSERT NOTIFIKASI
