@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Notification; // WAJIB
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        
+       view()->composer('*', function ($view) {
+
+        $navbarNotifications = Notification::latest()->take(5)->get();
+        $navbarNotifCount = Notification::where('status', 'unread')->count();
+
+        $view->with(compact(
+            'navbarNotifications',
+            'navbarNotifCount'
+        ));
+    });
     }
 }

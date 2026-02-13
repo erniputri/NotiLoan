@@ -1,11 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\ExportController;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotifikasiController;
+
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\PembayaranController;
 
 //Fitur Route
 
@@ -77,4 +82,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/peminjaman/export', [ExportController::class, 'export']);
+
+Route::get('/notifikasi', [NotifikasiController::class, 'index'])
+    ->name('notif.index');
 
