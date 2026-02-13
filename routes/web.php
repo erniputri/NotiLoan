@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotifikasiController;
-use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\ExportController;
 
 //Fitur Route
 
@@ -76,5 +76,5 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
-    ->name('notif.send');
+Route::get('/peminjaman/export', [ExportController::class, 'export']);
+
