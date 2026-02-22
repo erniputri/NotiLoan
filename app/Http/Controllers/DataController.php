@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PeminjamanExport;
+use App\Imports\PeminjamanImport;
 use App\Models\Notification;
 use App\Models\Peminjaman;
 use Carbon\Carbon;
@@ -41,6 +42,26 @@ class DataController extends Controller
         return Excel::download(
             new PeminjamanExport,
             'Data-NotiLoan.xlsx'
+        );
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        Excel::import(new PeminjamanImport, $request->file('file'));
+
+        return redirect()->route('data.index')
+            ->with('success', 'Data berhasil diimport.');
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new PeminjamanExport,
+            'Template-Import-NotiLoan.xlsx'
         );
     }
 

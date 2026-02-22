@@ -45,7 +45,7 @@
                         </tr>
                         <tr>
                             <th>Bunga (%)</th>
-                            <td>{{ $peminjaman->bunga_persen }}%</td>
+                            <td>{{ rtrim(rtrim(number_format($peminjaman->bunga_persen, 2), '0'), '.') }}%</td>
                         </tr>
                         <tr>
                             <th>Tanggal Peminjaman</th>

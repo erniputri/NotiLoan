@@ -7,9 +7,9 @@
                 <div class="col-lg-12 grid-margin stretch-card">
                     <div class="card ">
                         <div class="card-body ">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="card-title mb-0">Data NotiLoan</h4>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
+                                {{-- LEFT SIDE : SEARCH --}}
                                 <form method="GET" action="{{ route('data.index') }}"
                                     class="d-flex align-items-center gap-2">
 
@@ -18,6 +18,23 @@
                                         <input type="text" name="search" value="{{ request('search') }}"
                                             placeholder="Cari nama / kontak..." class="form-control">
                                     </div>
+                                </form>
+
+                                {{-- RIGHT SIDE : ACTION BUTTONS --}}
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <form action="{{ route('data.import.excel') }}" method="POST"
+                                        enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+
+                                        @csrf
+
+                                        <input type="file" name="file" class="form-control form-control-sm"
+                                            style="width: 180px;" required>
+
+                                        <button type="submit" class="btn btn-info btn-action">
+                                            <i class="mdi mdi-upload me-1"></i>
+                                            Import
+                                        </button>
+                                    </form>
 
                                     <a href="{{ route('data.create.step1') }}" class="btn btn-primary btn-action">
                                         <i class="mdi mdi-plus-circle-outline me-1"></i>
@@ -28,8 +45,7 @@
                                         <i class="mdi mdi-file-excel-outline me-1"></i>
                                         Export Excel
                                     </a>
-                                </form>
-
+                                </div>
                             </div>
                             <div class="table-responsive pt-3">
                                 <table class="table table-bordered">

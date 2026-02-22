@@ -1,14 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\ExportController;
-
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DataController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DataController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\PembayaranController;
+use Illuminate\Support\Facades\Route;
 
 //Fitur Route
 
@@ -59,9 +57,13 @@ Route::group(['middleware' => ['checkislogin']], function () {
         Route::get('/create/step-3', [DataController::class, 'createStep3'])->name('create.step3');
         Route::post('/create/step-3', [DataController::class, 'storeFinal'])->name('store.final');
 
-        //Route Exsport
+        //Route Exsport dan import
         Route::get('/export/excel', [DataController::class, 'exportExcel'])
             ->name('export.excel');
+        Route::post('/import/excel', [DataController::class, 'importExcel'])
+            ->name('import.excel');
+        Route::get('/template/excel', [DataController::class, 'downloadTemplate'])
+            ->name('template.excel');
     });
 
     Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
