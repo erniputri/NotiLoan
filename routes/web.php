@@ -84,3 +84,5 @@ Route::get('/peminjaman/export', [ExportController::class, 'export']);
 Route::get('/notifikasi', [NotifikasiController::class, 'index'])
     ->name('notif.index');
 
+Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
+    ->name('notif.send');
