@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
         $jatuhTempo30Hari = Peminjaman::whereBetween(
             'tgl_jatuh_tempo',
-            [now(), now()->addDays(30)]
+            [now()->startOfDay(), now()->copy()->addMonth()->endOfDay()]
         )->count();
 
         $jatuhTempoList = Peminjaman::where('pokok_sisa', '>', 0) // ⬅️ HANYA YANG BELUM LUNAS

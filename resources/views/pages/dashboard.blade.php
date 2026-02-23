@@ -86,8 +86,10 @@
                             <tr>
                                 <th>Nama Mitra</th>
                                 <th>Jatuh Tempo</th>
+                                <th>No Hp</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -95,6 +97,7 @@
                                 <tr>
                                     <td>{{ $item->nama_mitra }}</td>
                                     <td>{{ $item->tgl_jatuh_tempo }}</td>
+                                    <td>{{ $item->kontak }}</td>
                                     <td>
                                         @php
                                             $sisaHari = now()->diffInDays($item->tgl_jatuh_tempo, false);
