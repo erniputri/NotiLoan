@@ -17,8 +17,7 @@ class PembayaranController extends Controller
             });
         }
 
-        $pembayaran = $query->latest()->paginate(10)
-            ->withQueryString();
+        $pembayaran = $query->latest()->paginate(10)->withQueryString();
 
         return view('pages.pembayaran.index', compact('pembayaran'));
     }
@@ -28,8 +27,11 @@ class PembayaranController extends Controller
         $peminjaman = Peminjaman::select(
             'id',
             'nama_mitra',
-            'pokok_sisa'
-        )->where('pokok_sisa', '>', 0)->get();
+            'pokok_sisa',
+            'lama_angsuran_bulan'
+        )
+            ->where('pokok_sisa', '>', 0)
+            ->get();
 
         return view('pages.pembayaran.create', compact('peminjaman'));
     }
@@ -45,18 +47,51 @@ class PembayaranController extends Controller
 
         $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
 
+        // =====================================
+        // CEK PEMBAYARAN 30 HARI TERAKHIR
+        // =====================================
+
+        $pembayaranTerakhir = $peminjaman->pembayaran()
+            ->latest('tanggal_pembayaran')
+            ->first();
+
+        if ($pembayaranTerakhir && ! $request->has('force')) {
+
+            $selisihHari = now()->diffInDays(
+                $pembayaranTerakhir->tanggal_pembayaran
+            );
+
+            if ($selisihHari <= 30) {
+                return back()
+                    ->withInput()
+                    ->with('reminder', true);
+            }
+        }
+
+        // =====================================
+        // VALIDASI SISA PINJAMAN
+        // =====================================
+
         if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
             return back()->withErrors([
                 'jumlah_bayar' => 'Jumlah bayar melebihi sisa pinjaman',
             ]);
         }
 
-        // UPLOAD FILE
+        // =====================================
+        // UPLOAD BUKTI
+        // =====================================
+
         $path = null;
+
         if ($request->hasFile('bukti_pembayaran')) {
             $path = $request->file('bukti_pembayaran')
                 ->store('bukti-pembayaran', 'public');
         }
+
+        // =====================================
+        // SIMPAN PEMBAYARAN
+        // =====================================
 
         Pembayaran::create([
             'peminjaman_id'      => $peminjaman->id,
@@ -65,12 +100,22 @@ class PembayaranController extends Controller
             'bukti_pembayaran'   => $path,
         ]);
 
-        // UPDATE SISA PINJAMAN
-        $peminjaman->update([
-            'pokok_sisa' => $peminjaman->pokok_sisa - $request->jumlah_bayar,
-        ]);
+        // =====================================
+        // UPDATE POKOK & BULAN
+        // =====================================
 
-        return redirect()->route('pembayaran.index')
+        $peminjaman->pokok_sisa -= $request->jumlah_bayar;
+
+        // Kurangi 1 bulan setiap transaksi
+        $peminjaman->lama_angsuran_bulan = max(
+            0,
+            $peminjaman->lama_angsuran_bulan - 1
+        );
+
+        $peminjaman->save();
+
+        return redirect()
+            ->route('pembayaran.index')
             ->with('success', 'Pembayaran berhasil disimpan');
     }
 }
