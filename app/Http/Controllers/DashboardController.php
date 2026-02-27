@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use App\Models\Peminjaman;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -12,25 +13,42 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $totalData = Peminjaman::count();
-
+        $totalData       = Peminjaman::count();
         $totalNotifikasi = Notification::count();
 
-        $jatuhTempo30Hari = Peminjaman::whereBetween(
-            'tgl_jatuh_tempo',
-            [now()->startOfDay(), now()->copy()->addMonth()->endOfDay()]
-        )->count();
+        // ==============================
+        // REMINDER CICILAN BULANAN
+        // ==============================
+        $jatuhTempoList = Peminjaman::where('pokok_sisa', '>', 0)
+            ->get()
+            ->map(function ($peminjaman) {
 
-        $jatuhTempoList = Peminjaman::where('pokok_sisa', '>', 0) // ⬅️ HANYA YANG BELUM LUNAS
-            ->whereBetween('tgl_jatuh_tempo', [now(), now()->addDays(30)])
-            ->orderBy('tgl_jatuh_tempo')
-            ->limit(5)
-            ->get();
+                $pembayaranTerakhir = $peminjaman->pembayaran()
+                    ->latest('tanggal_pembayaran')
+                    ->first();
 
-        // === DATA GRAFIK KUALITAS KREDIT ===
-        $chartData = Peminjaman::selectRaw('kualitas_kredit, COUNT(*) as total')
+                if (! $pembayaranTerakhir) {
+                    $jatuhTempoBulanan = Carbon::parse($peminjaman->tgl_peminjaman)->addMonth();
+                } else {
+                    $jatuhTempoBulanan = Carbon::parse($pembayaranTerakhir->tanggal_pembayaran)->addMonth();
+                }
+
+                $peminjaman->jatuh_tempo_bulanan = $jatuhTempoBulanan;
+
+                return $peminjaman;
+            })
+            ->filter(function ($peminjaman) {
+                return now()->greaterThanOrEqualTo($peminjaman->jatuh_tempo_bulanan);
+            });
+
+        $jatuhTempo30Hari = $jatuhTempoList->count();
+
+        // ==============================
+        // GRAFIK KUALITAS KREDIT
+        // ==============================
+        $chartData = Peminjaman::all()
             ->groupBy('kualitas_kredit')
-            ->pluck('total', 'kualitas_kredit');
+            ->map->count();
 
         return view('pages.dashboard', compact(
             'totalData',

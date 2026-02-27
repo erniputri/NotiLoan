@@ -96,7 +96,7 @@
                             @foreach ($jatuhTempoList as $item)
                                 <tr>
                                     <td>{{ $item->nama_mitra }}</td>
-                                    <td>{{ $item->tgl_jatuh_tempo }}</td>
+                                    <td>{{ $item->jatuh_tempo_bulanan->format('Y-m-d') }}</td>
                                     <td>{{ $item->kontak }}</td>
                                     <td>
                                         @php
