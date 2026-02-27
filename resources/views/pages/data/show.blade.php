@@ -44,8 +44,12 @@
                             <td>Rp {{number_format($peminjaman->pokok_sisa)}}</td>
                         </tr>
                         <tr>
+                            <th>Sisa Bulan</th>
+                            <td>{{number_format($peminjaman->lama_angsuran_bulan)}} Bulan</td>
+                        </tr>
+                        <tr>
                             <th>Bunga (%)</th>
-                            <td>{{ rtrim(rtrim(number_format($peminjaman->bunga_persen, 2), '0'), '.') }}%</td>
+                            <td>{{ rtrim(rtrim(number_format($peminjaman->bunga_persen, 2), '0'), '.') }}% ( Rp. {{number_format($peminjaman->administrasi_awal)}} )</td>
                         </tr>
                         <tr>
                             <th>Tanggal Peminjaman</th>

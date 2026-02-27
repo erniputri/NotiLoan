@@ -100,12 +100,12 @@
                                     <td>{{ $item->kontak }}</td>
                                     <td>
                                         @php
-                                            $sisaHari = now()->diffInDays($item->tgl_jatuh_tempo, false);
+                                            $sisaHari = now()->diffInDays($item->jatuh_tempo_bulanan, false);
                                         @endphp
 
                                         @if ($sisaHari < 0)
                                             <span class="badge bg-danger">Terlambat</span>
-                                        @elseif ($sisaHari <= 30)
+                                        @elseif ($sisaHari <= 3)
                                             <span class="badge bg-warning">Segera</span>
                                         @else
                                             <span class="badge bg-success">Aman</span>

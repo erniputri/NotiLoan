@@ -5,7 +5,6 @@ use App\Exports\PeminjamanExport;
 use App\Imports\PeminjamanImport;
 use App\Models\Notification;
 use App\Models\Peminjaman;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -113,30 +112,31 @@ class DataController extends Controller
             'pokok_pinjaman_awal' => 'required|numeric',
             'tgl_peminjaman'      => 'required|date',
             'lama_angsuran_bulan' => 'required|numeric',
+            'bunga_persen'        => 'required|numeric|min:0',
         ]);
 
         $lama = (int) $request->lama_angsuran_bulan;
 
-        // LOGIKA BUNGA
-        $bunga = 6;
-        if ($request->pokok_pinjaman_awal > 10000000) {
-            $bunga = 8;
-        }
+        // // LOGIKA BUNGA
+        // $bunga = 6;
+        // if ($request->pokok_pinjaman_awal > 10000000) {
+        //     $bunga = 8;
+        // }
 
-        if ($request->pokok_pinjaman_awal > 25000000) {
-            $bunga = 10;
-        }
+        // if ($request->pokok_pinjaman_awal > 25000000) {
+        //     $bunga = 10;
+        // }
 
         session([
             'peminjaman.step2' => [
                 'pokok_pinjaman_awal' => $request->pokok_pinjaman_awal,
                 'tgl_peminjaman'      => $request->tgl_peminjaman,
                 'lama_angsuran_bulan' => $lama,
-                'bunga_persen'        => $bunga,
-                'tgl_jatuh_tempo'     => Carbon::parse($request->tgl_peminjaman)
+                'bunga_persen'        => $request->bunga_persen, // ← FIX DISINI
+                'tgl_jatuh_tempo'     => \Carbon\Carbon::parse($request->tgl_peminjaman)
                     ->addMonths($lama)
                     ->format('Y-m-d'),
-                'tgl_akhir_pinjaman'  => Carbon::parse($request->tgl_peminjaman)
+                'tgl_akhir_pinjaman'  => \Carbon\Carbon::parse($request->tgl_peminjaman)
                     ->addMonths($lama)
                     ->format('Y-m-d'),
             ],
@@ -163,7 +163,7 @@ class DataController extends Controller
     public function storeFinal(Request $request)
     {
         $request->validate([
-            'administrasi_awal'   => 'required|numeric',
+            'administrasi_awal'   => 'nullable|numeric',
             'no_surat_perjanjian' => 'required',
             'jaminan'             => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
@@ -179,6 +179,12 @@ class DataController extends Controller
 
         // Upload jaminan
         $pathJaminan = $request->file('jaminan')->store('jaminan', 'public');
+
+        $administrasiOtomatis =
+            $step2['pokok_pinjaman_awal'] *
+            ($step2['bunga_persen'] / 100);
+
+        $administrasiFinal = $request->administrasi_awal ?? $administrasiOtomatis;
 
         // INSERT DATA PEMINJAMAN
         $peminjaman = Peminjaman::create([
@@ -200,7 +206,7 @@ class DataController extends Controller
             'pokok_pinjaman_awal' => $step2['pokok_pinjaman_awal'],
 
             // STEP 3
-            'administrasi_awal'   => $request->administrasi_awal,
+            'administrasi_awal' => $administrasiFinal,
             'no_surat_perjanjian' => $request->no_surat_perjanjian,
             'jaminan'             => $pathJaminan,
 
