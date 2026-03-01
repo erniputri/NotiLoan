@@ -51,7 +51,9 @@
                                     {{-- NAMA MITRA --}}
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Nama Mitra</label>
-                                        <select name="peminjaman_id" class="form-control" required>
+
+                                        <select name="peminjaman_id" class="form-control select-mitra" required>
+
                                             <option value="">-- Pilih Mitra --</option>
 
                                             @foreach ($peminjaman as $item)
@@ -63,6 +65,7 @@
                                                     </option>
                                                 @endif
                                             @endforeach
+
                                         </select>
                                     </div>
 
@@ -107,4 +110,16 @@
 
         @include('partials._footer')
     </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $('.select-mitra').select2({
+                    placeholder: "-- Pilih Mitra --",
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        </script>
+    @endpush
 @endsection

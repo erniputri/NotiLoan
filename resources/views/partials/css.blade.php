@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="{{ asset('assets/css/vertical-layout-light/style.css') }}">
 <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
 
+<!-- SELECT2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
     .search-input {
         width: 200px;
@@ -117,5 +120,40 @@
     .pagination-wrapper {
         display: flex;
         justify-content: flex-end;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
+        padding: 6px 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: #fff !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: normal !important;
+        padding-left: 0 !important;
+        color: #495057 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100% !important;
+        right: 10px !important;
+    }
+
+    .select2-dropdown {
+        border-radius: 8px !important;
+        border: 1px solid #ced4da !important;
+    }
+
+    .select2-search__field {
+        border-radius: 6px !important;
+        padding: 6px !important;
     }
 </style>
