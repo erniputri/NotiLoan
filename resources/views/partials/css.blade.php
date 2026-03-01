@@ -90,8 +90,32 @@
         transform: translateY(-1px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
     }
+
     .chart-wrapper {
-    max-width: 380px;     /* ukuran grafik */
-    margin: 0 auto;       /* posisi ke tengah */
-}
+        max-width: 380px;
+        /* ukuran grafik */
+        margin: 0 auto;
+        /* posisi ke tengah */
+    }
+
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .pagination .page-item .page-link {
+        border-radius: 8px !important;
+        margin-left: 4px;
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #4B49AC;
+        border-color: #4B49AC;
+    }
+
+    .pagination-wrapper {
+        display: flex;
+        justify-content: flex-end;
+    }
 </style>

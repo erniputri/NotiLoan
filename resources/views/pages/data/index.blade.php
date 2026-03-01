@@ -105,10 +105,10 @@
 
                                     </tbody>
                                 </table>
-                                <div class="text-muted mb-2">
-                                    Menampilkan {{ $dataPeminjaman->count() }}
-                                    dari {{ $dataPeminjaman->total() }} data
+                                <div class="d-flex justify-content-end align-items-center mt-4">
+                                    {{ $dataPeminjaman->onEachSide(1)->links('pagination::bootstrap-5') }}
                                 </div>
+
                             </div>
                         </div>
                     </div>

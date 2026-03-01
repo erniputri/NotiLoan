@@ -4,18 +4,26 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\Notification;
 
 class NotifikasiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataPeminjaman = Peminjaman::with('notifikasi')->get();
+        $search = $request->search;
 
-        return view('pages.notifikasi.index', compact('dataPeminjaman'));
+        $dataPeminjaman = Peminjaman::with('notifikasi')
+            ->when($search, function ($query) use ($search) {
+                $query->where('nama_mitra', 'like', "%{$search}%")
+                    ->orWhere('kontak', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString(); // supaya search ikut pagination
+
+        return view('pages.notifikasi.index', compact('dataPeminjaman', 'search'));
     }
 
     public function send($id)
