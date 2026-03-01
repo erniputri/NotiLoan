@@ -25,7 +25,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('data.store.final') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('data.store.final') }}" method="POST">
                         @csrf
 
                         <div class="row">
@@ -43,12 +43,8 @@
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label class="form-label">Upload Jaminan</label>
-                                <input type="file" name="jaminan" class="form-control" accept=".pdf,.jpg,.jpeg,.png"
-                                    required>
-                                <small class="text-muted">
-                                    Format: PDF / JPG / PNG (Max 2MB)
-                                </small>
+                                <label class="form-label">Keterangan Jaminan</label>
+                                <textarea name="jaminan" class="form-control" rows="3" placeholder="Contoh: SHM No. 1234 atas nama Budi" required></textarea>
                             </div>
 
                         </div>

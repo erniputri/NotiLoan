@@ -165,7 +165,8 @@ class DataController extends Controller
         $request->validate([
             'administrasi_awal'   => 'nullable|numeric',
             'no_surat_perjanjian' => 'required',
-            'jaminan'             => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            // 'jaminan'             => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'jaminan'             => 'required|string|max:255',
         ]);
 
         $step1 = session('peminjaman.step1');
@@ -178,7 +179,7 @@ class DataController extends Controller
         }
 
         // Upload jaminan
-        $pathJaminan = $request->file('jaminan')->store('jaminan', 'public');
+        // $pathJaminan = $request->file('jaminan')->store('jaminan', 'public');
 
         $administrasiOtomatis =
             $step2['pokok_pinjaman_awal'] *
@@ -206,9 +207,9 @@ class DataController extends Controller
             'pokok_pinjaman_awal' => $step2['pokok_pinjaman_awal'],
 
             // STEP 3
-            'administrasi_awal' => $administrasiFinal,
+            'administrasi_awal'   => $administrasiFinal,
             'no_surat_perjanjian' => $request->no_surat_perjanjian,
-            'jaminan'             => $pathJaminan,
+            'jaminan'             => $request->jaminan,
 
             // DEFAULT
             'pokok_cicilan_sd'    => 0,
@@ -304,7 +305,7 @@ class DataController extends Controller
         $request->validate([
             'administrasi_awal' => 'required|numeric',
             'kualitas_kredit'   => 'required',
-            'jaminan'           => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'jaminan'           => 'nullable|string|max:255',
         ]);
 
         $peminjaman = Peminjaman::findOrFail($id);
@@ -312,11 +313,10 @@ class DataController extends Controller
         $data = [
             'administrasi_awal' => $request->administrasi_awal,
             'kualitas_kredit'   => $request->kualitas_kredit,
+            'jaminan'           => $request->jaminan,
         ];
 
-        if ($request->hasFile('jaminan')) {
-            $data['jaminan'] = $request->file('jaminan')->store('jaminan', 'public');
-        }
+        $data['jaminan'] = $request->jaminan;
 
         $peminjaman->update($data);
 

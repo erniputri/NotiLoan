@@ -76,13 +76,7 @@
                         <tr>
                             <th>Jaminan</th>
                             <td>
-                                @if ($peminjaman->jaminan)
-                                    <a href="{{ asset('storage/' . $peminjaman->jaminan) }}" target="_blank">
-                                        Lihat Jaminan
-                                    </a>
-                                @else
-                                    -
-                                @endif
+                                {{ $peminjaman->jaminan ?? '-' }}
                             </td>
                         </tr>
                     </table>
