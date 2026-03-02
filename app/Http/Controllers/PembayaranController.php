@@ -118,4 +118,88 @@ class PembayaranController extends Controller
             ->route('pembayaran.index')
             ->with('success', 'Pembayaran berhasil disimpan');
     }
+
+    public function show($id)
+    {
+        $pembayaran = Pembayaran::with('peminjaman')
+            ->findOrFail($id);
+
+        return view('pages.pembayaran.show', compact('pembayaran'));
+    }
+
+    public function edit($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $peminjaman = Peminjaman::where('pokok_sisa', '>', 0)->get();
+
+        return view('pages.pembayaran.edit', compact('pembayaran', 'peminjaman'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal_pembayaran' => 'required|date',
+            'jumlah_bayar'       => 'required|numeric|min:1',
+            'bukti_pembayaran'   => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+        ]);
+
+        $pembayaran = Pembayaran::findOrFail($id);
+        $peminjaman = $pembayaran->peminjaman;
+
+        // ===============================
+        // KEMBALIKAN NILAI LAMA DULU
+        // ===============================
+
+        $peminjaman->pokok_sisa          += $pembayaran->jumlah_bayar;
+        $peminjaman->lama_angsuran_bulan += 1;
+
+        // ===============================
+        // VALIDASI JUMLAH BARU
+        // ===============================
+
+        if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
+            return back()->withErrors([
+                'jumlah_bayar' => 'Jumlah melebihi sisa pinjaman',
+            ]);
+        }
+
+        // Upload bukti baru
+        if ($request->hasFile('bukti_pembayaran')) {
+            $path = $request->file('bukti_pembayaran')
+                ->store('bukti-pembayaran', 'public');
+
+            $pembayaran->bukti_pembayaran = $path;
+        }
+
+        $pembayaran->tanggal_pembayaran = $request->tanggal_pembayaran;
+        $pembayaran->jumlah_bayar       = $request->jumlah_bayar;
+        $pembayaran->save();
+
+        // ===============================
+        // UPDATE LAGI DENGAN NILAI BARU
+        // ===============================
+
+        $peminjaman->pokok_sisa          -= $request->jumlah_bayar;
+        $peminjaman->lama_angsuran_bulan = max(0, $peminjaman->lama_angsuran_bulan - 1);
+        $peminjaman->save();
+
+        return redirect()->route('pembayaran.index')
+            ->with('success', 'Pembayaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $peminjaman = $pembayaran->peminjaman;
+
+        // Kembalikan saldo & bulan
+        $peminjaman->pokok_sisa          += $pembayaran->jumlah_bayar;
+        $peminjaman->lama_angsuran_bulan += 1;
+        $peminjaman->save();
+
+        $pembayaran->delete();
+
+        return redirect()->route('pembayaran.index')
+            ->with('success', 'Pembayaran berhasil dihapus');
+    }
 }

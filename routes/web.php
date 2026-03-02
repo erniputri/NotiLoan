@@ -66,11 +66,7 @@ Route::group(['middleware' => ['checkislogin']], function () {
             ->name('template.excel');
     });
 
-    Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
-        Route::get('/', [PembayaranController::class, 'index'])->name('index');
-        Route::get('/create', [PembayaranController::class, 'create'])->name('create');
-        Route::post('/store', [PembayaranController::class, 'store'])->name('store');
-    });
+    Route::resource('pembayaran', PembayaranController::class);
 });
 
 Route::get('/login', [AuthController::class, 'loginView'])->name('login');
