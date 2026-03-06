@@ -26,9 +26,7 @@
 
                             @csrf
 
-                            {{-- ========================= --}}
-                            {{-- REMINDER 30 HARI --}}
-                            {{-- ========================= --}}
+                            {{-- reminder 30 hari --}}
                             @if(session('reminder'))
                                 <div class="alert alert-warning">
                                     ⚠ Mitra ini sudah melakukan pembayaran dalam 30 hari terakhir.

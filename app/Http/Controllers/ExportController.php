@@ -14,7 +14,6 @@ class ExportController extends Controller
         $response = new StreamedResponse(function () {
             $handle = fopen('php://output', 'w');
 
-            // HEADER CSV
             fputcsv($handle, [
                 'ID',
                 'Nama',

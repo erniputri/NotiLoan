@@ -47,10 +47,7 @@ class PembayaranController extends Controller
 
         $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
 
-        // =====================================
-        // CEK PEMBAYARAN 30 HARI TERAKHIR
-        // =====================================
-
+        //cek pembayaran 30 hari
         $pembayaranTerakhir = $peminjaman->pembayaran()
             ->latest('tanggal_pembayaran')
             ->first();
@@ -68,20 +65,14 @@ class PembayaranController extends Controller
             }
         }
 
-        // =====================================
-        // VALIDASI SISA PINJAMAN
-        // =====================================
-
+        //validasi peminjaman
         if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
             return back()->withErrors([
                 'jumlah_bayar' => 'Jumlah bayar melebihi sisa pinjaman',
             ]);
         }
 
-        // =====================================
-        // UPLOAD BUKTI
-        // =====================================
-
+        //upload bukti pembayaran
         $path = null;
 
         if ($request->hasFile('bukti_pembayaran')) {
@@ -89,20 +80,12 @@ class PembayaranController extends Controller
                 ->store('bukti-pembayaran', 'public');
         }
 
-        // =====================================
-        // SIMPAN PEMBAYARAN
-        // =====================================
-
         Pembayaran::create([
             'peminjaman_id'      => $peminjaman->id,
             'tanggal_pembayaran' => $request->tanggal_pembayaran,
             'jumlah_bayar'       => $request->jumlah_bayar,
             'bukti_pembayaran'   => $path,
         ]);
-
-        // =====================================
-        // UPDATE POKOK & BULAN
-        // =====================================
 
         $peminjaman->pokok_sisa -= $request->jumlah_bayar;
 
@@ -146,16 +129,8 @@ class PembayaranController extends Controller
         $pembayaran = Pembayaran::findOrFail($id);
         $peminjaman = $pembayaran->peminjaman;
 
-        // ===============================
-        // KEMBALIKAN NILAI LAMA DULU
-        // ===============================
-
         $peminjaman->pokok_sisa          += $pembayaran->jumlah_bayar;
         $peminjaman->lama_angsuran_bulan += 1;
-
-        // ===============================
-        // VALIDASI JUMLAH BARU
-        // ===============================
 
         if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
             return back()->withErrors([
@@ -174,10 +149,6 @@ class PembayaranController extends Controller
         $pembayaran->tanggal_pembayaran = $request->tanggal_pembayaran;
         $pembayaran->jumlah_bayar       = $request->jumlah_bayar;
         $pembayaran->save();
-
-        // ===============================
-        // UPDATE LAGI DENGAN NILAI BARU
-        // ===============================
 
         $peminjaman->pokok_sisa          -= $request->jumlah_bayar;
         $peminjaman->lama_angsuran_bulan = max(0, $peminjaman->lama_angsuran_bulan - 1);

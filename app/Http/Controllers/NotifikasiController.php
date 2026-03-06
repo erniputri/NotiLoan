@@ -21,7 +21,7 @@ class NotifikasiController extends Controller
             })
             ->latest()
             ->paginate(10)
-            ->withQueryString(); // supaya search ikut pagination
+            ->withQueryString();
 
         return view('pages.notifikasi.index', compact('dataPeminjaman', 'search'));
     }
@@ -40,9 +40,7 @@ class NotifikasiController extends Controller
             return back()->with('info', 'Notifikasi sudah terkirim.');
         }
 
-        // =========================
-        // SIMULASI KIRIM WA
-        // =========================
+        //simulasi kirim wa
         Log::info('WA TERKIRIM MANUAL', [
             'ke'      => $notif->kontak,
             'message' => $notif->message,

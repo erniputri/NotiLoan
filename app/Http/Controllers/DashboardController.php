@@ -16,9 +16,7 @@ class DashboardController extends Controller
         $totalData       = Peminjaman::count();
         $totalNotifikasi = Notification::count();
 
-        // ==============================
-        // REMINDER CICILAN BULANAN
-        // ==============================
+        //mengatur jatuh tempo bulanan
         $jatuhTempoList = Peminjaman::where('pokok_sisa', '>', 0)
             ->get()
             ->map(function ($peminjaman) {
@@ -43,9 +41,6 @@ class DashboardController extends Controller
 
         $jatuhTempo30Hari = $jatuhTempoList->count();
 
-        // ==============================
-        // GRAFIK KUALITAS KREDIT
-        // ==============================
         $chartData = Peminjaman::all()
             ->groupBy('kualitas_kredit')
             ->map->count();

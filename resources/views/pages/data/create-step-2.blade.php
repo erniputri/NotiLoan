@@ -105,7 +105,7 @@
                 const lama = parseInt(lamaInput.value || 0);
                 const tanggal = tanggalInput.value;
 
-                // === HITUNG ADMINISTRASI ===
+                // HITUNG ADMINISTRASI
                 if (pokok && bunga) {
                     const hasilAdmin = pokok * (bunga / 100);
                     adminPreview.value = hasilAdmin.toLocaleString('id-ID');
@@ -113,7 +113,7 @@
                     adminPreview.value = '';
                 }
 
-                // === HITUNG TANGGAL JATUH TEMPO ===
+                // HITUNG TANGGAL JATUH TEMPO
                 if (tanggal && lama) {
                     let date = new Date(tanggal);
                     date.setMonth(date.getMonth() + lama);

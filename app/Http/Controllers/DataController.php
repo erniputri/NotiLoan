@@ -10,9 +10,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DataController extends Controller
 {
-    /* =========================
-     * INDEX
-     * ========================= */
     public function index(Request $request)
     {
         $search = $request->search;
@@ -24,8 +21,8 @@ class DataController extends Controller
                 ->orWhere('sektor', 'like', "%{$search}%");
         })
             ->latest()
-            ->paginate(10)       // ← jumlah per halaman
-            ->withQueryString(); // ← penting agar search ikut pagination
+            ->paginate(10)
+            ->withQueryString();
 
         return view('pages.data.index', compact('dataPeminjaman', 'search'));
     }
@@ -64,9 +61,6 @@ class DataController extends Controller
         );
     }
 
-    /* =========================
-     * STEP 1 – DATA MITRA
-     * ========================= */
     public function createStep1()
     {
         return view('pages.data.create-step-1');
@@ -94,9 +88,6 @@ class DataController extends Controller
         return redirect()->route('data.create.step2');
     }
 
-    /* =========================
-     * STEP 2 – DATA PINJAMAN
-     * ========================= */
     public function createStep2()
     {
         if (! session()->has('peminjaman.step1')) {
@@ -145,9 +136,6 @@ class DataController extends Controller
         return redirect()->route('data.create.step3');
     }
 
-    /* =========================
-     * STEP 3 – ADMIN & JAMINAN
-     * ========================= */
     public function createStep3()
     {
         if (! session()->has('peminjaman.step2')) {
@@ -157,9 +145,7 @@ class DataController extends Controller
         return view('pages.data.create-step-3');
     }
 
-    /* =========================
-     * FINAL INSERT (1x INSERT)
-     * ========================= */
+
     public function storeFinal(Request $request)
     {
         $request->validate([
@@ -230,7 +216,6 @@ class DataController extends Controller
             'status'        => 0,
         ]);
 
-        // Bersihkan session wizard
         session()->forget('peminjaman');
 
         return redirect()
@@ -373,9 +358,6 @@ class DataController extends Controller
             ->with('success', 'Data berhasil diperbarui');
     }
 
-    /* =========================
-     * DELETE
-     * ========================= */
     public function destroy(string $id)
     {
         Peminjaman::findOrFail($id)->delete();
