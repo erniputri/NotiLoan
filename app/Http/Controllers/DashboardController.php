@@ -1,57 +1,22 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Notification;
-use App\Models\Peminjaman;
-use Carbon\Carbon;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly DashboardService $dashboardService
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $totalData       = Peminjaman::count();
-        $totalNotifikasi = Notification::count();
-
-        //mengatur jatuh tempo bulanan
-        $jatuhTempoList = Peminjaman::where('pokok_sisa', '>', 0)
-            ->get()
-            ->map(function ($peminjaman) {
-
-                $pembayaranTerakhir = $peminjaman->pembayaran()
-                    ->latest('tanggal_pembayaran')
-                    ->first();
-
-                if (! $pembayaranTerakhir) {
-                    $jatuhTempoBulanan = Carbon::parse($peminjaman->tgl_peminjaman)->addMonth();
-                } else {
-                    $jatuhTempoBulanan = Carbon::parse($pembayaranTerakhir->tanggal_pembayaran)->addMonth();
-                }
-
-                $peminjaman->jatuh_tempo_bulanan = $jatuhTempoBulanan;
-
-                return $peminjaman;
-            })
-            ->filter(function ($peminjaman) {
-                return now()->greaterThanOrEqualTo($peminjaman->jatuh_tempo_bulanan);
-            });
-
-        $jatuhTempo30Hari = $jatuhTempoList->count();
-
-        $chartData = Peminjaman::all()
-            ->groupBy('kualitas_kredit')
-            ->map->count();
-
-        return view('pages.dashboard', compact(
-            'totalData',
-            'totalNotifikasi',
-            'jatuhTempo30Hari',
-            'jatuhTempoList',
-            'chartData'
-        ));
+        return view('pages.dashboard', $this->dashboardService->build());
     }
 
     /**

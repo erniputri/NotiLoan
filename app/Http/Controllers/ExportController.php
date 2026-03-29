@@ -16,24 +16,29 @@ class ExportController extends Controller
 
             fputcsv($handle, [
                 'ID',
-                'Nama',
+                'Nomor Mitra',
+                'Nama Mitra',
                 'Kontak',
                 'Tanggal Peminjaman',
-                'Tanggal Pengembalian',
-                'Jumlah',
+                'Tanggal Jatuh Tempo',
+                'Pokok Pinjaman',
+                'Sisa Pokok',
+                'Kualitas Kredit',
                 'Created At',
                 'Updated At'
             ]);
 
-            // DATA
-            Peminjaman::all()->each(function ($row) use ($handle) {
+            Peminjaman::orderBy('id')->cursor()->each(function ($row) use ($handle) {
                 fputcsv($handle, [
-                    $row->peminjaman_id,
-                    $row->nama,
+                    $row->id,
+                    $row->nomor_mitra,
+                    $row->nama_mitra,
                     $row->kontak,
                     $row->tgl_peminjaman,
-                    $row->tgl_pengembalian,
-                    $row->jumlah,
+                    $row->tgl_jatuh_tempo,
+                    $row->pokok_pinjaman_awal,
+                    $row->pokok_sisa,
+                    $row->kualitas_kredit,
                     $row->created_at,
                     $row->updated_at,
                 ]);

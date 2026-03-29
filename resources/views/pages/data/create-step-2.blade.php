@@ -8,13 +8,12 @@
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title mb-0">Tambah Data NotiLoan – Data Pinjaman</h4>
+                        <h4 class="card-title mb-0">Tambah Data NotiLoan - Data Pinjaman</h4>
                         <a href="{{ route('data.create.step1') }}" class="btn btn-secondary">
-                            ← Kembali
+                            Kembali
                         </a>
                     </div>
 
-                    {{-- error validasi --}}
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0">
@@ -29,7 +28,6 @@
                         @csrf
 
                         <div class="row">
-
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Jumlah Pinjaman (Pokok)</label>
                                 <input type="number" name="pokok_pinjaman_awal" class="form-control"
@@ -67,7 +65,6 @@
                                 <label class="form-label">Tanggal Akhir Pinjaman</label>
                                 <input type="text" id="tgl_akhir_pinjaman" class="form-control" readonly>
                             </div>
-
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">
@@ -75,7 +72,6 @@
                                 Next
                             </button>
                         </div>
-
                     </form>
 
                 </div>
@@ -85,10 +81,8 @@
         @include('partials._footer')
     </div>
 
-    {{-- SCRIPT PERHITUNGAN --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
             const pokokInput = document.querySelector('[name="pokok_pinjaman_awal"]');
             const bungaInput = document.querySelector('[name="bunga_persen"]');
             const lamaInput = document.querySelector('[name="lama_angsuran_bulan"]');
@@ -99,13 +93,11 @@
             const akhirField = document.getElementById('tgl_akhir_pinjaman');
 
             function hitungSemua() {
-
                 const pokok = parseFloat(pokokInput.value || 0);
                 const bunga = parseFloat(bungaInput.value || 0);
-                const lama = parseInt(lamaInput.value || 0);
+                const lama = parseInt(lamaInput.value || 0, 10);
                 const tanggal = tanggalInput.value;
 
-                // HITUNG ADMINISTRASI
                 if (pokok && bunga) {
                     const hasilAdmin = pokok * (bunga / 100);
                     adminPreview.value = hasilAdmin.toLocaleString('id-ID');
@@ -113,9 +105,8 @@
                     adminPreview.value = '';
                 }
 
-                // HITUNG TANGGAL JATUH TEMPO
                 if (tanggal && lama) {
-                    let date = new Date(tanggal);
+                    const date = new Date(tanggal);
                     date.setMonth(date.getMonth() + lama);
 
                     const formatted = date.toISOString().split('T')[0];
@@ -131,7 +122,6 @@
             bungaInput.addEventListener('input', hitungSemua);
             lamaInput.addEventListener('input', hitungSemua);
             tanggalInput.addEventListener('change', hitungSemua);
-
         });
     </script>
 @endsection

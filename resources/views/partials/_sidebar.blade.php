@@ -5,29 +5,29 @@
     </div>
 
     <ul class="nav">
-        <li class="nav-item">
+        <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('dashboard') }}">
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Dashboard</span>
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item {{ request()->routeIs('data.*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('data.index') }}">
                 <i class="icon-paper menu-icon"></i>
                 <span class="menu-title">Data</span>
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item {{ request()->routeIs('notif.*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('notif.index') }}">
                 <i class="icon-bell menu-icon"></i>
                 <span class="menu-title">Notifikasi</span>
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{{route('pembayaran.index')}}">
+        <li class="nav-item {{ request()->routeIs('pembayaran.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('pembayaran.index') }}">
                 <i class="icon-grid menu-icon"></i>
                 <span class="menu-title">Pembayaran</span>
             </a>

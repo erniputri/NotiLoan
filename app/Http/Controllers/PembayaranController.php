@@ -1,13 +1,21 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Pembayaran\StorePembayaranRequest;
+use App\Http\Requests\Pembayaran\UpdatePembayaranRequest;
 use App\Models\Pembayaran;
 use App\Models\Peminjaman;
-use Illuminate\Http\Request;
+use App\Services\PembayaranService;
+use Illuminate\Validation\ValidationException;
 
 class PembayaranController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(
+        private readonly PembayaranService $pembayaranService
+    ) {
+    }
+
+    public function index(\Illuminate\Http\Request $request)
     {
         $query = Pembayaran::with('peminjaman');
 
@@ -36,66 +44,23 @@ class PembayaranController extends Controller
         return view('pages.pembayaran.create', compact('peminjaman'));
     }
 
-    public function store(Request $request)
+    public function store(StorePembayaranRequest $request)
     {
-        $request->validate([
-            'peminjaman_id'      => 'required|exists:peminjaman,id',
-            'tanggal_pembayaran' => 'required|date',
-            'jumlah_bayar'       => 'required|numeric|min:1',
-            'bukti_pembayaran'   => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        ]);
+        $validated = $request->validated();
 
-        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+        $peminjaman = Peminjaman::findOrFail($validated['peminjaman_id']);
 
-        //cek pembayaran 30 hari
-        $pembayaranTerakhir = $peminjaman->pembayaran()
-            ->latest('tanggal_pembayaran')
-            ->first();
-
-        if ($pembayaranTerakhir && ! $request->has('force')) {
-
-            $selisihHari = now()->diffInDays(
-                $pembayaranTerakhir->tanggal_pembayaran
-            );
-
-            if ($selisihHari <= 30) {
+        try {
+            $this->pembayaranService->create($peminjaman, $validated);
+        } catch (ValidationException $exception) {
+            if ($exception->errors()['payment_window'] ?? false) {
                 return back()
                     ->withInput()
                     ->with('reminder', true);
             }
+
+            throw $exception;
         }
-
-        //validasi peminjaman
-        if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
-            return back()->withErrors([
-                'jumlah_bayar' => 'Jumlah bayar melebihi sisa pinjaman',
-            ]);
-        }
-
-        //upload bukti pembayaran
-        $path = null;
-
-        if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')
-                ->store('bukti-pembayaran', 'public');
-        }
-
-        Pembayaran::create([
-            'peminjaman_id'      => $peminjaman->id,
-            'tanggal_pembayaran' => $request->tanggal_pembayaran,
-            'jumlah_bayar'       => $request->jumlah_bayar,
-            'bukti_pembayaran'   => $path,
-        ]);
-
-        $peminjaman->pokok_sisa -= $request->jumlah_bayar;
-
-        // Kurangi 1 bulan setiap transaksi
-        $peminjaman->lama_angsuran_bulan = max(
-            0,
-            $peminjaman->lama_angsuran_bulan - 1
-        );
-
-        $peminjaman->save();
 
         return redirect()
             ->route('pembayaran.index')
@@ -113,46 +78,16 @@ class PembayaranController extends Controller
     public function edit($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
-        $peminjaman = Peminjaman::where('pokok_sisa', '>', 0)->get();
 
-        return view('pages.pembayaran.edit', compact('pembayaran', 'peminjaman'));
+        return view('pages.pembayaran.edit', compact('pembayaran'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdatePembayaranRequest $request, $id)
     {
-        $request->validate([
-            'tanggal_pembayaran' => 'required|date',
-            'jumlah_bayar'       => 'required|numeric|min:1',
-            'bukti_pembayaran'   => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        ]);
+        $validated = $request->validated();
 
         $pembayaran = Pembayaran::findOrFail($id);
-        $peminjaman = $pembayaran->peminjaman;
-
-        $peminjaman->pokok_sisa          += $pembayaran->jumlah_bayar;
-        $peminjaman->lama_angsuran_bulan += 1;
-
-        if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
-            return back()->withErrors([
-                'jumlah_bayar' => 'Jumlah melebihi sisa pinjaman',
-            ]);
-        }
-
-        // Upload bukti baru
-        if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')
-                ->store('bukti-pembayaran', 'public');
-
-            $pembayaran->bukti_pembayaran = $path;
-        }
-
-        $pembayaran->tanggal_pembayaran = $request->tanggal_pembayaran;
-        $pembayaran->jumlah_bayar       = $request->jumlah_bayar;
-        $pembayaran->save();
-
-        $peminjaman->pokok_sisa          -= $request->jumlah_bayar;
-        $peminjaman->lama_angsuran_bulan = max(0, $peminjaman->lama_angsuran_bulan - 1);
-        $peminjaman->save();
+        $this->pembayaranService->update($pembayaran, $validated);
 
         return redirect()->route('pembayaran.index')
             ->with('success', 'Pembayaran berhasil diperbarui');
@@ -161,14 +96,7 @@ class PembayaranController extends Controller
     public function destroy($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
-        $peminjaman = $pembayaran->peminjaman;
-
-        // Kembalikan saldo & bulan
-        $peminjaman->pokok_sisa          += $pembayaran->jumlah_bayar;
-        $peminjaman->lama_angsuran_bulan += 1;
-        $peminjaman->save();
-
-        $pembayaran->delete();
+        $this->pembayaranService->delete($pembayaran);
 
         return redirect()->route('pembayaran.index')
             ->with('success', 'Pembayaran berhasil dihapus');

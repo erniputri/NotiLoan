@@ -46,7 +46,7 @@
                                                             <span class="badge bg-warning">Pending</span>
                                                         @endif
                                                     @else
-                                                        <span class="badge bg-secondary">Belum Dikirim</span>
+                                                        <span class="badge bg-secondary">Belum Dijadwalkan</span>
                                                     @endif
                                                 </td>
 
@@ -63,7 +63,7 @@
                                                             </button>
                                                         </form>
                                                     @else
-                                                        <span class="text-muted">—</span>
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                             </tr>

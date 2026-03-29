@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
-    @include('partials.auth.css');
+    @include('partials.auth.css')
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100">
 
@@ -13,29 +13,39 @@
             <div class="card auth-card shadow-lg">
                 <div class="row g-0">
 
-                    <!-- LEFT -->
                     <div class="col-md-6 auth-left d-none d-md-flex flex-column justify-content-center p-4">
-                        <h3 class="fw-bold">Buat Akun 🚀</h3>
+                        <h3 class="fw-bold">Buat Akun</h3>
                         <p class="text-muted">
                             Daftarkan diri Anda untuk menggunakan sistem.
                         </p>
                     </div>
 
-                    <!-- RIGHT -->
                     <div class="col-md-6 p-4">
                         <h4 class="fw-bold mb-3 text-center">Register</h4>
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger small">
+                                <ul class="mb-0 ps-3">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
                         <form method="POST" action="{{ route('register') }}">
                             @csrf
 
                             <div class="mb-3">
                                 <label class="form-label">Nama</label>
-                                <input type="text" name="name" class="form-control" required>
+                                <input type="text" name="name" class="form-control"
+                                    value="{{ old('name') }}" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" required>
+                                <input type="email" name="email" class="form-control"
+                                    value="{{ old('email') }}" required>
                             </div>
 
                             <div class="mb-3">

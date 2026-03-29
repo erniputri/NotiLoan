@@ -66,6 +66,8 @@
                                     <span class="badge bg-success">Lancar</span>
                                 @elseif ($peminjaman->kualitas_kredit == 'Kurang Lancar')
                                     <span class="badge bg-warning">Kurang Lancar</span>
+                                @elseif ($peminjaman->kualitas_kredit == 'Ragu-ragu')
+                                    <span class="badge bg-info">Ragu-ragu</span>
                                 @elseif ($peminjaman->kualitas_kredit == 'Macet')
                                     <span class="badge bg-danger">Macet</span>
                                 @else

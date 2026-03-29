@@ -67,6 +67,10 @@ Route::group(['middleware' => ['checkislogin']], function () {
     });
 
     Route::resource('pembayaran', PembayaranController::class);
+    Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
+        ->name('notif.send');
+    Route::get('/peminjaman/export', [ExportController::class, 'export'])
+        ->name('peminjaman.export');
 });
 
 Route::get('/login', [AuthController::class, 'loginView'])->name('login');
@@ -76,11 +80,3 @@ Route::get('/register', [AuthController::class, 'registerView'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-Route::get('/peminjaman/export', [ExportController::class, 'export']);
-
-Route::get('/notifikasi', [NotifikasiController::class, 'index'])
-    ->name('notif.index');
-
-Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
-    ->name('notif.send');

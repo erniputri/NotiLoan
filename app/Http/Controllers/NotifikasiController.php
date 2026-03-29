@@ -2,11 +2,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Services\NotificationScheduleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class NotifikasiController extends Controller
 {
+    public function __construct(
+        private readonly NotificationScheduleService $notificationScheduleService
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -31,7 +37,8 @@ class NotifikasiController extends Controller
         $peminjaman = Peminjaman::with('notifikasi')->findOrFail($id);
 
         if (! $peminjaman->notifikasi) {
-            return back()->with('error', 'Notifikasi belum tersedia.');
+            $this->notificationScheduleService->syncForLoan($peminjaman);
+            $peminjaman->load('notifikasi');
         }
 
         $notif = $peminjaman->notifikasi;

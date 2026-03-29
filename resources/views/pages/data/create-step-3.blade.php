@@ -8,13 +8,12 @@
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title mb-0">Tambah Data NotiLoan – Administrasi Dan Jaminan</h4>
+                        <h4 class="card-title mb-0">Tambah Data NotiLoan - Administrasi dan Jaminan</h4>
                         <a href="{{ route('data.create.step2') }}" class="btn btn-secondary">
-                            ← Kembali
+                            Kembali
                         </a>
                     </div>
 
-                    {{-- error validasi --}}
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0">
@@ -29,7 +28,6 @@
                         @csrf
 
                         <div class="row">
-
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Administrasi Awal</label>
                                 <input type="number" name="administrasi_awal" class="form-control"
@@ -44,9 +42,9 @@
 
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Keterangan Jaminan</label>
-                                <textarea name="jaminan" class="form-control" rows="3" placeholder="Contoh: SHM No. 1234 atas nama Budi" required></textarea>
+                                <textarea name="jaminan" class="form-control" rows="3"
+                                    placeholder="Contoh: SHM No. 1234 atas nama Budi" required></textarea>
                             </div>
-
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">
@@ -54,7 +52,6 @@
                                 Simpan Data
                             </button>
                         </div>
-
                     </form>
 
                 </div>

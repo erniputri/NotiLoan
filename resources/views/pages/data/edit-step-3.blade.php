@@ -15,8 +15,6 @@
                     @method('PUT')
 
                     <div class="row">
-
-                        {{-- Administrasi --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Administrasi Awal</label>
                             <input type="number"
@@ -26,7 +24,6 @@
                                    required>
                         </div>
 
-                        {{-- Kualitas Kredit --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Kualitas Kredit</label>
                             <select name="kualitas_kredit" class="form-control" required>
@@ -38,6 +35,10 @@
                                     {{ $peminjaman->kualitas_kredit == 'Kurang Lancar' ? 'selected' : '' }}>
                                     Kurang Lancar
                                 </option>
+                                <option value="Ragu-ragu"
+                                    {{ $peminjaman->kualitas_kredit == 'Ragu-ragu' ? 'selected' : '' }}>
+                                    Ragu-ragu
+                                </option>
                                 <option value="Macet"
                                     {{ $peminjaman->kualitas_kredit == 'Macet' ? 'selected' : '' }}>
                                     Macet
@@ -45,7 +46,6 @@
                             </select>
                         </div>
 
-                        {{-- Keterangan Jaminan --}}
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Keterangan Jaminan</label>
                             <textarea name="jaminan"
@@ -56,13 +56,12 @@
                                 Contoh: SHM No. 1234 atas nama Budi
                             </small>
                         </div>
-
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{{ route('data.edit.step2', $peminjaman->id) }}"
                            class="btn btn-secondary">
-                            ← Kembali
+                            Kembali
                         </a>
 
                         <button class="btn btn-success">

@@ -1,15 +1,30 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Exports\PeminjamanExport;
+use App\Exports\PeminjamanTemplateExport;
+use App\Http\Requests\Peminjaman\StoreFinalRequest;
+use App\Http\Requests\Peminjaman\StoreStep1Request;
+use App\Http\Requests\Peminjaman\StoreStep2Request;
+use App\Http\Requests\Peminjaman\UpdatePeminjamanRequest;
+use App\Http\Requests\Peminjaman\UpdateStep1Request;
+use App\Http\Requests\Peminjaman\UpdateStep2Request;
+use App\Http\Requests\Peminjaman\UpdateStep3Request;
 use App\Imports\PeminjamanImport;
-use App\Models\Notification;
 use App\Models\Peminjaman;
+use App\Services\PeminjamanService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DataController extends Controller
 {
+    public function __construct(
+        private readonly PeminjamanService $peminjamanService
+    ) {
+    }
+
     public function index(Request $request)
     {
         $search = $request->search;
@@ -30,6 +45,7 @@ class DataController extends Controller
     public function show($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+
         return view('pages.data.show', compact('peminjaman'));
     }
 
@@ -56,7 +72,7 @@ class DataController extends Controller
     public function downloadTemplate()
     {
         return Excel::download(
-            new PeminjamanExport,
+            new PeminjamanTemplateExport,
             'Template-Import-NotiLoan.xlsx'
         );
     }
@@ -66,15 +82,10 @@ class DataController extends Controller
         return view('pages.data.create-step-1');
     }
 
-    public function storeStep1(Request $request)
+    public function storeStep1(StoreStep1Request $request)
     {
-        $request->validate([
-            'nama_mitra' => 'required',
-            'kontak'     => 'required',
-        ]);
-
         session([
-            'peminjaman.step1' => $request->only([
+            'peminjaman.step1' => $request->safe()->only([
                 'nomor_mitra',
                 'virtual_account',
                 'nama_mitra',
@@ -97,37 +108,21 @@ class DataController extends Controller
         return view('pages.data.create-step-2');
     }
 
-    public function storeStep2(Request $request)
+    public function storeStep2(StoreStep2Request $request)
     {
-        $request->validate([
-            'pokok_pinjaman_awal' => 'required|numeric',
-            'tgl_peminjaman'      => 'required|date',
-            'lama_angsuran_bulan' => 'required|numeric',
-            'bunga_persen'        => 'required|numeric|min:0',
-        ]);
-
-        $lama = (int) $request->lama_angsuran_bulan;
-
-        // // LOGIKA BUNGA
-        // $bunga = 6;
-        // if ($request->pokok_pinjaman_awal > 10000000) {
-        //     $bunga = 8;
-        // }
-
-        // if ($request->pokok_pinjaman_awal > 25000000) {
-        //     $bunga = 10;
-        // }
+        $validated = $request->validated();
+        $lama = (int) $validated['lama_angsuran_bulan'];
 
         session([
             'peminjaman.step2' => [
-                'pokok_pinjaman_awal' => $request->pokok_pinjaman_awal,
-                'tgl_peminjaman'      => $request->tgl_peminjaman,
+                'pokok_pinjaman_awal' => $validated['pokok_pinjaman_awal'],
+                'tgl_peminjaman' => $validated['tgl_peminjaman'],
                 'lama_angsuran_bulan' => $lama,
-                'bunga_persen'        => $request->bunga_persen, // ← FIX DISINI
-                'tgl_jatuh_tempo'     => \Carbon\Carbon::parse($request->tgl_peminjaman)
+                'bunga_persen' => $validated['bunga_persen'],
+                'tgl_jatuh_tempo' => Carbon::parse($validated['tgl_peminjaman'])
                     ->addMonths($lama)
                     ->format('Y-m-d'),
-                'tgl_akhir_pinjaman'  => \Carbon\Carbon::parse($request->tgl_peminjaman)
+                'tgl_akhir_pinjaman' => Carbon::parse($validated['tgl_peminjaman'])
                     ->addMonths($lama)
                     ->format('Y-m-d'),
             ],
@@ -145,16 +140,8 @@ class DataController extends Controller
         return view('pages.data.create-step-3');
     }
 
-
-    public function storeFinal(Request $request)
+    public function storeFinal(StoreFinalRequest $request)
     {
-        $request->validate([
-            'administrasi_awal'   => 'nullable|numeric',
-            'no_surat_perjanjian' => 'required',
-            // 'jaminan'             => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'jaminan'             => 'required|string|max:255',
-        ]);
-
         $step1 = session('peminjaman.step1');
         $step2 = session('peminjaman.step2');
 
@@ -164,57 +151,11 @@ class DataController extends Controller
                 ->with('error', 'Session habis, silakan ulangi input.');
         }
 
-        // Upload jaminan
-        // $pathJaminan = $request->file('jaminan')->store('jaminan', 'public');
-
-        $administrasiOtomatis =
-            $step2['pokok_pinjaman_awal'] *
-            ($step2['bunga_persen'] / 100);
-
-        $administrasiFinal = $request->administrasi_awal ?? $administrasiOtomatis;
-
-        // INSERT DATA PEMINJAMAN
-        $peminjaman = Peminjaman::create([
-            // STEP 1
-            'nomor_mitra'         => $step1['nomor_mitra'] ?? null,
-            'virtual_account'     => $step1['virtual_account'] ?? null,
-            'nama_mitra'          => $step1['nama_mitra'],
-            'kontak'              => $step1['kontak'],
-            'alamat'              => $step1['alamat'] ?? null,
-            'kabupaten'           => $step1['kabupaten'] ?? null,
-            'sektor'              => $step1['sektor'] ?? null,
-
-            // STEP 2
-            'tgl_peminjaman'      => $step2['tgl_peminjaman'],
-            'tgl_jatuh_tempo'     => $step2['tgl_jatuh_tempo'],
-            'tgl_akhir_pinjaman'  => $step2['tgl_akhir_pinjaman'],
-            'lama_angsuran_bulan' => $step2['lama_angsuran_bulan'],
-            'bunga_persen'        => $step2['bunga_persen'],
-            'pokok_pinjaman_awal' => $step2['pokok_pinjaman_awal'],
-
-            // STEP 3
-            'administrasi_awal'   => $administrasiFinal,
-            'no_surat_perjanjian' => $request->no_surat_perjanjian,
-            'jaminan'             => $request->jaminan,
-
-            // DEFAULT
-            'pokok_cicilan_sd'    => 0,
-            'jasa_cicilan_sd'     => 0,
-            'pokok_sisa'          => $step2['pokok_pinjaman_awal'],
-            'jasa_sisa'           => 0,
-            'kualitas_kredit'     => 'Lancar',
-        ]);
-
-        // INSERT NOTIFIKASI
-        Notification::create([
-            'peminjaman_id' => $peminjaman->id,
-            'kontak'        => $peminjaman->kontak,
-            'message'       => 'Yth ' . $peminjaman->nama_mitra .
-            ', pinjaman Anda akan jatuh tempo pada ' .
-            $peminjaman->tgl_jatuh_tempo,
-            'send_at'       => now(),
-            'status'        => 0,
-        ]);
+        $this->peminjamanService->createFromWizard(
+            $step1,
+            $step2,
+            $request->validated()
+        );
 
         session()->forget('peminjaman');
 
@@ -226,25 +167,14 @@ class DataController extends Controller
     public function editStep1($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+
         return view('pages.data.edit-step-1', compact('peminjaman'));
     }
 
-    public function updateStep1(Request $request, $id)
+    public function updateStep1(UpdateStep1Request $request, $id)
     {
-        $request->validate([
-            'nama_mitra' => 'required',
-            'kontak'     => 'required',
-        ]);
-
-        Peminjaman::findOrFail($id)->update([
-            'nomor_mitra'     => $request->nomor_mitra,
-            'virtual_account' => $request->virtual_account,
-            'nama_mitra'      => $request->nama_mitra,
-            'kontak'          => $request->kontak,
-            'alamat'          => $request->alamat,
-            'kabupaten'       => $request->kabupaten,
-            'sektor'          => $request->sektor,
-        ]);
+        $peminjaman = Peminjaman::findOrFail($id);
+        $this->peminjamanService->updateIdentity($peminjaman, $request->validated());
 
         return redirect()->route('data.edit.step2', $id);
     }
@@ -252,29 +182,14 @@ class DataController extends Controller
     public function editStep2($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+
         return view('pages.data.edit-step-2', compact('peminjaman'));
     }
 
-    public function updateStep2(Request $request, $id)
+    public function updateStep2(UpdateStep2Request $request, $id)
     {
-        $request->validate([
-            'pokok_pinjaman_awal' => 'required|numeric',
-            'tgl_peminjaman'      => 'required|date',
-            'lama_angsuran_bulan' => 'required|numeric',
-        ]);
-
-        $lama = (int) $request->lama_angsuran_bulan;
-
-        $tglJatuhTempo = \Carbon\Carbon::parse($request->tgl_peminjaman)
-            ->addMonths($lama)
-            ->format('Y-m-d');
-
-        Peminjaman::findOrFail($id)->update([
-            'pokok_pinjaman_awal' => $request->pokok_pinjaman_awal,
-            'tgl_peminjaman'      => $request->tgl_peminjaman,
-            'lama_angsuran_bulan' => $lama,
-            'tgl_jatuh_tempo'     => $tglJatuhTempo,
-        ]);
+        $peminjaman = Peminjaman::findOrFail($id);
+        $this->peminjamanService->updateLoanTerms($peminjaman, $request->validated());
 
         return redirect()->route('data.edit.step3', $id);
     }
@@ -282,28 +197,14 @@ class DataController extends Controller
     public function editStep3($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+
         return view('pages.data.edit-step-3', compact('peminjaman'));
     }
 
-    public function updateStep3(Request $request, $id)
+    public function updateStep3(UpdateStep3Request $request, $id)
     {
-        $request->validate([
-            'administrasi_awal' => 'required|numeric',
-            'kualitas_kredit'   => 'required',
-            'jaminan'           => 'nullable|string|max:255',
-        ]);
-
         $peminjaman = Peminjaman::findOrFail($id);
-
-        $data = [
-            'administrasi_awal' => $request->administrasi_awal,
-            'kualitas_kredit'   => $request->kualitas_kredit,
-            'jaminan'           => $request->jaminan,
-        ];
-
-        $data['jaminan'] = $request->jaminan;
-
-        $peminjaman->update($data);
+        $this->peminjamanService->updateAdministrative($peminjaman, $request->validated());
 
         return redirect()
             ->route('data.index')
@@ -313,45 +214,14 @@ class DataController extends Controller
     public function edit(string $id)
     {
         $dataPeminjaman = Peminjaman::findOrFail($id);
+
         return view('pages.data.edit', compact('dataPeminjaman'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdatePeminjamanRequest $request, string $id)
     {
-        $request->validate([
-            'nama_mitra'          => 'required',
-            'kontak'              => 'required',
-            'tgl_peminjaman'      => 'required|date',
-            'lama_angsuran_bulan' => 'required|numeric',
-            'pokok_pinjaman_awal' => 'required|numeric',
-            'sektor'              => 'required',
-            'kualitas_kredit'     => 'required',
-        ]);
-
         $peminjaman = Peminjaman::findOrFail($id);
-
-        $lama = (int) $request->lama_angsuran_bulan;
-
-        // hitung ulang tanggal jatuh tempo
-        $tglJatuhTempo = \Carbon\Carbon::parse($request->tgl_peminjaman)
-            ->addMonths($lama)
-            ->format('Y-m-d');
-
-        $peminjaman->update([
-            // DATA MITRA
-            'nama_mitra'          => $request->nama_mitra,
-            'kontak'              => $request->kontak,
-            'alamat'              => $request->alamat,
-            'kabupaten'           => $request->kabupaten,
-            'sektor'              => $request->sektor,
-            'kualitas_kredit'     => $request->kualitas_kredit,
-
-            // DATA PINJAMAN
-            'tgl_peminjaman'      => $request->tgl_peminjaman,
-            'lama_angsuran_bulan' => $lama,
-            'tgl_jatuh_tempo'     => $tglJatuhTempo,
-            'pokok_pinjaman_awal' => $request->pokok_pinjaman_awal,
-        ]);
+        $this->peminjamanService->updateGeneral($peminjaman, $request->validated());
 
         return redirect()
             ->route('data.index')
@@ -361,6 +231,7 @@ class DataController extends Controller
     public function destroy(string $id)
     {
         Peminjaman::findOrFail($id)->delete();
+
         return redirect()->route('data.index')->with('hapus', 'Data berhasil dihapus');
     }
 }
