@@ -41,10 +41,62 @@
                                         Tambah Data
                                     </a>
 
-                                    <a href="{{ route('data.export.excel') }}" class="btn btn-success btn-action">
+                                    <button type="button" class="btn btn-success btn-action" data-toggle="collapse"
+                                        data-target="#exportOptions" aria-expanded="false"
+                                        aria-controls="exportOptions">
                                         <i class="mdi mdi-file-excel-outline me-1"></i>
-                                        Export Excel
-                                    </a>
+                                        Pilih Kolom Export
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="collapse mt-4" id="exportOptions">
+                                <div class="border rounded-3 p-3 bg-white">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                        <div>
+                                            <h6 class="mb-1">Opsi Export Excel</h6>
+                                            <p class="text-muted mb-0">Pilih kolom yang ingin dimasukkan ke file export.
+                                                Hasil export juga mengikuti data pencarian yang sedang aktif.</p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-success"
+                                                id="selectAllExportColumns">
+                                                Pilih Semua
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="resetExportColumns">
+                                                Reset Default
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <form method="GET" action="{{ route('data.export.excel') }}">
+                                        <input type="hidden" name="search" value="{{ request('search') }}">
+
+                                        <div class="row g-2">
+                                            @foreach ($availableExportColumns as $key => $label)
+                                                <div class="col-md-4 col-lg-3">
+                                                    <label class="form-check d-flex align-items-start gap-2 border rounded-2 px-3 py-2 h-100">
+                                                        <input class="form-check-input mt-1 export-column-checkbox"
+                                                            type="checkbox" name="columns[]" value="{{ $key }}"
+                                                            {{ in_array($key, $selectedExportColumns, true) ? 'checked' : '' }}>
+                                                        <span class="small fw-medium">{{ $label }}</span>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="d-flex justify-content-end gap-2 mt-3 flex-wrap">
+                                            <a href="{{ route('data.template.excel') }}" class="btn btn-outline-dark">
+                                                <i class="mdi mdi-download me-1"></i>
+                                                Download Template
+                                            </a>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="mdi mdi-file-excel me-1"></i>
+                                                Download Export
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                             <div class="table-responsive pt-3">
@@ -121,3 +173,30 @@
         @include('partials._footer')
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = Array.from(document.querySelectorAll('.export-column-checkbox'));
+            const selectAllButton = document.getElementById('selectAllExportColumns');
+            const resetButton = document.getElementById('resetExportColumns');
+            const defaultColumns = @json($selectedExportColumns);
+
+            if (selectAllButton) {
+                selectAllButton.addEventListener('click', function() {
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = true;
+                    });
+                });
+            }
+
+            if (resetButton) {
+                resetButton.addEventListener('click', function() {
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = defaultColumns.includes(checkbox.value);
+                    });
+                });
+            }
+        });
+    </script>
+@endpush

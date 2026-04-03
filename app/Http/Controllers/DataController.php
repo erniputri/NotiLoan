@@ -16,6 +16,7 @@ use App\Models\Peminjaman;
 use App\Services\PeminjamanService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DataController extends Controller
@@ -28,6 +29,8 @@ class DataController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+        $availableExportColumns = PeminjamanExport::availableColumns();
+        $selectedExportColumns = PeminjamanExport::defaultColumns();
 
         $dataPeminjaman = Peminjaman::when($search, function ($query) use ($search) {
             $query->where('nama_mitra', 'like', "%{$search}%")
@@ -39,7 +42,12 @@ class DataController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('pages.data.index', compact('dataPeminjaman', 'search'));
+        return view('pages.data.index', compact(
+            'dataPeminjaman',
+            'search',
+            'availableExportColumns',
+            'selectedExportColumns'
+        ));
     }
 
     public function show($id)
@@ -49,11 +57,22 @@ class DataController extends Controller
         return view('pages.data.show', compact('peminjaman'));
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
+        $allowedColumns = array_keys(PeminjamanExport::availableColumns());
+
+        $validated = $request->validate([
+            'columns' => ['nullable', 'array'],
+            'columns.*' => ['string', Rule::in($allowedColumns)],
+            'search' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $selectedColumns = $validated['columns'] ?? PeminjamanExport::defaultColumns();
+        $search = $validated['search'] ?? null;
+
         return Excel::download(
-            new PeminjamanExport,
-            'Data-NotiLoan.xlsx'
+            new PeminjamanExport($selectedColumns, $search),
+            'Data-NotiLoan-'.now()->format('Ymd-His').'.xlsx'
         );
     }
 
