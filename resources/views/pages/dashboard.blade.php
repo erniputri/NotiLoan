@@ -311,11 +311,11 @@
                     <div class="hero-panel">
                         <div class="row align-items-center">
                             <div class="col-xl-7 mb-4 mb-xl-0">
-                                <p class="hero-kicker">Dashboard Operasional</p>
+                                <p class="hero-kicker">Dashboard TJSL PTPN IV REGIONAL III</p>
                                 <h3 class="hero-title">Halo, {{ Auth::user()->name }}</h3>
                                 <p class="hero-copy">
-                                    Fokus utama hari ini ada pada pinjaman aktif, antrean notifikasi, dan mitra yang
-                                    mendekati atau melewati jatuh tempo angsuran bulanannya.
+                                    {{-- Fokus utama hari ini ada pada pinjaman aktif, antrean notifikasi, dan mitra yang
+                                    mendekati atau melewati jatuh tempo angsuran bulanannya. --}}
                                 </p>
                             </div>
                             <div class="col-xl-5">
