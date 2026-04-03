@@ -28,19 +28,26 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        $validated = $request->validate([
+            'sap' => ['required', 'regex:/^\d{5,}$/'],
             'password' => 'required'
+        ], [
+            'sap.required' => 'SAP wajib diisi.',
+            'sap.regex' => 'SAP harus terdiri dari minimal 5 angka dan hanya boleh angka.',
+            'password.required' => 'Password wajib diisi.',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt([
+            'email' => $validated['sap'],
+            'password' => $validated['password'],
+        ])) {
             $request->session()->regenerate();
 
             return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah'
+            'sap' => 'SAP atau password salah'
         ])->withInput();
     }
 
@@ -48,13 +55,21 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'sap' => ['required', 'regex:/^\d{5,}$/', 'unique:users,email'],
             'password' => 'required|min:6|confirmed'
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'sap.required' => 'SAP wajib diisi.',
+            'sap.regex' => 'SAP harus terdiri dari minimal 5 angka dan hanya boleh angka.',
+            'sap.unique' => 'SAP tersebut sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
+            'email' => $validated['sap'],
             'password' => Hash::make($validated['password'])
         ]);
 

@@ -2,60 +2,110 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
     @include('partials.auth.css')
+    <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100">
+<body>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-9 col-lg-7">
-            <div class="card auth-card shadow-lg">
-                <div class="row g-0">
+<div class="auth-shell d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-11 col-xxl-10">
+                <div class="card auth-card shadow-lg">
+                    <div class="row g-0">
 
-                    <div class="col-md-6 auth-left d-none d-md-flex flex-column justify-content-center p-4">
-                        <h3 class="fw-bold">Selamat Datang</h3>
-                        <p class="text-muted">
-                            Silakan login untuk mengakses dashboard sistem.
-                        </p>
-                    </div>
+                        <div class="col-lg-6 d-none d-lg-flex">
+                            <div class="auth-visual w-100">
+                                <div class="auth-brand">
+                                    <div class="auth-brand-mark">
+                                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                                    </div>
+                                    <div>
+                                        <p class="auth-brand-label">Sistem Monitoring</p>
+                                        <h1 class="auth-brand-name">NotiLoan</h1>
+                                    </div>
+                                </div>
 
-                    <div class="col-md-6 p-4">
-                        <h4 class="fw-bold mb-3 text-center">Login</h4>
+                                <div class="auth-visual-headline">
+                                    <span class="auth-kicker mb-3">Tema Perkebunan Sawit</span>
+                                    <h2>Kelola pinjaman dan notifikasi mitra dalam satu tampilan yang lebih tenang.</h2>
+                                    <p>
+                                        Visual hijau perkebunan dan aksen hangat kami bawa ke halaman login agar identitas
+                                        sistem tetap terasa sejak pertama kali dibuka.
+                                    </p>
 
-                        @if ($errors->any())
-                            <div class="alert alert-danger small">
-                                {{ $errors->first() }}
+                                    <div class="auth-stat-grid">
+                                        <div class="auth-stat">
+                                            <div class="auth-stat-label">Tema Sistem</div>
+                                            <p class="auth-stat-value">Hijau Sawit</p>
+                                        </div>
+                                        <div class="auth-stat">
+                                            <div class="auth-stat-label">Fokus</div>
+                                            <p class="auth-stat-value">Notifikasi</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control"
-                                    value="{{ old('email') }}" required autofocus>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
-                            </div>
-
-                            <button class="btn btn-primary w-100">
-                                Login
-                            </button>
-                        </form>
-
-                        <div class="text-center mt-3">
-                            <small>
-                                Belum punya akun?
-                                <a href="{{ route('register') }}" class="fw-semibold">Daftar</a>
-                            </small>
                         </div>
-                    </div>
 
+                        <div class="col-lg-6 auth-form-panel p-4 p-lg-5">
+                            <div class="mb-4">
+                                <span class="auth-kicker mb-3">Akses Dashboard</span>
+                                <h4 class="auth-title mb-2">Masuk ke akun Anda</h4>
+                                <p class="auth-copy">
+                                    Gunakan nomor SAP dan password terdaftar untuk melanjutkan ke dashboard NotiLoan.
+                                </p>
+                            </div>
+
+                            @if ($errors->any())
+                                <div class="alert auth-alert small mb-4">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
+
+                                <div class="mb-3">
+                                    <label class="auth-input-label">SAP</label>
+                                    <div class="auth-input-wrap">
+                                        <span class="auth-input-icon">
+                                            <i class="mdi mdi-card-account-details-outline"></i>
+                                        </span>
+                                        <input type="text" name="sap" class="form-control auth-input"
+                                            value="{{ old('sap') }}" placeholder="Masukkan minimal 5 digit SAP"
+                                            inputmode="numeric" pattern="[0-9]{5,}" minlength="5" maxlength="20"
+                                            oninput="this.value=this.value.replace(/[^0-9]/g,'')" required autofocus>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="auth-input-label">Password</label>
+                                    <div class="auth-input-wrap">
+                                        <span class="auth-input-icon">
+                                            <i class="mdi mdi-lock-outline"></i>
+                                        </span>
+                                        <input type="password" name="password" class="form-control auth-input"
+                                            placeholder="Masukkan password" required>
+                                    </div>
+                                </div>
+
+                                <button class="btn auth-submit text-white w-100">
+                                    Login
+                                </button>
+                            </form>
+
+                            <div class="text-center mt-3">
+                                <small class="auth-note">
+                                    Belum punya akun?
+                                    <a href="{{ route('register') }}" class="fw-semibold auth-link">Daftar</a>
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
