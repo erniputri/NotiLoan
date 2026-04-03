@@ -19,6 +19,15 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+        $pendingNotificationCount = Peminjaman::whereDoesntHave('notifikasi')
+            ->orWhereHas('notifikasi', function ($query) {
+                $query->where('status', false);
+            })
+            ->count();
+
+        $sentNotificationCount = Peminjaman::whereHas('notifikasi', function ($query) {
+            $query->where('status', true);
+        })->count();
 
         $dataPeminjaman = Peminjaman::with('notifikasi')
             ->when($search, function ($query) use ($search) {
@@ -29,7 +38,12 @@ class NotifikasiController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('pages.notifikasi.index', compact('dataPeminjaman', 'search'));
+        return view('pages.notifikasi.index', compact(
+            'dataPeminjaman',
+            'search',
+            'pendingNotificationCount',
+            'sentNotificationCount'
+        ));
     }
 
     public function send($id)

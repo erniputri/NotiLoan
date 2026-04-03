@@ -31,13 +31,16 @@ class DataController extends Controller
         $search = $request->search;
         $availableExportColumns = PeminjamanExport::availableColumns();
         $selectedExportColumns = PeminjamanExport::defaultColumns();
+        $totalLoanAmount = Peminjaman::sum('pokok_pinjaman_awal');
 
-        $dataPeminjaman = Peminjaman::when($search, function ($query) use ($search) {
+        $query = Peminjaman::when($search, function ($query) use ($search) {
             $query->where('nama_mitra', 'like', "%{$search}%")
                 ->orWhere('kontak', 'like', "%{$search}%")
                 ->orWhere('kabupaten', 'like', "%{$search}%")
                 ->orWhere('sektor', 'like', "%{$search}%");
-        })
+        });
+
+        $dataPeminjaman = $query
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -46,7 +49,8 @@ class DataController extends Controller
             'dataPeminjaman',
             'search',
             'availableExportColumns',
-            'selectedExportColumns'
+            'selectedExportColumns',
+            'totalLoanAmount'
         ));
     }
 
