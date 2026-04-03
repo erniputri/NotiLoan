@@ -258,6 +258,11 @@
                     color: #2d3548;
                 }
 
+                .dashboard-page .action-col {
+                    width: 120px;
+                    text-align: right;
+                }
+
                 .dashboard-page .table-shell {
                     border: 1px solid #edf1f7;
                     border-radius: 18px;
@@ -294,13 +299,86 @@
                     height: 280px;
                 }
 
+                .dashboard-page .detail-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 12px;
+                }
+
+                .dashboard-page .detail-card {
+                    background: #f7fbf8;
+                    border: 1px solid #e1eee6;
+                    border-radius: 16px;
+                    padding: 14px 16px;
+                }
+
+                .dashboard-page .detail-card span {
+                    display: block;
+                    font-size: 12px;
+                    color: #6c757d;
+                    margin-bottom: 4px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                }
+
+                .dashboard-page .detail-card strong {
+                    color: #202633;
+                    font-size: 15px;
+                }
+
+                .dashboard-page .detail-highlight {
+                    background: linear-gradient(135deg, #eef8f2, #dff1e7);
+                    border: 1px solid #cae6d5;
+                    border-radius: 18px;
+                    padding: 16px 18px;
+                    margin-bottom: 16px;
+                }
+
+                .dashboard-page .detail-highlight h6 {
+                    margin-bottom: 6px;
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #184b33;
+                }
+
+                .dashboard-page .detail-highlight p {
+                    margin-bottom: 0;
+                    color: #476756;
+                    font-size: 14px;
+                }
+
+                .dashboard-page .modal-content {
+                    border: 0;
+                    border-radius: 24px;
+                    overflow: hidden;
+                    box-shadow: 0 24px 60px rgba(18, 53, 36, 0.18);
+                }
+
+                .dashboard-page .modal-header {
+                    background: linear-gradient(135deg, #123524 0%, #1f6f50 100%);
+                    color: #fff;
+                    border-bottom: 0;
+                    padding: 18px 22px;
+                }
+
+                .dashboard-page .modal-header .close {
+                    color: #fff;
+                    opacity: 0.85;
+                    text-shadow: none;
+                }
+
+                .dashboard-page .modal-body {
+                    padding: 22px;
+                }
+
                 @media (max-width: 991.98px) {
                     .dashboard-page .hero-panel {
                         padding: 22px;
                     }
 
                     .dashboard-page .hero-stat-grid,
-                    .dashboard-page .priority-meta {
+                    .dashboard-page .priority-meta,
+                    .dashboard-page .detail-grid {
                         grid-template-columns: 1fr;
                     }
                 }
@@ -608,6 +686,7 @@
                                                 <th>Mitra</th>
                                                 <th>Jatuh Tempo</th>
                                                 <th>Sisa Pokok</th>
+                                                <th class="action-col">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -616,11 +695,126 @@
                                                     <td>{{ $item['nama_mitra'] }}</td>
                                                     <td>{{ $item['next_due_date']->format('Y-m-d') }}</td>
                                                     <td>Rp {{ number_format($item['pokok_sisa'], 0, ',', '.') }}</td>
+                                                    <td class="action-col">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                            data-toggle="modal"
+                                                            data-target="#upcomingDetailModal-{{ $item['id'] }}">
+                                                            Detail
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
+
+                                @foreach ($upcomingItems as $item)
+                                    <div class="modal fade" id="upcomingDetailModal-{{ $item['id'] }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="upcomingDetailLabel-{{ $item['id'] }}"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <div>
+                                                        <h5 class="modal-title mb-1"
+                                                            id="upcomingDetailLabel-{{ $item['id'] }}">
+                                                            Detail Pinjaman Jatuh Tempo
+                                                        </h5>
+                                                        <small>{{ $item['nama_mitra'] }} · {{ $item['kontak'] }}</small>
+                                                    </div>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="detail-highlight">
+                                                        <h6>{{ $item['nama_mitra'] }}</h6>
+                                                        <p>
+                                                            Nomor Mitra: {{ $item['nomor_mitra'] ?: '-' }} |
+                                                            Jatuh tempo berikutnya:
+                                                            {{ $item['next_due_date']->format('Y-m-d') }} |
+                                                            {{ $item['status_label'] }}
+                                                        </p>
+                                                    </div>
+
+                                                    <div class="detail-grid">
+                                                        <div class="detail-card">
+                                                            <span>Jumlah Pinjaman</span>
+                                                            <strong>Rp
+                                                                {{ number_format($item['pokok_pinjaman_awal'], 0, ',', '.') }}</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Sisa Pinjaman</span>
+                                                            <strong>Rp
+                                                                {{ number_format($item['pokok_sisa'], 0, ',', '.') }}</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Cicilan</span>
+                                                            <strong>
+                                                                @if ($item['total_installments'] > 0)
+                                                                    Ke-{{ $item['current_installment'] }} dari
+                                                                    {{ $item['total_installments'] }}
+                                                                @else
+                                                                    Belum tersedia
+                                                                @endif
+                                                            </strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Pembayaran Tercatat</span>
+                                                            <strong>{{ $item['completed_installments'] }} kali</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Tanggal Peminjaman</span>
+                                                            <strong>{{ optional($item['tgl_peminjaman'])->format('Y-m-d') }}</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Pembayaran Terakhir</span>
+                                                            <strong>
+                                                                @if ($item['latest_payment_date'])
+                                                                    {{ \Carbon\Carbon::parse($item['latest_payment_date'])->format('Y-m-d') }}
+                                                                @else
+                                                                    Belum ada pembayaran
+                                                                @endif
+                                                            </strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Nominal Pembayaran Terakhir</span>
+                                                            <strong>
+                                                                @if (! is_null($item['latest_payment_amount']))
+                                                                    Rp
+                                                                    {{ number_format($item['latest_payment_amount'], 0, ',', '.') }}
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Bunga</span>
+                                                            <strong>{{ number_format((float) $item['bunga_persen'], 2, ',', '.') }}%</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Kualitas Kredit</span>
+                                                            <strong>{{ $item['kualitas_kredit'] ?: 'Tidak Diketahui' }}</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Status Notifikasi</span>
+                                                            <strong>{{ $item['notification_status'] }}</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Sisa Angsuran</span>
+                                                            <strong>{{ $item['remaining_installments'] }} bulan</strong>
+                                                        </div>
+                                                        <div class="detail-card">
+                                                            <span>Hari Menuju Jatuh Tempo</span>
+                                                            <strong>{{ max($item['days_remaining'], 0) }} hari</strong>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
                     </div>
