@@ -8,11 +8,10 @@
             <div class="card-body">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">Tambah Data NotiLoan – Data Mitra</h4>
+                    <h4 class="card-title mb-0">Tambah Data NotiLoan - Data Mitra</h4>
                     <a href="{{ route('data.index') }}" class="btn btn-secondary">Batal</a>
                 </div>
 
-                {{-- error validasi --}}
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -27,7 +26,6 @@
                     @csrf
 
                     <div class="row">
-
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Nomor Mitra</label>
                             <input type="text" name="nomor_mitra" class="form-control">
@@ -62,7 +60,6 @@
                             <label class="form-label">Alamat</label>
                             <textarea name="alamat" class="form-control" rows="2"></textarea>
                         </div>
-
                     </div>
 
                     <div class="d-flex justify-content-end mt-4">
@@ -70,7 +67,6 @@
                             Next
                         </button>
                     </div>
-
                 </form>
 
             </div>

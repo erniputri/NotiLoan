@@ -23,4 +23,12 @@
 <script src="{{ asset('assets/js/Chart.roundedBarCharts.js') }}"></script>
 <!-- End custom js for this page -->
 
+<!-- JQUERY-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- SELECT2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+@stack('scripts')
+
 

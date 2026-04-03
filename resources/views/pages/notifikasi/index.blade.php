@@ -12,7 +12,11 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h4 class="card-title mb-0">Data NotiLoan</h4>
 
-                                <input type="text" class="form-control form-control-sm w-25" placeholder="Cari Data...">
+                                <form method="GET" action="{{ route('notif.index') }}" class="d-flex">
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                        class="form-control form-control-sm" placeholder="Cari nama / kontak..."
+                                        style="width: 250px;">
+                                </form>
                             </div>
 
                             <div class="table-responsive">
@@ -42,7 +46,7 @@
                                                             <span class="badge bg-warning">Pending</span>
                                                         @endif
                                                     @else
-                                                        <span class="badge bg-secondary">Belum Dikirim</span>
+                                                        <span class="badge bg-secondary">Belum Dijadwalkan</span>
                                                     @endif
                                                 </td>
 
@@ -59,7 +63,7 @@
                                                             </button>
                                                         </form>
                                                     @else
-                                                        <span class="text-muted">—</span>
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -73,6 +77,9 @@
                                     </tbody>
 
                                 </table>
+                                <div class="d-flex justify-content-end mt-4">
+                                    {{ $dataPeminjaman->onEachSide(1)->links('pagination::bootstrap-5') }}
+                                </div>
                             </div>
 
                         </div>

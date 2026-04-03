@@ -66,11 +66,11 @@ Route::group(['middleware' => ['checkislogin']], function () {
             ->name('template.excel');
     });
 
-    Route::prefix('pembayaran')->name('pembayaran.')->group(function () {
-        Route::get('/', [PembayaranController::class, 'index'])->name('index');
-        Route::get('/create', [PembayaranController::class, 'create'])->name('create');
-        Route::post('/store', [PembayaranController::class, 'store'])->name('store');
-    });
+    Route::resource('pembayaran', PembayaranController::class);
+    Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
+        ->name('notif.send');
+    Route::get('/peminjaman/export', [ExportController::class, 'export'])
+        ->name('peminjaman.export');
 });
 
 Route::get('/login', [AuthController::class, 'loginView'])->name('login');
@@ -80,11 +80,3 @@ Route::get('/register', [AuthController::class, 'registerView'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-Route::get('/peminjaman/export', [ExportController::class, 'export']);
-
-Route::get('/notifikasi', [NotifikasiController::class, 'index'])
-    ->name('notif.index');
-
-Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
-    ->name('notif.send');

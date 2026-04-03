@@ -2,20 +2,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Services\NotificationScheduleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\Notification;
 
 class NotifikasiController extends Controller
 {
+    public function __construct(
+        private readonly NotificationScheduleService $notificationScheduleService
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataPeminjaman = Peminjaman::with('notifikasi')->get();
+        $search = $request->search;
 
-        return view('pages.notifikasi.index', compact('dataPeminjaman'));
+        $dataPeminjaman = Peminjaman::with('notifikasi')
+            ->when($search, function ($query) use ($search) {
+                $query->where('nama_mitra', 'like', "%{$search}%")
+                    ->orWhere('kontak', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('pages.notifikasi.index', compact('dataPeminjaman', 'search'));
     }
 
     public function send($id)
@@ -23,7 +37,8 @@ class NotifikasiController extends Controller
         $peminjaman = Peminjaman::with('notifikasi')->findOrFail($id);
 
         if (! $peminjaman->notifikasi) {
-            return back()->with('error', 'Notifikasi belum tersedia.');
+            $this->notificationScheduleService->syncForLoan($peminjaman);
+            $peminjaman->load('notifikasi');
         }
 
         $notif = $peminjaman->notifikasi;
@@ -32,9 +47,7 @@ class NotifikasiController extends Controller
             return back()->with('info', 'Notifikasi sudah terkirim.');
         }
 
-        // =========================
-        // SIMULASI KIRIM WA
-        // =========================
+        //simulasi kirim wa
         Log::info('WA TERKIRIM MANUAL', [
             'ke'      => $notif->kontak,
             'message' => $notif->message,

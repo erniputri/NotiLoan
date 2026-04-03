@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
-use App\Models\Notification; // WAJIB
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,15 +21,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       view()->composer('*', function ($view) {
+        view()->composer('partials._navbar', function ($view) {
+            if (! Auth::check()) {
+                $view->with([
+                    'navbarNotifications' => collect(),
+                    'navbarNotifCount' => 0,
+                ]);
 
-        $navbarNotifications = Notification::latest()->take(5)->get();
-        $navbarNotifCount = Notification::where('status', 'unread')->count();
+                return;
+            }
 
-        $view->with(compact(
-            'navbarNotifications',
-            'navbarNotifCount'
-        ));
-    });
+            $navbarNotifications = Notification::latest()
+                ->take(5)
+                ->get();
+
+            $navbarNotifCount = Notification::where('status', false)->count();
+
+            $view->with(compact('navbarNotifications', 'navbarNotifCount'));
+        });
     }
 }

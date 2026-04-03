@@ -1,13 +1,21 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Pembayaran\StorePembayaranRequest;
+use App\Http\Requests\Pembayaran\UpdatePembayaranRequest;
 use App\Models\Pembayaran;
 use App\Models\Peminjaman;
-use Illuminate\Http\Request;
+use App\Services\PembayaranService;
+use Illuminate\Validation\ValidationException;
 
 class PembayaranController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(
+        private readonly PembayaranService $pembayaranService
+    ) {
+    }
+
+    public function index(\Illuminate\Http\Request $request)
     {
         $query = Pembayaran::with('peminjaman');
 
@@ -17,8 +25,7 @@ class PembayaranController extends Controller
             });
         }
 
-        $pembayaran = $query->latest()->paginate(10)
-            ->withQueryString();
+        $pembayaran = $query->latest()->paginate(10)->withQueryString();
 
         return view('pages.pembayaran.index', compact('pembayaran'));
     }
@@ -28,49 +35,70 @@ class PembayaranController extends Controller
         $peminjaman = Peminjaman::select(
             'id',
             'nama_mitra',
-            'pokok_sisa'
-        )->where('pokok_sisa', '>', 0)->get();
+            'pokok_sisa',
+            'lama_angsuran_bulan'
+        )
+            ->where('pokok_sisa', '>', 0)
+            ->get();
 
         return view('pages.pembayaran.create', compact('peminjaman'));
     }
 
-    public function store(Request $request)
+    public function store(StorePembayaranRequest $request)
     {
-        $request->validate([
-            'peminjaman_id'      => 'required|exists:peminjaman,id',
-            'tanggal_pembayaran' => 'required|date',
-            'jumlah_bayar'       => 'required|numeric|min:1',
-            'bukti_pembayaran'   => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        ]);
+        $validated = $request->validated();
 
-        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+        $peminjaman = Peminjaman::findOrFail($validated['peminjaman_id']);
 
-        if ($request->jumlah_bayar > $peminjaman->pokok_sisa) {
-            return back()->withErrors([
-                'jumlah_bayar' => 'Jumlah bayar melebihi sisa pinjaman',
-            ]);
+        try {
+            $this->pembayaranService->create($peminjaman, $validated);
+        } catch (ValidationException $exception) {
+            if ($exception->errors()['payment_window'] ?? false) {
+                return back()
+                    ->withInput()
+                    ->with('reminder', true);
+            }
+
+            throw $exception;
         }
 
-        // UPLOAD FILE
-        $path = null;
-        if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')
-                ->store('bukti-pembayaran', 'public');
-        }
+        return redirect()
+            ->route('pembayaran.index')
+            ->with('success', 'Pembayaran berhasil disimpan');
+    }
 
-        Pembayaran::create([
-            'peminjaman_id'      => $peminjaman->id,
-            'tanggal_pembayaran' => $request->tanggal_pembayaran,
-            'jumlah_bayar'       => $request->jumlah_bayar,
-            'bukti_pembayaran'   => $path,
-        ]);
+    public function show($id)
+    {
+        $pembayaran = Pembayaran::with('peminjaman')
+            ->findOrFail($id);
 
-        // UPDATE SISA PINJAMAN
-        $peminjaman->update([
-            'pokok_sisa' => $peminjaman->pokok_sisa - $request->jumlah_bayar,
-        ]);
+        return view('pages.pembayaran.show', compact('pembayaran'));
+    }
+
+    public function edit($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+
+        return view('pages.pembayaran.edit', compact('pembayaran'));
+    }
+
+    public function update(UpdatePembayaranRequest $request, $id)
+    {
+        $validated = $request->validated();
+
+        $pembayaran = Pembayaran::findOrFail($id);
+        $this->pembayaranService->update($pembayaran, $validated);
 
         return redirect()->route('pembayaran.index')
-            ->with('success', 'Pembayaran berhasil disimpan');
+            ->with('success', 'Pembayaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $this->pembayaranService->delete($pembayaran);
+
+        return redirect()->route('pembayaran.index')
+            ->with('success', 'Pembayaran berhasil dihapus');
     }
 }

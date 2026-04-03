@@ -39,7 +39,7 @@
                                             <th>Jumlah Bayar</th>
                                             <th>Sisa</th>
                                             <th>Status</th>
-                                            <th>Bukti</th>
+                                            <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -67,19 +67,30 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if ($item->bukti_pembayaran)
-                                                        <a href="{{ asset('storage/' . $item->bukti_pembayaran) }}"
-                                                            target="_blank" class="btn btn-sm btn-info">
-                                                            <i class="mdi mdi-eye"></i> Lihat
-                                                        </a>
-                                                    @else
-                                                        <span class="badge bg-secondary">Tidak ada</span>
-                                                    @endif
+                                                    <a href="{{ route('pembayaran.show', $item->id) }}"
+                                                        class="btn btn-sm btn-info">
+                                                        <i class="mdi mdi-eye">Detail</i>
+                                                    </a>
+
+                                                    <a href="{{ route('pembayaran.edit', $item->id) }}"
+                                                        class="btn btn-sm btn-warning">
+                                                        <i class="mdi mdi-pencil">Edit</i>
+                                                    </a>
+
+                                                    <form action="{{ route('pembayaran.destroy', $item->id) }}"
+                                                        method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Yakin hapus pembayaran ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="btn btn-sm btn-danger">
+                                                            <i class="mdi mdi-delete">Hapus</i>
+                                                        </button>
+                                                    </form>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="5" class="text-center text-muted">
+                                                <td colspan="7" class="text-center text-muted">
                                                     Data pembayaran belum tersedia
                                                 </td>
                                             </tr>

@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // ================= VIEW =================
     public function loginView()
     {
         return view('pages.auth.login');
@@ -27,7 +26,6 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    // ================= LOGIN =================
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -36,7 +34,6 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            // penting untuk keamanan
             $request->session()->regenerate();
 
             return redirect()->route('dashboard');
@@ -47,7 +44,6 @@ class AuthController extends Controller
         ])->withInput();
     }
 
-    // ================= REGISTER =================
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -56,23 +52,18 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed'
         ]);
 
-        // simpan user
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password'])
         ]);
 
-        // LOGIN LANGSUNG KE SESSION
         Auth::login($user);
-
-        // regenerasi session (anti session fixation)
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');
     }
 
-    // ================= LOGOUT =================
     public function logout(Request $request)
     {
         Auth::logout();

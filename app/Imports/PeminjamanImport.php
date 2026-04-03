@@ -3,10 +3,11 @@
 namespace App\Imports;
 
 use App\Models\Peminjaman;
+use App\Services\NotificationScheduleService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Carbon\Carbon;
 
 class PeminjamanImport implements ToCollection, WithHeadingRow
 {
@@ -22,7 +23,7 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
             $tglPinjam = Carbon::parse($row['tanggal_peminjaman']);
             $lama = (int) $row['lama_angsuran_bulan'];
 
-            Peminjaman::create([
+            $peminjaman = Peminjaman::create([
 
                 'nomor_mitra'         => $row['nomor_mitra'] ?? null,
                 'nama_mitra'          => $row['nama_mitra'],
@@ -45,9 +46,11 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
                 'jasa_sisa'        => 0,
                 'pokok_cicilan_sd' => 0,
                 'jasa_cicilan_sd'  => 0,
-                'kualitas_kredit'  => 'Lancar',
+                'kualitas_kredit'  => null,
             ]);
-
+            
+            $peminjaman->syncKualitasKredit();
+            app(NotificationScheduleService::class)->syncForLoan($peminjaman);
         }
     }
 }

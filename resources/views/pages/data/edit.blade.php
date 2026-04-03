@@ -74,6 +74,7 @@
                             <select name="kualitas_kredit" class="form-control">
                                 <option {{ $dataPeminjaman->kualitas_kredit == 'Lancar' ? 'selected' : '' }}>Lancar</option>
                                 <option {{ $dataPeminjaman->kualitas_kredit == 'Kurang Lancar' ? 'selected' : '' }}>Kurang Lancar</option>
+                                <option {{ $dataPeminjaman->kualitas_kredit == 'Ragu-ragu' ? 'selected' : '' }}>Ragu-ragu</option>
                                 <option {{ $dataPeminjaman->kualitas_kredit == 'Macet' ? 'selected' : '' }}>Macet</option>
                             </select>
                         </div>

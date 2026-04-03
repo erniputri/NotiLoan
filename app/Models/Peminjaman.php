@@ -1,8 +1,7 @@
 <?php
 namespace App\Models;
 
-use App\Models\Pembayaran;
-use App\Models\Notification;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Peminjaman extends Model
@@ -33,13 +32,77 @@ class Peminjaman extends Model
         'kualitas_kredit',
     ];
 
+    protected $casts = [
+        'tgl_peminjaman' => 'date',
+        'tgl_jatuh_tempo' => 'date',
+        'tgl_akhir_pinjaman' => 'date',
+        'bunga_persen' => 'decimal:2',
+        'pokok_pinjaman_awal' => 'integer',
+        'administrasi_awal' => 'integer',
+        'pokok_cicilan_sd' => 'integer',
+        'jasa_cicilan_sd' => 'integer',
+        'pokok_sisa' => 'integer',
+        'jasa_sisa' => 'integer',
+    ];
+
     public function notifikasi()
     {
         return $this->hasOne(Notification::class, 'peminjaman_id', 'id');
     }
 
-    public function pembayarans()
+    public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class);
+    }
+
+    public function latestPembayaran()
+    {
+        return $this->hasOne(Pembayaran::class)->ofMany('tanggal_pembayaran', 'max');
+    }
+
+    public function getKualitasKreditAttribute($value)
+    {
+        return $value ?: $this->hitungKualitasKredit();
+    }
+
+    public function syncKualitasKredit(bool $persist = true): string
+    {
+        $kualitasKredit = $this->hitungKualitasKredit();
+
+        $this->attributes['kualitas_kredit'] = $kualitasKredit;
+
+        if ($persist && $this->exists) {
+            $this->saveQuietly();
+        }
+
+        return $kualitasKredit;
+    }
+
+    public function hitungKualitasKredit(): string
+    {
+        if ((int) $this->pokok_sisa === 0) {
+            return 'Lancar';
+        }
+
+        $pembayaranTerakhir = $this->relationLoaded('latestPembayaran')
+            ? $this->latestPembayaran
+            : $this->pembayaran()->latest('tanggal_pembayaran')->first();
+
+        $tanggalAcuan = $pembayaranTerakhir?->tanggal_pembayaran ?? $this->tgl_peminjaman;
+        $selisihHari = Carbon::parse($tanggalAcuan)->diffInDays(now());
+
+        if ($selisihHari <= 30) {
+            return 'Lancar';
+        }
+
+        if ($selisihHari <= 90) {
+            return 'Kurang Lancar';
+        }
+
+        if ($selisihHari <= 270) {
+            return 'Ragu-ragu';
+        }
+
+        return 'Macet';
     }
 }

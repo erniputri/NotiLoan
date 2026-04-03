@@ -44,8 +44,12 @@
                             <td>Rp {{number_format($peminjaman->pokok_sisa)}}</td>
                         </tr>
                         <tr>
+                            <th>Sisa Bulan</th>
+                            <td>{{number_format($peminjaman->lama_angsuran_bulan)}} Bulan</td>
+                        </tr>
+                        <tr>
                             <th>Bunga (%)</th>
-                            <td>{{ rtrim(rtrim(number_format($peminjaman->bunga_persen, 2), '0'), '.') }}%</td>
+                            <td>{{ rtrim(rtrim(number_format($peminjaman->bunga_persen, 2), '0'), '.') }}% ( Rp. {{number_format($peminjaman->administrasi_awal)}} )</td>
                         </tr>
                         <tr>
                             <th>Tanggal Peminjaman</th>
@@ -62,6 +66,8 @@
                                     <span class="badge bg-success">Lancar</span>
                                 @elseif ($peminjaman->kualitas_kredit == 'Kurang Lancar')
                                     <span class="badge bg-warning">Kurang Lancar</span>
+                                @elseif ($peminjaman->kualitas_kredit == 'Ragu-ragu')
+                                    <span class="badge bg-info">Ragu-ragu</span>
                                 @elseif ($peminjaman->kualitas_kredit == 'Macet')
                                     <span class="badge bg-danger">Macet</span>
                                 @else
@@ -72,13 +78,7 @@
                         <tr>
                             <th>Jaminan</th>
                             <td>
-                                @if ($peminjaman->jaminan)
-                                    <a href="{{ asset('storage/' . $peminjaman->jaminan) }}" target="_blank">
-                                        Lihat Jaminan
-                                    </a>
-                                @else
-                                    -
-                                @endif
+                                {{ $peminjaman->jaminan ?? '-' }}
                             </td>
                         </tr>
                     </table>

@@ -17,19 +17,19 @@
                         <div class="col-md-6 mb-3">
                             <label>Pokok Pinjaman Awal</label>
                             <input type="number" name="pokok_pinjaman_awal" class="form-control"
-                                value="{{ $peminjaman->pokok_pinjaman_awal }}" required>
+                                value="{{ old('pokok_pinjaman_awal', $peminjaman->pokok_pinjaman_awal) }}" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label>Tanggal Peminjaman</label>
                             <input type="date" name="tgl_peminjaman" class="form-control"
-                                value="{{ $peminjaman->tgl_peminjaman }}" required>
+                                value="{{ old('tgl_peminjaman', $peminjaman->tgl_peminjaman) }}" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label>Lama Angsuran (bulan)</label>
                             <input type="number" name="lama_angsuran_bulan" class="form-control"
-                                value="{{ $peminjaman->lama_angsuran_bulan }}" required>
+                                value="{{ old('lama_angsuran_bulan', $peminjaman->lama_angsuran_bulan) }}" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -41,7 +41,7 @@
 
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('data.edit.step1', $peminjaman->id) }}" class="btn btn-secondary">
-                            ← Kembali
+                            Kembali
                         </a>
 
                         <button class="btn btn-primary">
