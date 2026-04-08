@@ -118,7 +118,24 @@
                             <div class="section-heading">
                                 <div>
                                     <h4>Distribusi Kualitas Kredit</h4>
-                                    <p class="section-caption">Komposisi kualitas kredit seluruh pinjaman yang tercatat.</p>
+                                    <p class="section-caption">Komposisi kualitas kredit berdasarkan pinjaman yang dibuat pada periode {{ strtolower($chartPeriodLabel) }}.</p>
+                                </div>
+                                <div class="period-switch">
+                                    @php
+                                        $chartBaseQuery = request()->except(['chart_period', 'priority_page', 'recent_page']);
+                                    @endphp
+                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'daily'])) }}"
+                                        class="period-switch-link {{ $chartPeriod === 'daily' ? 'is-active' : '' }}">
+                                        Daily
+                                    </a>
+                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'weekly'])) }}"
+                                        class="period-switch-link {{ $chartPeriod === 'weekly' ? 'is-active' : '' }}">
+                                        Weekly
+                                    </a>
+                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'monthly'])) }}"
+                                        class="period-switch-link {{ $chartPeriod === 'monthly' ? 'is-active' : '' }}">
+                                        Monthly
+                                    </a>
                                 </div>
                             </div>
                             <div class="chart-shell">

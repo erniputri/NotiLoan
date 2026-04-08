@@ -148,6 +148,43 @@
                     margin-bottom: 0;
                 }
 
+                .dashboard-page .period-switch {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 4px;
+                    border-radius: 12px;
+                    background: #f6faf7;
+                    border: 1px solid #dcebe1;
+                }
+
+                .dashboard-page .period-switch-link {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 78px;
+                    padding: 7px 12px;
+                    border-radius: 10px;
+                    color: #6a7c72;
+                    font-size: 12px;
+                    font-weight: 600;
+                    letter-spacing: 0.01em;
+                    text-decoration: none;
+                    transition: background-color 0.2s ease, color 0.2s ease;
+                }
+
+                .dashboard-page .period-switch-link:hover {
+                    background: #edf6f0;
+                    color: #1f6f50;
+                    text-decoration: none;
+                }
+
+                .dashboard-page .period-switch-link.is-active {
+                    background: #ffffff;
+                    color: var(--theme-green-700);
+                    border: 1px solid #cfe3d6;
+                }
+
                 .dashboard-page .mini-stat-list {
                     display: grid;
                     gap: 12px;

@@ -30,15 +30,23 @@ class DataController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+        $status = $request->string('status')->lower()->value();
+        $status = in_array($status, ['aktif', 'lunas'], true) ? $status : null;
         $availableExportColumns = PeminjamanExport::availableColumns();
         $selectedExportColumns = PeminjamanExport::defaultColumns();
         $totalLoanAmount = Peminjaman::sum('pokok_pinjaman_awal');
+        $activeLoanCount = Peminjaman::where('pokok_sisa', '>', 0)->count();
+        $settledLoanCount = Peminjaman::where('pokok_sisa', 0)->count();
 
         $query = Peminjaman::when($search, function ($query) use ($search) {
             $query->where('nama_mitra', 'like', "%{$search}%")
                 ->orWhere('kontak', 'like', "%{$search}%")
                 ->orWhere('kabupaten', 'like', "%{$search}%")
                 ->orWhere('sektor', 'like', "%{$search}%");
+        })->when($status === 'aktif', function ($query) {
+            $query->where('pokok_sisa', '>', 0);
+        })->when($status === 'lunas', function ($query) {
+            $query->where('pokok_sisa', 0);
         });
 
         $dataPeminjaman = $query
@@ -49,9 +57,12 @@ class DataController extends Controller
         return view('pages.data.index', compact(
             'dataPeminjaman',
             'search',
+            'status',
             'availableExportColumns',
             'selectedExportColumns',
-            'totalLoanAmount'
+            'totalLoanAmount',
+            'activeLoanCount',
+            'settledLoanCount'
         ));
     }
 
@@ -71,13 +82,15 @@ class DataController extends Controller
             'columns' => ['nullable', 'array'],
             'columns.*' => ['string', Rule::in($allowedColumns)],
             'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['aktif', 'lunas'])],
         ]);
 
         $selectedColumns = $validated['columns'] ?? PeminjamanExport::defaultColumns();
         $search = $validated['search'] ?? null;
+        $status = $validated['status'] ?? null;
 
         return Excel::download(
-            new PeminjamanExport($selectedColumns, $search),
+            new PeminjamanExport($selectedColumns, $search, $status),
             'Data-NotiLoan-'.now()->format('Ymd-His').'.xlsx'
         );
     }

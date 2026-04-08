@@ -48,7 +48,8 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
     // Constructor menerima pilihan kolom dari admin lalu membersihkannya agar hanya kolom yang diizinkan yang lolos.
     public function __construct(
         array $selectedColumns = [],
-        private readonly ?string $search = null
+        private readonly ?string $search = null,
+        private readonly ?string $status = null
     ) {
         $allowedColumns = array_keys(self::availableColumns());
 
@@ -248,6 +249,12 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
                         ->orWhere('kabupaten', 'like', '%'.$this->search.'%')
                         ->orWhere('sektor', 'like', '%'.$this->search.'%');
                 });
+            })
+            ->when($this->status === 'aktif', function (Builder $query) {
+                $query->where('pokok_sisa', '>', 0);
+            })
+            ->when($this->status === 'lunas', function (Builder $query) {
+                $query->where('pokok_sisa', 0);
             });
     }
 

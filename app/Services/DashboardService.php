@@ -11,6 +11,14 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardService
 {
+    private const QUALITY_LABELS = [
+        'Lancar',
+        'Kurang Lancar',
+        'Ragu-ragu',
+        'Macet',
+        'Tidak Diketahui',
+    ];
+
     // Batas ini menjaga dashboard tetap ringkas dan tidak berubah menjadi halaman daftar penuh.
     private const PRIORITY_LIMIT = 3;
     private const RECENT_PAYMENT_LIMIT = 4;
@@ -18,11 +26,12 @@ class DashboardService
     private const OVERDUE_LIMIT = 6;
 
     // Method utama ini mengumpulkan seluruh data ringkasan yang dipakai oleh dashboard.
-    public function build(): array
+    public function build(?string $chartPeriod = null): array
     {
         $today = now()->startOfDay();
         $thirtyDaysAhead = now()->copy()->addDays(30)->endOfDay();
         $sevenDaysAhead = now()->copy()->addDays(7)->endOfDay();
+        $resolvedChartPeriod = $this->resolveChartPeriod($chartPeriod);
 
         // Statistik inti dibagi menjadi dua kelompok besar: pinjaman dan notifikasi.
         $loanStats = [
@@ -38,9 +47,13 @@ class DashboardService
         ];
 
         $qualityBreakdown = Peminjaman::query()
+            ->whereBetween('tgl_peminjaman', $this->chartDateRange($resolvedChartPeriod))
             ->selectRaw('COALESCE(kualitas_kredit, ?) as kualitas, COUNT(*) as total', ['Tidak Diketahui'])
             ->groupBy('kualitas')
             ->pluck('total', 'kualitas');
+
+        $qualityBreakdown = collect(self::QUALITY_LABELS)
+            ->mapWithKeys(fn (string $label) => [$label => (int) ($qualityBreakdown[$label] ?? 0)]);
 
         // Dataset pinjaman aktif ini menjadi sumber panel jatuh tempo, prioritas, dan modal detail.
         $activeLoans = Peminjaman::query()
@@ -114,6 +127,8 @@ class DashboardService
             'loanStats' => $loanStats,
             'notificationStats' => $notificationStats,
             'chartData' => $qualityBreakdown,
+            'chartPeriod' => $resolvedChartPeriod,
+            'chartPeriodLabel' => $this->chartPeriodLabel($resolvedChartPeriod),
             'priorityItems' => $this->paginateCollection(
                 $priorityItems,
                 self::PRIORITY_LIMIT,
@@ -131,6 +146,40 @@ class DashboardService
             ],
             'recentPayments' => $recentPayments,
         ];
+    }
+
+    private function resolveChartPeriod(?string $chartPeriod): string
+    {
+        return in_array($chartPeriod, ['daily', 'weekly', 'monthly'], true)
+            ? $chartPeriod
+            : 'monthly';
+    }
+
+    private function chartDateRange(string $chartPeriod): array
+    {
+        return match ($chartPeriod) {
+            'daily' => [
+                now()->startOfDay()->toDateString(),
+                now()->endOfDay()->toDateString(),
+            ],
+            'weekly' => [
+                now()->startOfWeek()->toDateString(),
+                now()->endOfWeek()->toDateString(),
+            ],
+            default => [
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString(),
+            ],
+        };
+    }
+
+    private function chartPeriodLabel(string $chartPeriod): string
+    {
+        return match ($chartPeriod) {
+            'daily' => 'Hari ini',
+            'weekly' => 'Minggu ini',
+            default => 'Bulan ini',
+        };
     }
 
     // Pagination manual dipakai karena item prioritas berasal dari collection hasil olahan, bukan query paginate langsung.

@@ -152,6 +152,16 @@
                     font-size: 16px;
                 }
 
+                .list-page a.summary-chip {
+                    text-decoration: none;
+                }
+
+                .list-page .summary-chip.is-active {
+                    background: linear-gradient(135deg, var(--theme-green-700), var(--theme-green-500));
+                    color: #fff;
+                    box-shadow: 0 10px 18px rgba(31, 111, 80, 0.16);
+                }
+
                 .list-page .table-shell {
                     border: 1px solid #e1eee6;
                     border-radius: 18px;
@@ -232,6 +242,27 @@
                 .list-page .quality-badge.secondary {
                     background: #eceff1;
                     color: #66737d;
+                }
+
+                .list-page .loan-status-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 90px;
+                    padding: 8px 12px;
+                    border-radius: 999px;
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
+                .list-page .loan-status-badge.success {
+                    background: #dff3e6;
+                    color: #1f6f50;
+                }
+
+                .list-page .loan-status-badge.warning {
+                    background: #fff3d6;
+                    color: #9a6a00;
                 }
 
                 .list-page .action-group {

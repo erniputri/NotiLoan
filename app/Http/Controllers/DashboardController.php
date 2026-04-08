@@ -14,9 +14,11 @@ class DashboardController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('pages.dashboard', $this->dashboardService->build());
+        $chartPeriod = $request->string('chart_period')->lower()->value();
+
+        return view('pages.dashboard', $this->dashboardService->build($chartPeriod));
     }
 
     /**

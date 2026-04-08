@@ -50,11 +50,16 @@
                                     <input type="text" name="search" value="{{ request('search') }}"
                                         placeholder="Cari nama, kontak, kabupaten, atau sektor..." class="form-control">
                                 </div>
+                                <select name="status" class="form-control" style="max-width: 180px;">
+                                    <option value="">Semua Status</option>
+                                    <option value="aktif" {{ $status === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="lunas" {{ $status === 'lunas' ? 'selected' : '' }}>Lunas</option>
+                                </select>
                                 <button type="submit" class="btn btn-primary btn-action">
                                     <i class="mdi mdi-magnify"></i>
                                     Cari
                                 </button>
-                                @if ($search)
+                                @if ($search || $status)
                                     <a href="{{ route('data.index') }}" class="btn btn-outline-secondary btn-action">
                                         Reset
                                     </a>
@@ -109,6 +114,7 @@
 
                             <form method="GET" action="{{ route('data.export.excel') }}">
                                 <input type="hidden" name="search" value="{{ request('search') }}">
+                                <input type="hidden" name="status" value="{{ $status }}">
 
                                 <div class="row g-2">
                                     @foreach ($availableExportColumns as $key => $label)
@@ -154,6 +160,20 @@
                             <i class="mdi mdi-database"></i>
                             Menampilkan {{ $dataPeminjaman->count() }} dari {{ $dataPeminjaman->total() }} data
                         </span>
+                        <a href="{{ route('data.index') }}" class="summary-chip {{ ! $status ? 'is-active' : '' }}">
+                            <i class="mdi mdi-view-grid-outline"></i>
+                            Semua
+                        </a>
+                        <a href="{{ route('data.index', ['status' => 'aktif', 'search' => $search]) }}"
+                            class="summary-chip {{ $status === 'aktif' ? 'is-active' : '' }}">
+                            <i class="mdi mdi-progress-clock"></i>
+                            Aktif: {{ $activeLoanCount }}
+                        </a>
+                        <a href="{{ route('data.index', ['status' => 'lunas', 'search' => $search]) }}"
+                            class="summary-chip {{ $status === 'lunas' ? 'is-active' : '' }}">
+                            <i class="mdi mdi-check-decagram"></i>
+                            Lunas: {{ $settledLoanCount }}
+                        </a>
                         @if ($search)
                             <span class="summary-chip">
                                 <i class="mdi mdi-filter-outline"></i>
@@ -170,6 +190,7 @@
                                     <th>Kontak</th>
                                     <th>Tanggal Pinjam</th>
                                     <th>Jumlah</th>
+                                    <th>Status</th>
                                     <th>Kualitas</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
@@ -177,6 +198,9 @@
                             <tbody>
                                 @forelse ($dataPeminjaman as $item)
                                     @php
+                                        $loanStatusClass = $item->pokok_sisa == 0 ? 'success' : 'warning';
+                                        $loanStatusLabel = $item->pokok_sisa == 0 ? 'Lunas' : 'Aktif';
+
                                         // Class badge dipisah dari teks kualitas agar warna status tetap konsisten di tabel.
                                         $qualityClass = match ($item->kualitas_kredit) {
                                             'Lancar' => 'success',
@@ -202,6 +226,11 @@
                                         <td>{{ optional($item->tgl_peminjaman)->format('Y-m-d') }}</td>
                                         <td>
                                             <span class="amount-pill">Rp {{ number_format($item->pokok_pinjaman_awal, 0, ',', '.') }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="loan-status-badge {{ $loanStatusClass }}">
+                                                {{ $loanStatusLabel }}
+                                            </span>
                                         </td>
                                         <td>
                                             <span class="quality-badge {{ $qualityClass }}">
@@ -230,7 +259,7 @@
                                 @empty
                                     {{-- Empty state ini membantu saat data memang belum ada atau hasil pencarian kosong. --}}
                                     <tr>
-                                        <td colspan="6" class="empty-state">
+                                        <td colspan="7" class="empty-state">
                                             <i class="mdi mdi-database-search"></i>
                                             <strong class="d-block mb-1">Data pinjaman belum ditemukan</strong>
                                             <span>Ubah kata kunci pencarian atau tambahkan data pinjaman baru.</span>
