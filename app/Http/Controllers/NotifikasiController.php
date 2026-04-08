@@ -13,9 +13,7 @@ class NotifikasiController extends Controller
     ) {
     }
 
-    /**
-     * Display a listing of the resource.
-     */
+    // Ringkasan notifikasi dihitung dari keseluruhan data, sedangkan tabel tetap mengikuti filter dan pagination.
     public function index(Request $request)
     {
         $search = $request->search;
@@ -46,6 +44,7 @@ class NotifikasiController extends Controller
         ));
     }
 
+    // Kirim manual memastikan record notifikasi ada lebih dulu, lalu mengunci statusnya sebagai terkirim.
     public function send($id)
     {
         $peminjaman = Peminjaman::with('notifikasi')->findOrFail($id);

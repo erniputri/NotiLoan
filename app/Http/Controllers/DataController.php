@@ -26,6 +26,7 @@ class DataController extends Controller
     ) {
     }
 
+    // Halaman index menggabungkan kebutuhan list data, filter pencarian, dan opsi export dinamis.
     public function index(Request $request)
     {
         $search = $request->search;
@@ -61,6 +62,7 @@ class DataController extends Controller
         return view('pages.data.show', compact('peminjaman'));
     }
 
+    // Export dijaga dengan whitelist kolom agar admin fleksibel, tetapi field yang keluar tetap aman.
     public function exportExcel(Request $request)
     {
         $allowedColumns = array_keys(PeminjamanExport::availableColumns());
@@ -80,6 +82,7 @@ class DataController extends Controller
         );
     }
 
+    // Import dipisah ke class khusus supaya controller tetap fokus pada alur request dan response.
     public function importExcel(Request $request)
     {
         $request->validate([
@@ -92,6 +95,7 @@ class DataController extends Controller
             ->with('success', 'Data berhasil diimport.');
     }
 
+    // Template excel disediakan agar format import konsisten tanpa memakai data asli dari database.
     public function downloadTemplate()
     {
         return Excel::download(
@@ -100,11 +104,13 @@ class DataController extends Controller
         );
     }
 
+    // Step 1 hanya menampilkan form identitas dasar mitra.
     public function createStep1()
     {
         return view('pages.data.create-step-1');
     }
 
+    // Data step pertama disimpan ke session agar wizard bisa berjalan bertahap sebelum final submit.
     public function storeStep1(StoreStep1Request $request)
     {
         session([
@@ -122,6 +128,7 @@ class DataController extends Controller
         return redirect()->route('data.create.step2');
     }
 
+    // Guard ini mencegah user langsung loncat ke step 2 tanpa mengisi step 1 lebih dulu.
     public function createStep2()
     {
         if (! session()->has('peminjaman.step1')) {
@@ -131,6 +138,7 @@ class DataController extends Controller
         return view('pages.data.create-step-2');
     }
 
+    // Step 2 mulai membentuk aturan pinjaman, termasuk tanggal jatuh tempo turunan dari tenor.
     public function storeStep2(StoreStep2Request $request)
     {
         $validated = $request->validated();
@@ -154,6 +162,7 @@ class DataController extends Controller
         return redirect()->route('data.create.step3');
     }
 
+    // User tidak boleh membuka step administrasi jika detail pinjaman belum tersimpan di session.
     public function createStep3()
     {
         if (! session()->has('peminjaman.step2')) {
@@ -163,6 +172,7 @@ class DataController extends Controller
         return view('pages.data.create-step-3');
     }
 
+    // Final step menggabungkan seluruh data wizard lalu menyerahkannya ke service layer untuk disimpan.
     public function storeFinal(StoreFinalRequest $request)
     {
         $step1 = session('peminjaman.step1');
@@ -187,6 +197,7 @@ class DataController extends Controller
             ->with('tambah', 'Data berhasil ditambahkan');
     }
 
+    // Edit wizard dipertahankan agar alur ubah data tetap seragam dengan alur tambah data.
     public function editStep1($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
@@ -194,6 +205,7 @@ class DataController extends Controller
         return view('pages.data.edit-step-1', compact('peminjaman'));
     }
 
+    // Identitas dipisah ke step sendiri agar perubahan profil tidak bercampur dengan logika saldo pinjaman.
     public function updateStep1(UpdateStep1Request $request, $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
@@ -209,6 +221,7 @@ class DataController extends Controller
         return view('pages.data.edit-step-2', compact('peminjaman'));
     }
 
+    // Step ini menyentuh nilai pinjaman dan tenor, jadi seluruh aturannya dipindah ke service.
     public function updateStep2(UpdateStep2Request $request, $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
@@ -224,6 +237,7 @@ class DataController extends Controller
         return view('pages.data.edit-step-3', compact('peminjaman'));
     }
 
+    // Step administrasi berisi atribut pendukung yang tidak memengaruhi alur pinjaman utama secara langsung.
     public function updateStep3(UpdateStep3Request $request, $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
@@ -241,6 +255,7 @@ class DataController extends Controller
         return view('pages.data.edit', compact('dataPeminjaman'));
     }
 
+    // Jalur update umum ini masih dipertahankan untuk kompatibilitas bila ada form lama yang memakainya.
     public function update(UpdatePeminjamanRequest $request, string $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
@@ -251,6 +266,7 @@ class DataController extends Controller
             ->with('success', 'Data berhasil diperbarui');
     }
 
+    // Hapus masih dilakukan langsung di controller karena belum ada side effect tambahan selain delete record.
     public function destroy(string $id)
     {
         Peminjaman::findOrFail($id)->delete();

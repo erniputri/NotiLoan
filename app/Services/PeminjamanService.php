@@ -14,9 +14,11 @@ class PeminjamanService
     ) {
     }
 
+    // Create dari wizard menggabungkan data tiga langkah menjadi satu transaksi simpan yang utuh.
     public function createFromWizard(array $step1, array $step2, array $step3): Peminjaman
     {
         return DB::transaction(function () use ($step1, $step2, $step3) {
+            // Jika administrasi tidak diisi manual, sistem tetap punya nilai default dari persentase bunga.
             $administrasiOtomatis = $step2['pokok_pinjaman_awal'] * ($step2['bunga_persen'] / 100);
             $administrasiFinal = $step3['administrasi_awal'] ?? $administrasiOtomatis;
 
@@ -51,6 +53,7 @@ class PeminjamanService
         });
     }
 
+    // Update identitas dipisah agar perubahan profil mitra tidak ikut menyentuh logika saldo pinjaman.
     public function updateIdentity(Peminjaman $peminjaman, array $data): Peminjaman
     {
         return DB::transaction(function () use ($peminjaman, $data) {
@@ -71,6 +74,7 @@ class PeminjamanService
         });
     }
 
+    // Update terms adalah bagian sensitif karena menyentuh pokok pinjaman, tenor, dan jatuh tempo.
     public function updateLoanTerms(Peminjaman $peminjaman, array $data): Peminjaman
     {
         return DB::transaction(function () use ($peminjaman, $data) {
@@ -84,6 +88,7 @@ class PeminjamanService
 
             $jumlahTerbayar = $this->jumlahTerbayar($loan);
 
+            // Sisa pokok dihitung ulang dari nominal baru dikurangi total yang sudah pernah dibayar.
             $payload = [
                 'pokok_pinjaman_awal' => $data['pokok_pinjaman_awal'],
                 'tgl_peminjaman' => $data['tgl_peminjaman'],
@@ -105,6 +110,7 @@ class PeminjamanService
         });
     }
 
+    // Step administrasi dipisah agar atribut pendukung bisa diubah tanpa mengubah tenor atau nilai pokok.
     public function updateAdministrative(Peminjaman $peminjaman, array $data): Peminjaman
     {
         return DB::transaction(function () use ($peminjaman, $data) {
@@ -121,6 +127,7 @@ class PeminjamanService
         });
     }
 
+    // Jalur update umum ini dipertahankan untuk kompatibilitas dengan form lama yang belum berbasis wizard.
     public function updateGeneral(Peminjaman $peminjaman, array $data): Peminjaman
     {
         return DB::transaction(function () use ($peminjaman, $data) {
@@ -154,6 +161,7 @@ class PeminjamanService
         });
     }
 
+    // Pokok pinjaman baru tidak boleh lebih kecil dari total yang sudah dibayar oleh mitra.
     private function guardPokokPinjaman(Peminjaman $peminjaman, float $pokokPinjamanAwal): void
     {
         if ($pokokPinjamanAwal < $this->jumlahTerbayar($peminjaman)) {
@@ -163,6 +171,7 @@ class PeminjamanService
         }
     }
 
+    // Helper ini menghitung total nominal yang sudah tercicil berdasarkan selisih pokok awal dan pokok sisa.
     private function jumlahTerbayar(Peminjaman $peminjaman): int
     {
         return (int) ($peminjaman->pokok_pinjaman_awal - $peminjaman->pokok_sisa);

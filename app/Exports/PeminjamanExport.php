@@ -16,6 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents
 {
+    // Daftar ini menentukan kolom angka mana yang layak dijumlahkan otomatis di baris total Excel.
     private const SUMMABLE_COLUMNS = [
         'pokok_pinjaman_awal',
         'administrasi_awal',
@@ -44,6 +45,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
 
     private array $selectedColumns;
 
+    // Constructor menerima pilihan kolom dari admin lalu membersihkannya agar hanya kolom yang diizinkan yang lolos.
     public function __construct(
         array $selectedColumns = [],
         private readonly ?string $search = null
@@ -57,6 +59,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         }
     }
 
+    // Method ini menjadi sumber tunggal daftar kolom yang boleh dipakai oleh form export dan file hasil export.
     public static function availableColumns(): array
     {
         return [
@@ -87,6 +90,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         ];
     }
 
+    // Kolom default dipakai ketika admin belum memilih kombinasi kolom sendiri.
     public static function defaultColumns(): array
     {
         return [
@@ -102,6 +106,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         ];
     }
 
+    // Collection mengambil data sesuai filter pencarian yang aktif di halaman data.
     public function collection()
     {
         return $this->buildQuery()
@@ -109,6 +114,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
             ->get();
     }
 
+    // Heading mengikuti urutan kolom yang dipilih admin agar isi file konsisten dengan checklist UI.
     public function headings(): array
     {
         return array_map(
@@ -117,6 +123,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         );
     }
 
+    // Mapping dibuat dinamis supaya satu class export bisa melayani banyak kombinasi kolom.
     public function map($row): array
     {
         return array_map(
@@ -125,6 +132,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         );
     }
 
+    // Event setelah sheet selesai dipakai untuk mempercantik hasil Excel tanpa mengganggu query utama.
     public function registerEvents(): array
     {
         return [
@@ -151,6 +159,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
                     return;
                 }
 
+                // Format angka dan tanggal diputuskan berdasarkan kolom yang benar-benar ikut diexport.
                 foreach ($this->selectedColumns as $index => $column) {
                     $columnLetter = Coordinate::stringFromColumnIndex($index + 1);
 
@@ -169,6 +178,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
 
                 $statusIndex = array_search('kualitas_kredit', $this->selectedColumns, true);
 
+                // Kolom kualitas kredit diberi warna supaya status cepat dikenali saat file dibuka.
                 if ($statusIndex !== false) {
                     $statusColumn = Coordinate::stringFromColumnIndex($statusIndex + 1);
 
@@ -201,6 +211,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
                     return;
                 }
 
+                // Baris total hanya ditambahkan jika memang ada kolom angka yang relevan untuk dijumlahkan.
                 $totalRow = $lastRow + 1;
                 $sheet->setCellValue('A'.$totalRow, 'TOTAL');
 
@@ -226,6 +237,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
         ];
     }
 
+    // Query builder dipisah agar aturan filter export konsisten dengan halaman data.
     private function buildQuery(): Builder
     {
         return Peminjaman::query()
@@ -239,6 +251,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
             });
     }
 
+    // Helper ini merapikan nilai sebelum masuk ke Excel, terutama untuk kolom tanggal dan timestamp.
     private function resolveColumnValue(Peminjaman $row, string $column): mixed
     {
         return match ($column) {

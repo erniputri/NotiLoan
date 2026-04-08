@@ -11,17 +11,20 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardService
 {
+    // Batas ini menjaga dashboard tetap ringkas dan tidak berubah menjadi halaman daftar penuh.
     private const PRIORITY_LIMIT = 3;
     private const RECENT_PAYMENT_LIMIT = 4;
     private const UPCOMING_LIMIT = 6;
     private const OVERDUE_LIMIT = 6;
 
+    // Method utama ini mengumpulkan seluruh data ringkasan yang dipakai oleh dashboard.
     public function build(): array
     {
         $today = now()->startOfDay();
         $thirtyDaysAhead = now()->copy()->addDays(30)->endOfDay();
         $sevenDaysAhead = now()->copy()->addDays(7)->endOfDay();
 
+        // Statistik inti dibagi menjadi dua kelompok besar: pinjaman dan notifikasi.
         $loanStats = [
             'total' => Peminjaman::count(),
             'active' => Peminjaman::where('pokok_sisa', '>', 0)->count(),
@@ -39,6 +42,7 @@ class DashboardService
             ->groupBy('kualitas')
             ->pluck('total', 'kualitas');
 
+        // Dataset pinjaman aktif ini menjadi sumber panel jatuh tempo, prioritas, dan modal detail.
         $activeLoans = Peminjaman::query()
             ->select([
                 'id',
@@ -76,6 +80,7 @@ class DashboardService
             ->withCount('pembayaran')
             ->get();
 
+        // Data mentah diubah dulu menjadi item siap tampil agar Blade tidak dibebani logika bisnis.
         $dueItems = $this->transformDueItems($activeLoans, $today);
 
         $upcomingItems = $dueItems
@@ -128,6 +133,7 @@ class DashboardService
         ];
     }
 
+    // Pagination manual dipakai karena item prioritas berasal dari collection hasil olahan, bukan query paginate langsung.
     private function paginateCollection(Collection $items, int $perPage, string $pageName): LengthAwarePaginator
     {
         $currentPage = LengthAwarePaginator::resolveCurrentPage($pageName);
@@ -148,9 +154,12 @@ class DashboardService
         );
     }
 
+    // Tiap pinjaman aktif diterjemahkan menjadi satu item dashboard yang sudah punya label, status, dan hitungan turunan.
     private function transformDueItems(Collection $activeLoans, Carbon $today): Collection
     {
         return $activeLoans->map(function (Peminjaman $peminjaman) use ($today) {
+            // Jika belum ada pembayaran, acuan jatuh tempo memakai tanggal pinjaman.
+            // Jika sudah ada, acuan bergeser dari pembayaran terakhir.
             $referenceDate = $peminjaman->latestPembayaran?->tanggal_pembayaran ?? $peminjaman->tgl_peminjaman;
             $nextDueDate = Carbon::parse($referenceDate)->addMonth()->startOfDay();
             $daysRemaining = $today->diffInDays($nextDueDate, false);
@@ -187,6 +196,7 @@ class DashboardService
         });
     }
 
+    // Status notifikasi diterjemahkan ke label ramah-baca agar view tidak perlu memahami struktur model.
     private function resolveNotificationStatus($notification): string
     {
         if (! $notification) {
@@ -200,6 +210,7 @@ class DashboardService
         return 'Menunggu';
     }
 
+    // Key status dipakai untuk kebutuhan logika internal seperti grouping dan perhitungan ringkasan.
     private function resolveStatusKey(int $daysRemaining): string
     {
         if ($daysRemaining < 0) {
@@ -217,6 +228,7 @@ class DashboardService
         return 'scheduled';
     }
 
+    // Label dibuat terpisah agar pesan bisnis di UI tidak bercampur dengan perhitungan hari.
     private function resolveStatusLabel(int $daysRemaining): string
     {
         if ($daysRemaining < 0) {
@@ -234,6 +246,7 @@ class DashboardService
         return 'Terjadwal';
     }
 
+    // Nama badge dipisah agar perubahan warna UI tidak memengaruhi aturan hitung status.
     private function resolveStatusBadge(int $daysRemaining): string
     {
         if ($daysRemaining < 0) {

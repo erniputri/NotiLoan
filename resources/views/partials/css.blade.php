@@ -387,3 +387,19 @@
         padding: 6px !important;
     }
 </style>
+
+@if (request()->routeIs('dashboard'))
+    @include('partials.styles.dashboard')
+@endif
+
+@if (request()->routeIs('data.index'))
+    @include('partials.styles.data-index')
+@endif
+
+@if (request()->routeIs('pembayaran.index'))
+    @include('partials.styles.pembayaran-index')
+@endif
+
+@if (request()->routeIs('notif.index'))
+    @include('partials.styles.notifikasi-index')
+@endif

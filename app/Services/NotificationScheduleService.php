@@ -8,8 +8,10 @@ use Carbon\Carbon;
 
 class NotificationScheduleService
 {
+    // Satu pinjaman dijaga agar selalu punya jadwal notifikasi yang selaras dengan jatuh temponya.
     public function syncForLoan(Peminjaman $peminjaman): Notification
     {
+        // Reminder default dikirim 3 hari sebelum jatuh tempo, lalu dimundurkan ke "sekarang" jika sudah lewat.
         $sendAt = Carbon::parse($peminjaman->tgl_jatuh_tempo)->subDays(3);
 
         if ($sendAt->isPast()) {
@@ -28,6 +30,7 @@ class NotificationScheduleService
             'send_at' => $sendAt,
         ];
 
+        // Jika notifikasi belum ada sistem akan membuat baru, jika sudah ada cukup diperbarui.
         if (! $notification) {
             return $peminjaman->notifikasi()->create($payload + [
                 'status' => 0,

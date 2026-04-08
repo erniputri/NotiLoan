@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 class PembayaranService
 {
+    // Create pembayaran wajib dibungkus transaction agar saldo pinjaman dan record pembayaran selalu sinkron.
     public function create(Peminjaman $peminjaman, array $data): Pembayaran
     {
         return DB::transaction(function () use ($peminjaman, $data) {
@@ -19,6 +20,7 @@ class PembayaranService
                 ->lockForUpdate()
                 ->findOrFail($peminjaman->id);
 
+            // Dua guard ini mencegah kasus umum yang bisa merusak data pinjaman.
             $this->guardPaymentWindow($loan, $data['tanggal_pembayaran'], $data['force'] ?? false);
             $this->guardPaymentAmount($loan, $data['jumlah_bayar']);
 
@@ -36,6 +38,7 @@ class PembayaranService
         });
     }
 
+    // Update pembayaran menghitung ulang saldo dengan cara mengembalikan nominal lama lalu menerapkan nominal baru.
     public function update(Pembayaran $pembayaran, array $data): Pembayaran
     {
         return DB::transaction(function () use ($pembayaran, $data) {
@@ -72,6 +75,7 @@ class PembayaranService
         });
     }
 
+    // Delete pembayaran tidak cukup menghapus baris, tetapi juga harus memulihkan saldo dan tenor pinjaman.
     public function delete(Pembayaran $pembayaran): void
     {
         DB::transaction(function () use ($pembayaran) {
@@ -93,6 +97,7 @@ class PembayaranService
         });
     }
 
+    // Guard ini dipakai untuk menahan pembayaran yang terlalu dekat dengan transaksi sebelumnya.
     private function guardPaymentWindow(Peminjaman $peminjaman, string $paymentDate, bool $force = false): void
     {
         if ($force) {
@@ -117,6 +122,7 @@ class PembayaranService
         }
     }
 
+    // Nominal pembayaran dijaga agar tidak pernah melebihi sisa pokok yang tersedia.
     private function guardPaymentAmount(Peminjaman $peminjaman, float $jumlahBayar): void
     {
         if ($jumlahBayar > (float) $peminjaman->pokok_sisa) {
@@ -126,6 +132,7 @@ class PembayaranService
         }
     }
 
+    // Helper kecil ini menyimpan file bukti bayar agar method utama tetap fokus pada aturan bisnis.
     private function storeProof(?UploadedFile $file): ?string
     {
         if (! $file) {
@@ -135,6 +142,7 @@ class PembayaranService
         return $file->store('bukti-pembayaran', 'public');
     }
 
+    // File lama dibersihkan supaya storage tidak dipenuhi bukti yang sudah tidak dipakai.
     private function deleteProof(?string $path): void
     {
         if ($path) {

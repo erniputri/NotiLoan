@@ -15,6 +15,7 @@ class PembayaranController extends Controller
     ) {
     }
 
+    // Index pembayaran fokus pada list transaksi dan filter nama mitra agar pencarian cepat dilakukan.
     public function index(\Illuminate\Http\Request $request)
     {
         $query = Pembayaran::with('peminjaman');
@@ -30,6 +31,7 @@ class PembayaranController extends Controller
         return view('pages.pembayaran.index', compact('pembayaran'));
     }
 
+    // Form create hanya menawarkan pinjaman yang masih punya sisa pokok untuk dibayar.
     public function create()
     {
         $peminjaman = Peminjaman::select(
@@ -44,6 +46,7 @@ class PembayaranController extends Controller
         return view('pages.pembayaran.create', compact('peminjaman'));
     }
 
+    // Controller hanya mengatur flow request, sedangkan hitung saldo dan transaksi dijalankan oleh service.
     public function store(StorePembayaranRequest $request)
     {
         $validated = $request->validated();
@@ -67,6 +70,7 @@ class PembayaranController extends Controller
             ->with('success', 'Pembayaran berhasil disimpan');
     }
 
+    // Detail pembayaran dipisah ke halaman sendiri agar bukti bayar dan data mitra bisa dilihat lebih lengkap.
     public function show($id)
     {
         $pembayaran = Pembayaran::with('peminjaman')
@@ -82,6 +86,7 @@ class PembayaranController extends Controller
         return view('pages.pembayaran.edit', compact('pembayaran'));
     }
 
+    // Update pembayaran berisiko memengaruhi saldo pinjaman, jadi logikanya tidak ditaruh di controller.
     public function update(UpdatePembayaranRequest $request, $id)
     {
         $validated = $request->validated();
@@ -93,6 +98,7 @@ class PembayaranController extends Controller
             ->with('success', 'Pembayaran berhasil diperbarui');
     }
 
+    // Hapus pembayaran harus ikut memulihkan saldo pinjaman, sehingga aman bila lewat service.
     public function destroy($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
