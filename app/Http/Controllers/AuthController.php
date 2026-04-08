@@ -43,7 +43,9 @@ class AuthController extends Controller
         ])) {
             $request->session()->regenerate();
 
-            return redirect()->route('dashboard');
+            return redirect()
+                ->route('dashboard')
+                ->with('success', 'Login berhasil. Selamat datang kembali, '.Auth::user()->name.'.');
         }
 
         return back()->withErrors([
@@ -76,7 +78,9 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard');
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Akun berhasil dibuat dan Anda sudah masuk ke sistem.');
     }
 
     public function logout(Request $request)
@@ -86,6 +90,8 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()
+            ->route('login')
+            ->with('info', 'Anda telah logout dari sistem.');
     }
 }

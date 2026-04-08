@@ -26,6 +26,7 @@
             <!-- partial:partials/_sidebar.html -->
             @include('partials._sidebar')
             <!-- partial -->
+            @include('partials.feedback')
             @yield('content')
 
             <!-- main-panel ends -->

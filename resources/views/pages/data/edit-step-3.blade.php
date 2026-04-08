@@ -1,79 +1,65 @@
 @extends('partials.app')
 
 @section('content')
-<div class="main-panel">
-    <div class="content-wrapper">
+    <div class="main-panel">
+        <div class="content-wrapper work-page">
+            <div class="page-hero">
+                <p class="page-kicker">Edit Data Pinjaman</p>
+                <h3 class="page-title">Langkah 3 dari 3: perbarui administrasi</h3>
+                <p class="page-copy">Langkah terakhir dipakai untuk menyesuaikan administrasi awal, kualitas kredit, dan keterangan jaminan.</p>
+            </div>
 
-        <div class="card">
-            <div class="card-body">
-
-                <h4 class="mb-4">Edit Administrasi & Jaminan</h4>
-
-                <form action="{{ route('data.update.step3', $peminjaman->id) }}"
-                      method="POST">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Administrasi Awal</label>
-                            <input type="number"
-                                   name="administrasi_awal"
-                                   class="form-control"
-                                   value="{{ $peminjaman->administrasi_awal }}"
-                                   required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kualitas Kredit</label>
-                            <select name="kualitas_kredit" class="form-control" required>
-                                <option value="Lancar"
-                                    {{ $peminjaman->kualitas_kredit == 'Lancar' ? 'selected' : '' }}>
-                                    Lancar
-                                </option>
-                                <option value="Kurang Lancar"
-                                    {{ $peminjaman->kualitas_kredit == 'Kurang Lancar' ? 'selected' : '' }}>
-                                    Kurang Lancar
-                                </option>
-                                <option value="Ragu-ragu"
-                                    {{ $peminjaman->kualitas_kredit == 'Ragu-ragu' ? 'selected' : '' }}>
-                                    Ragu-ragu
-                                </option>
-                                <option value="Macet"
-                                    {{ $peminjaman->kualitas_kredit == 'Macet' ? 'selected' : '' }}>
-                                    Macet
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Keterangan Jaminan</label>
-                            <textarea name="jaminan"
-                                      class="form-control"
-                                      rows="3"
-                                      required>{{ $peminjaman->jaminan }}</textarea>
-                            <small class="text-muted">
-                                Contoh: SHM No. 1234 atas nama Budi
-                            </small>
-                        </div>
+            <div class="card page-card">
+                <div class="card-body">
+                    <div class="wizard-steps">
+                        <span class="wizard-step">1. Data Mitra</span>
+                        <span class="wizard-step">2. Data Pinjaman</span>
+                        <span class="wizard-step is-active">3. Administrasi</span>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('data.edit.step2', $peminjaman->id) }}"
-                           class="btn btn-secondary">
-                            Kembali
-                        </a>
-
-                        <button class="btn btn-success">
-                            Simpan Perubahan
-                        </button>
+                    <div class="page-card-header">
+                        <div>
+                            <h4>Edit Administrasi dan Jaminan</h4>
+                            <p>Gunakan langkah ini untuk menyempurnakan atribut pendukung setelah detail pinjaman dipastikan benar.</p>
+                        </div>
+                        <a href="{{ route('data.edit.step2', $peminjaman->id) }}" class="btn btn-outline-secondary">Kembali</a>
                     </div>
 
-                </form>
+                    <form action="{{ route('data.update.step3', $peminjaman->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
 
+                        <div class="section-grid">
+                            <div class="field-card">
+                                <label class="field-label">Administrasi Awal <span class="text-danger">*</span></label>
+                                <input type="number" name="administrasi_awal" class="form-control" value="{{ old('administrasi_awal', $peminjaman->administrasi_awal) }}" required>
+                            </div>
+
+                            <div class="field-card">
+                                <label class="field-label">Kualitas Kredit <span class="text-danger">*</span></label>
+                                <select name="kualitas_kredit" class="form-control" required>
+                                    <option value="Lancar" {{ old('kualitas_kredit', $peminjaman->kualitas_kredit) == 'Lancar' ? 'selected' : '' }}>Lancar</option>
+                                    <option value="Kurang Lancar" {{ old('kualitas_kredit', $peminjaman->kualitas_kredit) == 'Kurang Lancar' ? 'selected' : '' }}>Kurang Lancar</option>
+                                    <option value="Ragu-ragu" {{ old('kualitas_kredit', $peminjaman->kualitas_kredit) == 'Ragu-ragu' ? 'selected' : '' }}>Ragu-ragu</option>
+                                    <option value="Macet" {{ old('kualitas_kredit', $peminjaman->kualitas_kredit) == 'Macet' ? 'selected' : '' }}>Macet</option>
+                                </select>
+                            </div>
+
+                            <div class="field-card is-full">
+                                <label class="field-label">Keterangan Jaminan <span class="text-danger">*</span></label>
+                                <textarea name="jaminan" class="form-control" rows="4" required>{{ old('jaminan', $peminjaman->jaminan) }}</textarea>
+                                <small class="field-hint">Contoh: SHM No. 1234 atas nama Budi.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{{ route('data.edit.step2', $peminjaman->id) }}" class="btn btn-outline-secondary">Kembali</a>
+                            <button class="btn btn-success btn-action" type="submit">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
+        @include('partials._footer')
     </div>
-</div>
 @endsection

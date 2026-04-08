@@ -386,6 +386,156 @@
         border-radius: 6px !important;
         padding: 6px !important;
     }
+
+    .app-feedback-stack {
+        position: fixed;
+        top: 82px;
+        right: 24px;
+        z-index: 1080;
+        display: grid;
+        gap: 12px;
+        width: min(420px, calc(100vw - 32px));
+    }
+
+    .app-feedback-toast {
+        display: grid;
+        grid-template-columns: 52px 1fr 24px;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 16px 18px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid var(--theme-border);
+        box-shadow: 0 18px 40px rgba(18, 53, 36, 0.16);
+        backdrop-filter: blur(10px);
+    }
+
+    .app-feedback-toast.is-success {
+        border-color: #b9dfc5;
+    }
+
+    .app-feedback-toast.is-danger {
+        border-color: #f1c6cc;
+    }
+
+    .app-feedback-toast.is-info {
+        border-color: #bfded1;
+    }
+
+    .app-feedback-logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #eef8f2, #d7efe4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .app-feedback-logo img {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+
+    .app-feedback-body strong {
+        display: block;
+        font-size: 15px;
+        color: var(--theme-green-900);
+        margin-bottom: 4px;
+    }
+
+    .app-feedback-body p,
+    .app-feedback-body li {
+        color: #55665c;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .app-feedback-close {
+        border: 0;
+        background: transparent;
+        color: #7a8b81;
+        font-size: 22px;
+        line-height: 1;
+        padding: 0;
+    }
+
+    .app-loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(18, 53, 36, 0.22);
+        backdrop-filter: blur(6px);
+    }
+
+    .app-loading-overlay.is-visible {
+        display: flex;
+    }
+
+    .app-loading-card {
+        width: min(360px, calc(100vw - 32px));
+        text-align: center;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid var(--theme-border);
+        border-radius: 24px;
+        box-shadow: 0 24px 50px rgba(18, 53, 36, 0.18);
+        padding: 28px 24px;
+    }
+
+    .app-loading-card img {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        margin-bottom: 14px;
+        animation: feedbackPulse 1.4s ease-in-out infinite;
+    }
+
+    .app-loading-card h6 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--theme-green-900);
+        margin-bottom: 6px;
+    }
+
+    .app-loading-card p {
+        margin-bottom: 0;
+        color: #64746b;
+    }
+
+    @keyframes feedbackPulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(0.94);
+            opacity: 0.76;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .app-feedback-stack {
+            top: 72px;
+            right: 12px;
+            left: 12px;
+            width: auto;
+        }
+
+        .app-feedback-toast {
+            grid-template-columns: 44px 1fr 20px;
+            padding: 14px;
+        }
+
+        .app-feedback-logo {
+            width: 44px;
+            height: 44px;
+        }
+    }
 </style>
 
 @if (request()->routeIs('dashboard'))
@@ -402,4 +552,15 @@
 
 @if (request()->routeIs('notif.index'))
     @include('partials.styles.notifikasi-index')
+@endif
+
+@if (
+    request()->routeIs('data.create.*') ||
+    request()->routeIs('data.edit.*') ||
+    request()->routeIs('data.show') ||
+    request()->routeIs('pembayaran.create') ||
+    request()->routeIs('pembayaran.edit') ||
+    request()->routeIs('pembayaran.show')
+)
+    @include('partials.styles.work-pages')
 @endif

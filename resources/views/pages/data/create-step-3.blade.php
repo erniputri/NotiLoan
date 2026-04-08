@@ -2,61 +2,57 @@
 
 @section('content')
     <div class="main-panel">
-        <div class="content-wrapper">
+        <div class="content-wrapper work-page">
+            <div class="page-hero">
+                <p class="page-kicker">Tambah Data Pinjaman</p>
+                <h3 class="page-title">Langkah 3 dari 3: administrasi dan jaminan</h3>
+                <p class="page-copy">Lengkapi administrasi awal dan keterangan jaminan sebelum data pinjaman disimpan ke sistem.</p>
+            </div>
 
-            <div class="card">
+            <div class="card page-card">
                 <div class="card-body">
-
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title mb-0">Tambah Data NotiLoan - Administrasi dan Jaminan</h4>
-                        <a href="{{ route('data.create.step2') }}" class="btn btn-secondary">
-                            Kembali
-                        </a>
+                    <div class="wizard-steps">
+                        <span class="wizard-step">1. Data Mitra</span>
+                        <span class="wizard-step">2. Data Pinjaman</span>
+                        <span class="wizard-step is-active">3. Administrasi</span>
                     </div>
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                    <div class="page-card-header">
+                        <div>
+                            <h4>Administrasi dan Jaminan</h4>
+                            <p>Bagian ini menutup proses input pinjaman dan melengkapi dokumen yang dibutuhkan untuk monitoring.</p>
                         </div>
-                    @endif
+                        <a href="{{ route('data.create.step2') }}" class="btn btn-outline-secondary">Kembali</a>
+                    </div>
 
                     <form action="{{ route('data.store.final') }}" method="POST">
                         @csrf
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Administrasi Awal</label>
-                                <input type="number" name="administrasi_awal" class="form-control"
-                                    placeholder="Akan dihitung otomatis (bisa diubah)">
+                        <div class="section-grid">
+                            <div class="field-card">
+                                <label class="field-label">Administrasi Awal</label>
+                                <input type="number" name="administrasi_awal" class="form-control" value="{{ old('administrasi_awal') }}" placeholder="Akan dihitung otomatis bila dikosongkan">
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nomor Surat Perjanjian</label>
-                                <input type="text" name="no_surat_perjanjian" class="form-control"
-                                    placeholder="Nomor surat perjanjian" required>
+                            <div class="field-card">
+                                <label class="field-label">Nomor Surat Perjanjian <span class="text-danger">*</span></label>
+                                <input type="text" name="no_surat_perjanjian" class="form-control" value="{{ old('no_surat_perjanjian') }}" required>
                             </div>
 
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Keterangan Jaminan</label>
-                                <textarea name="jaminan" class="form-control" rows="3"
-                                    placeholder="Contoh: SHM No. 1234 atas nama Budi" required></textarea>
+                            <div class="field-card is-full">
+                                <label class="field-label">Keterangan Jaminan <span class="text-danger">*</span></label>
+                                <textarea name="jaminan" class="form-control" rows="4" required>{{ old('jaminan') }}</textarea>
+                                <small class="field-hint">Contoh: SHM No. 1234 atas nama Budi.</small>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-success">
-                                Simpan Data
-                            </button>
+                        <div class="form-actions">
+                            <a href="{{ route('data.create.step2') }}" class="btn btn-outline-secondary">Kembali</a>
+                            <button type="submit" class="btn btn-success btn-action">Simpan Data Pinjaman</button>
                         </div>
                     </form>
-
                 </div>
             </div>
-
         </div>
         @include('partials._footer')
     </div>
