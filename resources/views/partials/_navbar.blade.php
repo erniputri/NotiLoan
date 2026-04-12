@@ -1,7 +1,7 @@
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo mr-5 d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="mr-2" style="height:40px;">
+            <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="mr-2 navbar-brand-logo">
             <span class="navbar-brand-text">Notiloan</span>
         </a>
 
@@ -21,23 +21,7 @@
                     <i class="icon-bell mx-0"></i>
 
                     @if ($navbarNotifCount > 0)
-                        <span
-                            style="
-                            position: absolute;
-                            top: 0px;
-                            right: 8px;
-                            background: #ff4d4f;
-                            color: white;
-                            font-size: 10px;
-                            min-width: 16px;
-                            height: 16px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 50%;
-                            padding: 0 4px;
-                            font-weight: 600;
-                        ">
+                        <span class="navbar-notif-badge">
                             {{ $navbarNotifCount }}
                         </span>
                     @endif
@@ -70,8 +54,7 @@
 
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                    <img src="{{ asset('assets/images/user.png') }}" alt="profile"
-                        style="width:35px; height:35px; border-radius:50%;">
+                    <img src="{{ asset('assets/images/user.png') }}" alt="profile" class="navbar-avatar">
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown">
@@ -96,7 +79,7 @@
             </li>
 
             <li class="nav-item d-flex align-items-center ml-3">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="logo" style="height:30px;">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="navbar-inline-logo">
             </li>
         </ul>
 

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="main-panel">
-        <div class="content-wrapper list-page">
+        <div class="content-wrapper list-page list-page--payment">
             
 
             {{-- Bagian pembuka halaman untuk memberi konteks cepat tentang fungsi halaman pembayaran. --}}
@@ -88,19 +88,6 @@
                             </thead>
                             <tbody>
                                 @forelse ($pembayaran as $item)
-                                    @php
-                                        // Status visual ditentukan dari sisa pokok pinjaman setelah pembayaran tercatat.
-                                        $status = 'Belum Bayar';
-                                        $statusClass = 'danger';
-
-                                        if ($item->peminjaman->pokok_sisa == 0) {
-                                            $status = 'Lunas';
-                                            $statusClass = 'success';
-                                        } elseif ($item->peminjaman->pokok_sisa < $item->peminjaman->pokok_pinjaman_awal) {
-                                            $status = 'Mencicil';
-                                            $statusClass = 'warning';
-                                        }
-                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="name-cell">
@@ -109,15 +96,15 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="money-pill">Rp {{ number_format($item->peminjaman->pokok_pinjaman_awal, 0, ',', '.') }}</span>
+                                            <span class="money-pill">{{ $item->peminjaman->formatted_pokok_pinjaman_awal }}</span>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($item->tanggal_pembayaran)->format('Y-m-d') }}</td>
+                                        <td>{{ $item->formatted_tanggal_pembayaran ?? '-' }}</td>
                                         <td>
-                                            <span class="money-pill">Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }}</span>
+                                            <span class="money-pill">{{ $item->formatted_jumlah_bayar }}</span>
                                         </td>
-                                        <td>Rp {{ number_format($item->peminjaman->pokok_sisa, 0, ',', '.') }}</td>
+                                        <td>{{ $item->peminjaman->formatted_pokok_sisa }}</td>
                                         <td>
-                                            <span class="status-pill {{ $statusClass }}">{{ $status }}</span>
+                                            <span class="status-pill {{ $item->payment_status_class }}">{{ $item->payment_status_label }}</span>
                                         </td>
                                         <td>
                                             <div class="action-group">
@@ -128,7 +115,7 @@
                                                     <i class="mdi mdi-pencil"></i> Edit
                                                 </a>
                                                 <form action="{{ route('pembayaran.destroy', $item->id) }}" method="POST"
-                                                    onsubmit="return confirm('Yakin hapus pembayaran ini?')">
+                                                    data-confirm-message="Yakin hapus pembayaran ini?">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="btn btn-sm btn-danger" type="submit">

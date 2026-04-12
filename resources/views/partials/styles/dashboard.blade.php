@@ -98,6 +98,26 @@
                     font-size: 20px;
                 }
 
+                .dashboard-page .metric-icon--primary {
+                    background: #e8f3ff;
+                    color: #266dd3;
+                }
+
+                .dashboard-page .metric-icon--warning {
+                    background: #fbeed8;
+                    color: #c98012;
+                }
+
+                .dashboard-page .metric-icon--success {
+                    background: #e4f7ee;
+                    color: #1a8f5e;
+                }
+
+                .dashboard-page .metric-icon--accent {
+                    background: #efe9ff;
+                    color: #6f42c1;
+                }
+
                 .dashboard-page .metric-value {
                     font-size: 34px;
                     font-weight: 700;

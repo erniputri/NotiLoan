@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="main-panel">
-        <div class="content-wrapper list-page">
+        <div class="content-wrapper list-page list-page--data">
             
 
             {{-- Hero ini memberi ringkasan paling cepat tentang fungsi halaman data pinjaman. --}}
@@ -50,7 +50,7 @@
                                     <input type="text" name="search" value="{{ request('search') }}"
                                         placeholder="Cari nama, kontak, kabupaten, atau sektor..." class="form-control">
                                 </div>
-                                <select name="status" class="form-control" style="max-width: 180px;">
+                                <select name="status" class="form-control search-status-select">
                                     <option value="">Semua Status</option>
                                     <option value="aktif" {{ $status === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                     <option value="lunas" {{ $status === 'lunas' ? 'selected' : '' }}>Lunas</option>
@@ -197,19 +197,6 @@
                             </thead>
                             <tbody>
                                 @forelse ($dataPeminjaman as $item)
-                                    @php
-                                        $loanStatusClass = $item->pokok_sisa == 0 ? 'success' : 'warning';
-                                        $loanStatusLabel = $item->pokok_sisa == 0 ? 'Lunas' : 'Aktif';
-
-                                        // Class badge dipisah dari teks kualitas agar warna status tetap konsisten di tabel.
-                                        $qualityClass = match ($item->kualitas_kredit) {
-                                            'Lancar' => 'success',
-                                            'Kurang Lancar' => 'warning',
-                                            'Ragu-ragu' => 'info',
-                                            'Macet' => 'danger',
-                                            default => 'secondary',
-                                        };
-                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="name-cell">
@@ -223,17 +210,17 @@
                                                 <small>{{ $item->kabupaten ?: 'Kabupaten belum diisi' }}</small>
                                             </div>
                                         </td>
-                                        <td>{{ optional($item->tgl_peminjaman)->format('Y-m-d') }}</td>
+                                        <td>{{ $item->formatted_tgl_peminjaman ?? '-' }}</td>
                                         <td>
-                                            <span class="amount-pill">Rp {{ number_format($item->pokok_pinjaman_awal, 0, ',', '.') }}</span>
+                                            <span class="amount-pill">{{ $item->formatted_pokok_pinjaman_awal }}</span>
                                         </td>
                                         <td>
-                                            <span class="loan-status-badge {{ $loanStatusClass }}">
-                                                {{ $loanStatusLabel }}
+                                            <span class="loan-status-badge {{ $item->loan_status_class }}">
+                                                {{ $item->loan_status_label }}
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="quality-badge {{ $qualityClass }}">
+                                            <span class="quality-badge {{ $item->kualitas_kredit_class }}">
                                                 {{ $item->kualitas_kredit ?: 'Tidak Diketahui' }}
                                             </span>
                                         </td>
@@ -246,7 +233,7 @@
                                                     <i class="mdi mdi-pencil"></i> Edit
                                                 </a>
                                                 <form action="{{ route('data.destroy', $item->id) }}" method="POST"
-                                                    onsubmit="return confirm('Hapus data ini?')">
+                                                    data-confirm-message="Hapus data ini?">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-danger">

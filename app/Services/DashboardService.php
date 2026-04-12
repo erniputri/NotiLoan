@@ -129,6 +129,7 @@ class DashboardService
             'chartData' => $qualityBreakdown,
             'chartPeriod' => $resolvedChartPeriod,
             'chartPeriodLabel' => $this->chartPeriodLabel($resolvedChartPeriod),
+            'chartPeriodLinks' => $this->chartPeriodLinks(),
             'priorityItems' => $this->paginateCollection(
                 $priorityItems,
                 self::PRIORITY_LIMIT,
@@ -145,6 +146,17 @@ class DashboardService
                 'overdue' => $overdueItems->count(),
             ],
             'recentPayments' => $recentPayments,
+        ];
+    }
+
+    private function chartPeriodLinks(): array
+    {
+        $baseQuery = request()->except(['chart_period', 'priority_page', 'recent_page']);
+
+        return [
+            'daily' => route('dashboard', array_merge($baseQuery, ['chart_period' => 'daily'])),
+            'weekly' => route('dashboard', array_merge($baseQuery, ['chart_period' => 'weekly'])),
+            'monthly' => route('dashboard', array_merge($baseQuery, ['chart_period' => 'monthly'])),
         ];
     }
 
@@ -225,24 +237,56 @@ class DashboardService
                 'nama_mitra' => $peminjaman->nama_mitra,
                 'kontak' => $peminjaman->kontak,
                 'tgl_peminjaman' => $peminjaman->tgl_peminjaman,
+                'formatted_tgl_peminjaman' => $this->formatDate($peminjaman->tgl_peminjaman),
                 'pokok_pinjaman_awal' => (int) $peminjaman->pokok_pinjaman_awal,
+                'formatted_pokok_pinjaman_awal' => $this->formatCurrency($peminjaman->pokok_pinjaman_awal),
                 'pokok_sisa' => (int) $peminjaman->pokok_sisa,
+                'formatted_pokok_sisa' => $this->formatCurrency($peminjaman->pokok_sisa),
                 'bunga_persen' => $peminjaman->bunga_persen,
+                'formatted_bunga_persen' => $this->formatPercentage($peminjaman->bunga_persen),
                 'kualitas_kredit' => $peminjaman->kualitas_kredit,
                 'next_due_date' => $nextDueDate,
+                'formatted_next_due_date' => $this->formatDate($nextDueDate),
                 'days_remaining' => $daysRemaining,
+                'formatted_days_remaining' => abs($daysRemaining) . ' hari',
                 'completed_installments' => $completedInstallments,
                 'remaining_installments' => $remainingInstallments,
                 'total_installments' => $totalInstallments,
                 'current_installment' => $currentInstallment,
                 'latest_payment_date' => $peminjaman->latestPembayaran?->tanggal_pembayaran,
+                'formatted_latest_payment_date' => $this->formatDate($peminjaman->latestPembayaran?->tanggal_pembayaran),
                 'latest_payment_amount' => $peminjaman->latestPembayaran?->jumlah_bayar,
+                'formatted_latest_payment_amount' => $peminjaman->latestPembayaran?->jumlah_bayar !== null
+                    ? $this->formatCurrency($peminjaman->latestPembayaran->jumlah_bayar)
+                    : '-',
+                'installment_label' => $totalInstallments > 0
+                    ? 'Ke-' . $currentInstallment . ' dari ' . $totalInstallments
+                    : 'Belum tersedia',
                 'notification_status' => $this->resolveNotificationStatus($peminjaman->notifikasi),
                 'status_key' => $this->resolveStatusKey($daysRemaining),
                 'status_label' => $this->resolveStatusLabel($daysRemaining),
                 'status_badge' => $this->resolveStatusBadge($daysRemaining),
             ];
         });
+    }
+
+    private function formatCurrency(int|float|string|null $value): string
+    {
+        return 'Rp ' . number_format((float) $value, 0, ',', '.');
+    }
+
+    private function formatDate($value): string
+    {
+        if (! $value) {
+            return '-';
+        }
+
+        return Carbon::parse($value)->format('Y-m-d');
+    }
+
+    private function formatPercentage(int|float|string|null $value): string
+    {
+        return number_format((float) $value, 2, ',', '.') . '%';
     }
 
     // Status notifikasi diterjemahkan ke label ramah-baca agar view tidak perlu memahami struktur model.

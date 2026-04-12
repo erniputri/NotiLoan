@@ -105,4 +105,88 @@ class Peminjaman extends Model
 
         return 'Macet';
     }
+
+    public function getFormattedTglPeminjamanAttribute(): ?string
+    {
+        return $this->tgl_peminjaman?->format('Y-m-d');
+    }
+
+    public function getFormattedTglJatuhTempoAttribute(): ?string
+    {
+        return $this->tgl_jatuh_tempo?->format('Y-m-d');
+    }
+
+    public function getFormattedPokokPinjamanAwalAttribute(): string
+    {
+        return 'Rp ' . number_format((int) $this->pokok_pinjaman_awal, 0, ',', '.');
+    }
+
+    public function getFormattedPokokSisaAttribute(): string
+    {
+        return 'Rp ' . number_format((int) $this->pokok_sisa, 0, ',', '.');
+    }
+
+    public function getFormattedAdministrasiAwalAttribute(): string
+    {
+        return 'Rp ' . number_format((int) $this->administrasi_awal, 0, ',', '.');
+    }
+
+    public function getFormattedLamaAngsuranBulanAttribute(): string
+    {
+        return number_format((int) $this->lama_angsuran_bulan, 0, ',', '.') . ' bulan';
+    }
+
+    public function getFormattedBungaPersenAttribute(): string
+    {
+        return rtrim(rtrim(number_format((float) $this->bunga_persen, 2, ',', '.'), '0'), ',') . '%';
+    }
+
+    public function getLoanStatusLabelAttribute(): string
+    {
+        return (int) $this->pokok_sisa === 0 ? 'Lunas' : 'Aktif';
+    }
+
+    public function getLoanStatusClassAttribute(): string
+    {
+        return (int) $this->pokok_sisa === 0 ? 'success' : 'warning';
+    }
+
+    public function getKualitasKreditClassAttribute(): string
+    {
+        return match ($this->kualitas_kredit) {
+            'Lancar' => 'success',
+            'Kurang Lancar' => 'warning',
+            'Ragu-ragu' => 'info',
+            'Macet' => 'danger',
+            default => 'secondary',
+        };
+    }
+
+    public function getKualitasKreditLabelAttribute(): string
+    {
+        return $this->kualitas_kredit ?: 'Tidak Diketahui';
+    }
+
+    public function getNotificationStatusLabelAttribute(): string
+    {
+        if (! $this->notifikasi) {
+            return 'Belum Dijadwalkan';
+        }
+
+        return $this->notifikasi->status ? 'Terkirim' : 'Pending';
+    }
+
+    public function getNotificationStatusClassAttribute(): string
+    {
+        if (! $this->notifikasi) {
+            return 'secondary';
+        }
+
+        return $this->notifikasi->status ? 'success' : 'warning';
+    }
+
+    public function getShouldShowNotificationSendActionAttribute(): bool
+    {
+        return ! $this->notifikasi || ! $this->notifikasi->status;
+    }
 }

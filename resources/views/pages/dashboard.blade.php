@@ -3,7 +3,6 @@
 @section('content')
     <div class="main-panel">
         <div class="content-wrapper dashboard-page">
-            
 
             <div class="row mb-4">
                 <div class="col-12">
@@ -13,10 +12,7 @@
                             <div class="col-xl-7 mb-4 mb-xl-0">
                                 <p class="hero-kicker">Dashboard TJSL PTPN IV REGIONAL III</p>
                                 <h3 class="hero-title">Halo, {{ Auth::user()->name }}</h3>
-                                <p class="hero-copy">
-                                    {{-- Fokus utama hari ini ada pada pinjaman aktif, antrean notifikasi, dan mitra yang
-                                    mendekati atau melewati jatuh tempo angsuran bulanannya. --}}
-                                </p>
+                                <p class="hero-copy"></p>
                             </div>
                             <div class="col-xl-5">
                                 <div class="hero-stat-grid">
@@ -54,7 +50,7 @@
                         <div class="card-body">
                             <div class="metric-topline">
                                 <span class="metric-label">Total Pinjaman</span>
-                                <span class="metric-icon" style="background:#e8f3ff;color:#266dd3;">
+                                <span class="metric-icon metric-icon--primary">
                                     <i class="mdi mdi-database"></i>
                                 </span>
                             </div>
@@ -69,7 +65,7 @@
                         <div class="card-body">
                             <div class="metric-topline">
                                 <span class="metric-label">Angsuran Hari Ini</span>
-                                <span class="metric-icon" style="background:#fbeed8;color:#c98012;">
+                                <span class="metric-icon metric-icon--warning">
                                     <i class="mdi mdi-calendar-today"></i>
                                 </span>
                             </div>
@@ -84,7 +80,7 @@
                         <div class="card-body">
                             <div class="metric-topline">
                                 <span class="metric-label">Jatuh Tempo 30 Hari</span>
-                                <span class="metric-icon" style="background:#e4f7ee;color:#1a8f5e;">
+                                <span class="metric-icon metric-icon--success">
                                     <i class="mdi mdi-timer-sand"></i>
                                 </span>
                             </div>
@@ -99,7 +95,7 @@
                         <div class="card-body">
                             <div class="metric-topline">
                                 <span class="metric-label">Notifikasi Terkirim</span>
-                                <span class="metric-icon" style="background:#efe9ff;color:#6f42c1;">
+                                <span class="metric-icon metric-icon--accent">
                                     <i class="mdi mdi-bell-check"></i>
                                 </span>
                             </div>
@@ -121,25 +117,25 @@
                                     <p class="section-caption">Komposisi kualitas kredit berdasarkan pinjaman yang dibuat pada periode {{ strtolower($chartPeriodLabel) }}.</p>
                                 </div>
                                 <div class="period-switch">
-                                    @php
-                                        $chartBaseQuery = request()->except(['chart_period', 'priority_page', 'recent_page']);
-                                    @endphp
-                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'daily'])) }}"
+                                    <a href="{{ $chartPeriodLinks['daily'] }}"
                                         class="period-switch-link {{ $chartPeriod === 'daily' ? 'is-active' : '' }}">
                                         Daily
                                     </a>
-                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'weekly'])) }}"
+                                    <a href="{{ $chartPeriodLinks['weekly'] }}"
                                         class="period-switch-link {{ $chartPeriod === 'weekly' ? 'is-active' : '' }}">
                                         Weekly
                                     </a>
-                                    <a href="{{ route('dashboard', array_merge($chartBaseQuery, ['chart_period' => 'monthly'])) }}"
+                                    <a href="{{ $chartPeriodLinks['monthly'] }}"
                                         class="period-switch-link {{ $chartPeriod === 'monthly' ? 'is-active' : '' }}">
                                         Monthly
                                     </a>
                                 </div>
                             </div>
                             <div class="chart-shell">
-                                <canvas id="kualitasKreditChart"></canvas>
+                                <canvas
+                                    id="kualitasKreditChart"
+                                    data-chart-labels='@json($chartData->keys()->values())'
+                                    data-chart-values='@json($chartData->values()->values())'></canvas>
                             </div>
                         </div>
                     </div>
@@ -205,8 +201,8 @@
                                                 <div class="flex-grow-1">
                                                     <h6 class="priority-name">{{ $item['nama_mitra'] }}</h6>
                                                     <p class="priority-subtitle">
-                                                        {{ $item['kontak'] }} ·
-                                                        {{ $item['next_due_date']->format('Y-m-d') }}
+                                                        {{ $item['kontak'] }} |
+                                                        {{ $item['formatted_next_due_date'] }}
                                                     </p>
                                                 </div>
                                                 <span class="badge bg-{{ $item['status_badge'] }}">
@@ -217,11 +213,11 @@
                                             <div class="priority-meta mb-3">
                                                 <div class="priority-meta-card">
                                                     <span>Jatuh Tempo</span>
-                                                    <strong>{{ $item['next_due_date']->format('Y-m-d') }}</strong>
+                                                    <strong>{{ $item['formatted_next_due_date'] }}</strong>
                                                 </div>
                                                 <div class="priority-meta-card">
                                                     <span>Sisa Pokok</span>
-                                                    <strong>Rp {{ number_format($item['pokok_sisa'], 0, ',', '.') }}</strong>
+                                                    <strong>{{ $item['formatted_pokok_sisa'] }}</strong>
                                                 </div>
                                                 <div class="priority-meta-card">
                                                     <span>Notifikasi</span>
@@ -283,8 +279,8 @@
                                             @foreach ($recentPayments as $payment)
                                                 <tr>
                                                     <td>{{ $payment->peminjaman?->nama_mitra ?? '-' }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($payment->tanggal_pembayaran)->format('Y-m-d') }}</td>
-                                                    <td>Rp {{ number_format($payment->jumlah_bayar, 0, ',', '.') }}</td>
+                                                    <td>{{ $payment->formatted_tanggal_pembayaran ?? '-' }}</td>
+                                                    <td>{{ $payment->formatted_jumlah_bayar }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -337,8 +333,8 @@
                                             @foreach ($upcomingItems as $item)
                                                 <tr>
                                                     <td>{{ $item['nama_mitra'] }}</td>
-                                                    <td>{{ $item['next_due_date']->format('Y-m-d') }}</td>
-                                                    <td>Rp {{ number_format($item['pokok_sisa'], 0, ',', '.') }}</td>
+                                                    <td>{{ $item['formatted_next_due_date'] }}</td>
+                                                    <td>{{ $item['formatted_pokok_sisa'] }}</td>
                                                     <td class="action-col">
                                                         <button type="button" class="btn btn-sm btn-outline-primary"
                                                             data-toggle="modal"
@@ -365,7 +361,7 @@
                                                             id="upcomingDetailLabel-{{ $item['id'] }}">
                                                             Detail Pinjaman Jatuh Tempo
                                                         </h5>
-                                                        <small>{{ $item['nama_mitra'] }} · {{ $item['kontak'] }}</small>
+                                                        <small>{{ $item['nama_mitra'] }} | {{ $item['kontak'] }}</small>
                                                     </div>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                         aria-label="Close">
@@ -378,7 +374,7 @@
                                                         <p>
                                                             Nomor Mitra: {{ $item['nomor_mitra'] ?: '-' }} |
                                                             Jatuh tempo berikutnya:
-                                                            {{ $item['next_due_date']->format('Y-m-d') }} |
+                                                            {{ $item['formatted_next_due_date'] }} |
                                                             {{ $item['status_label'] }}
                                                         </p>
                                                     </div>
@@ -386,24 +382,15 @@
                                                     <div class="detail-grid">
                                                         <div class="detail-card">
                                                             <span>Jumlah Pinjaman</span>
-                                                            <strong>Rp
-                                                                {{ number_format($item['pokok_pinjaman_awal'], 0, ',', '.') }}</strong>
+                                                            <strong>{{ $item['formatted_pokok_pinjaman_awal'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Sisa Pinjaman</span>
-                                                            <strong>Rp
-                                                                {{ number_format($item['pokok_sisa'], 0, ',', '.') }}</strong>
+                                                            <strong>{{ $item['formatted_pokok_sisa'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Cicilan</span>
-                                                            <strong>
-                                                                @if ($item['total_installments'] > 0)
-                                                                    Ke-{{ $item['current_installment'] }} dari
-                                                                    {{ $item['total_installments'] }}
-                                                                @else
-                                                                    Belum tersedia
-                                                                @endif
-                                                            </strong>
+                                                            <strong>{{ $item['installment_label'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Pembayaran Tercatat</span>
@@ -411,32 +398,19 @@
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Tanggal Peminjaman</span>
-                                                            <strong>{{ optional($item['tgl_peminjaman'])->format('Y-m-d') }}</strong>
+                                                            <strong>{{ $item['formatted_tgl_peminjaman'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Pembayaran Terakhir</span>
-                                                            <strong>
-                                                                @if ($item['latest_payment_date'])
-                                                                    {{ \Carbon\Carbon::parse($item['latest_payment_date'])->format('Y-m-d') }}
-                                                                @else
-                                                                    Belum ada pembayaran
-                                                                @endif
-                                                            </strong>
+                                                            <strong>{{ $item['formatted_latest_payment_date'] === '-' ? 'Belum ada pembayaran' : $item['formatted_latest_payment_date'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Nominal Pembayaran Terakhir</span>
-                                                            <strong>
-                                                                @if (! is_null($item['latest_payment_amount']))
-                                                                    Rp
-                                                                    {{ number_format($item['latest_payment_amount'], 0, ',', '.') }}
-                                                                @else
-                                                                    -
-                                                                @endif
-                                                            </strong>
+                                                            <strong>{{ $item['formatted_latest_payment_amount'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Bunga</span>
-                                                            <strong>{{ number_format((float) $item['bunga_persen'], 2, ',', '.') }}%</strong>
+                                                            <strong>{{ $item['formatted_bunga_persen'] }}</strong>
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Kualitas Kredit</span>
@@ -452,7 +426,7 @@
                                                         </div>
                                                         <div class="detail-card">
                                                             <span>Hari Menuju Jatuh Tempo</span>
-                                                            <strong>{{ max($item['days_remaining'], 0) }} hari</strong>
+                                                            <strong>{{ $item['days_remaining'] < 0 ? '0 hari' : $item['formatted_days_remaining'] }}</strong>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -494,7 +468,7 @@
                                             @foreach ($overdueItems as $item)
                                                 <tr>
                                                     <td>{{ $item['nama_mitra'] }}</td>
-                                                    <td>{{ abs($item['days_remaining']) }} hari</td>
+                                                    <td>{{ $item['formatted_days_remaining'] }}</td>
                                                     <td>{{ $item['notification_status'] }}</td>
                                                 </tr>
                                             @endforeach
@@ -510,58 +484,4 @@
 
         @include('partials._footer')
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Data chart dikirim dari service dalam bentuk agregat agar view hanya fokus pada proses render.
-            const chartCanvas = document.getElementById('kualitasKreditChart');
-
-            if (!chartCanvas) {
-                return;
-            }
-
-            const labels = @json($chartData->keys()->values());
-            const values = @json($chartData->values()->values());
-
-            new Chart(chartCanvas.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Jumlah Pinjaman',
-                        data: values,
-                        backgroundColor: ['#1f6f50', '#f4b400', '#2980b9', '#d64550', '#8892a0'],
-                        borderRadius: 10,
-                        borderSkipped: false,
-                        maxBarThickness: 48
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            },
-                            grid: {
-                                color: 'rgba(20, 30, 58, 0.08)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        });
-    </script>
 @endsection

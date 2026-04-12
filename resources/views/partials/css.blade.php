@@ -152,6 +152,37 @@
         box-shadow: 0 10px 30px rgba(20, 40, 28, 0.05);
     }
 
+    .navbar-brand-logo {
+        height: 40px;
+    }
+
+    .navbar-inline-logo {
+        height: 30px;
+    }
+
+    .navbar-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+    }
+
+    .navbar-notif-badge {
+        position: absolute;
+        top: 0;
+        right: 8px;
+        min-width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        border-radius: 50%;
+        background: #ff4d4f;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
     .navbar .nav-link,
     .navbar .icon-menu,
     .navbar .icon-bell,
@@ -542,16 +573,12 @@
     @include('partials.styles.dashboard')
 @endif
 
-@if (request()->routeIs('data.index'))
-    @include('partials.styles.data-index')
-@endif
-
-@if (request()->routeIs('pembayaran.index'))
-    @include('partials.styles.pembayaran-index')
-@endif
-
-@if (request()->routeIs('notif.index'))
-    @include('partials.styles.notifikasi-index')
+@if (
+    request()->routeIs('data.index') ||
+    request()->routeIs('pembayaran.index') ||
+    request()->routeIs('notif.index')
+)
+    @include('partials.styles.list-pages')
 @endif
 
 @if (

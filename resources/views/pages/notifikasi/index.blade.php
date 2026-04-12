@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="main-panel">
-        <div class="content-wrapper list-page">
+        <div class="content-wrapper list-page list-page--notif">
             
 
             {{-- Hero dipakai untuk menjelaskan bahwa halaman ini fokus pada monitoring dan pengiriman notifikasi. --}}
@@ -102,21 +102,6 @@
                             </thead>
                             <tbody>
                                 @forelse ($dataPeminjaman as $item)
-                                    @php
-                                        // Label status dibentuk di view agar teks yang tampil tetap ramah dibaca user.
-                                        $statusLabel = 'Belum Dijadwalkan';
-                                        $statusClass = 'secondary';
-
-                                        if ($item->notifikasi) {
-                                            if ($item->notifikasi->status) {
-                                                $statusLabel = 'Terkirim';
-                                                $statusClass = 'success';
-                                            } else {
-                                                $statusLabel = 'Pending';
-                                                $statusClass = 'warning';
-                                            }
-                                        }
-                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="name-cell">
@@ -127,18 +112,18 @@
                                         <td>
                                             <div class="name-cell">
                                                 <strong>{{ $item->kontak }}</strong>
-                                                <small>{{ optional($item->tgl_peminjaman)->format('Y-m-d') ?: 'Tanggal pinjaman belum tersedia' }}</small>
+                                                <small>{{ $item->formatted_tgl_peminjaman ?: 'Tanggal pinjaman belum tersedia' }}</small>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="status-pill {{ $statusClass }}">{{ $statusLabel }}</span>
+                                            <span class="status-pill {{ $item->notification_status_class }}">{{ $item->notification_status_label }}</span>
                                         </td>
-                                        <td>{{ optional($item->tgl_jatuh_tempo)->format('Y-m-d') }}</td>
+                                        <td>{{ $item->formatted_tgl_jatuh_tempo ?? '-' }}</td>
                                         <td>
-                                            <span class="amount-pill">Rp {{ number_format($item->pokok_pinjaman_awal, 0, ',', '.') }}</span>
+                                            <span class="amount-pill">{{ $item->formatted_pokok_pinjaman_awal }}</span>
                                         </td>
                                         <td class="action-cell">
-                                            @if (! $item->notifikasi || ! $item->notifikasi->status)
+                                            @if ($item->should_show_notification_send_action)
                                                 <form action="{{ route('notif.send', $item->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-primary">

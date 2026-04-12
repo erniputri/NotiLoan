@@ -21,13 +21,13 @@
 
                     <div class="detail-grid">
                         <div class="detail-item"><span>Nama Mitra</span><div class="detail-value">{{ $pembayaran->peminjaman->nama_mitra }}</div></div>
-                        <div class="detail-item"><span>Tanggal Pembayaran</span><div class="detail-value">{{ \Carbon\Carbon::parse($pembayaran->tanggal_pembayaran)->format('Y-m-d') }}</div></div>
-                        <div class="detail-item"><span>Jumlah Bayar</span><div class="detail-value">Rp {{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</div></div>
-                        <div class="detail-item"><span>Sisa Pinjaman</span><div class="detail-value">Rp {{ number_format($pembayaran->peminjaman->pokok_sisa, 0, ',', '.') }}</div></div>
+                        <div class="detail-item"><span>Tanggal Pembayaran</span><div class="detail-value">{{ $pembayaran->formatted_tanggal_pembayaran ?? '-' }}</div></div>
+                        <div class="detail-item"><span>Jumlah Bayar</span><div class="detail-value">{{ $pembayaran->formatted_jumlah_bayar }}</div></div>
+                        <div class="detail-item"><span>Sisa Pinjaman</span><div class="detail-value">{{ $pembayaran->peminjaman->formatted_pokok_sisa }}</div></div>
                         <div class="detail-item is-full">
                             <span>Bukti Pembayaran</span>
-                            @if ($pembayaran->bukti_pembayaran)
-                                <a href="{{ asset('storage/'.$pembayaran->bukti_pembayaran) }}" target="_blank" class="btn btn-info btn-action">
+                            @if ($pembayaran->bukti_pembayaran_url)
+                                <a href="{{ $pembayaran->bukti_pembayaran_url }}" target="_blank" class="btn btn-info btn-action">
                                     Lihat Bukti Pembayaran
                                 </a>
                             @else
