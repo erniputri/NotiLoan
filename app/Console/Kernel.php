@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('wa:send-notification')
             ->monthlyOn(1, '00:05');
+        $schedule->command('wa:send-overdue-followup')
+            ->dailyAt('08:00');
     }
 
     /**

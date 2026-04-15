@@ -130,8 +130,12 @@
                                                         <i class="mdi mdi-send"></i> Kirim WA
                                                     </button>
                                                 </form>
+                                            @elseif ($item->notification_status_label === 'Pengingat Kedua Terkirim')
+                                                <span class="muted-meta">Pengingat kedua sudah terkirim</span>
                                             @elseif ($item->notification_status_label === 'Terkirim')
-                                                <span class="muted-meta">Sudah terkirim</span>
+                                                <span class="muted-meta">Notifikasi awal sudah terkirim</span>
+                                            @elseif ($item->notification_status_label === 'Lunas')
+                                                <span class="muted-meta">Pinjaman sudah lunas</span>
                                             @else
                                                 <span class="muted-meta">Menunggu jatuh tempo</span>
                                             @endif
