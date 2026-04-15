@@ -237,7 +237,15 @@ class Peminjaman extends Model
         }
 
         if (! $this->notifikasi) {
-            return $this->is_due_and_unpaid ? 'Menunggu' : 'Belum Jatuh Tempo';
+            return $this->is_due_and_unpaid ? 'Perlu Pengingat Kedua' : 'Belum Terkirim';
+        }
+
+        if ($this->is_due_and_unpaid && ! $this->notifikasi->follow_up_sent_at) {
+            return 'Perlu Pengingat Kedua';
+        }
+
+        if ($this->notifikasi->follow_up_sent_at) {
+            return 'Pengingat Kedua Terkirim';
         }
 
         return $this->notifikasi->status ? 'Terkirim' : 'Menunggu';
@@ -250,7 +258,15 @@ class Peminjaman extends Model
         }
 
         if (! $this->notifikasi) {
-            return $this->is_due_and_unpaid ? 'warning' : 'secondary';
+            return $this->is_due_and_unpaid ? 'danger' : 'secondary';
+        }
+
+        if ($this->is_due_and_unpaid && ! $this->notifikasi->follow_up_sent_at) {
+            return 'danger';
+        }
+
+        if ($this->notifikasi->follow_up_sent_at) {
+            return 'success';
         }
 
         return $this->notifikasi->status ? 'success' : 'warning';
@@ -264,8 +280,9 @@ class Peminjaman extends Model
 
     public function getShouldShowNotificationSendActionAttribute(): bool
     {
-        return $this->is_due_and_unpaid
-            && (! $this->notifikasi || ! $this->notifikasi->status);
+        return (int) $this->pokok_sisa > 0
+            && $this->is_due_and_unpaid
+            && (! $this->notifikasi || ! $this->notifikasi->follow_up_sent_at);
     }
 
     private function normalizeKontak(?string $value): ?string

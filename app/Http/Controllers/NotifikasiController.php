@@ -18,19 +18,23 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-        $pendingNotificationCount = Peminjaman::where('pokok_sisa', '>', 0)
-            ->where(function ($query) {
-                $query->whereDoesntHave('notifikasi')
-                    ->orWhereHas('notifikasi', function ($subQuery) {
-                        $subQuery->where('status', false);
-                    });
-            })
+        $notificationSummary = Peminjaman::with(['notifikasi', 'latestPembayaran'])
+            ->where('pokok_sisa', '>', 0)
+            ->get();
+
+        $pendingNotificationCount = $notificationSummary
+            ->filter(fn (Peminjaman $loan) => in_array($loan->notification_status_label, [
+                'Belum Terkirim',
+                'Menunggu',
+                'Perlu Pengingat Kedua',
+            ], true))
             ->count();
 
-        $sentNotificationCount = Peminjaman::where('pokok_sisa', '>', 0)
-            ->whereHas('notifikasi', function ($query) {
-                $query->where('status', true);
-            })
+        $sentNotificationCount = $notificationSummary
+            ->filter(fn (Peminjaman $loan) => in_array($loan->notification_status_label, [
+                'Terkirim',
+                'Pengingat Kedua Terkirim',
+            ], true))
             ->count();
 
         $dataPeminjaman = Peminjaman::with(['notifikasi', 'latestPembayaran'])
@@ -72,11 +76,11 @@ class NotifikasiController extends Controller
             return back()->with('info', 'Notifikasi belum bisa disiapkan untuk mitra ini.');
         }
 
-        if ($notif->status && $notif->sent_at && $notif->sent_at->isSameMonth(now())) {
-            return back()->with('info', 'Notifikasi bulan ini sudah terkirim.');
+        if ($this->notificationScheduleService->hasSentSecondReminderForCurrentDueDate($notif)) {
+            return back()->with('info', 'Pengingat kedua untuk jatuh tempo ini sudah terkirim.');
         }
 
-        $attempt = $this->notificationDispatchService->dispatch($notif, 'manual');
+        $attempt = $this->notificationDispatchService->dispatchSecondReminder($notif, 'second_notice_manual');
 
         return back()->with('success', "WhatsApp berhasil diproses. Attempt tercatat dengan ID {$attempt->id}.");
     }

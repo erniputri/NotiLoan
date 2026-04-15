@@ -13,14 +13,18 @@ class Notification extends Model
         'peminjaman_id',
         'kontak',
         'message',
+        'due_date',
         'send_at',
         'sent_at',
+        'follow_up_sent_at',
         'status',
     ];
 
     protected $casts = [
+        'due_date' => 'date',
         'send_at' => 'datetime',
         'sent_at' => 'datetime',
+        'follow_up_sent_at' => 'datetime',
         'status' => 'boolean',
     ];
 

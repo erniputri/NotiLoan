@@ -22,15 +22,15 @@ class SendWaNotification extends Command
     {
         $referenceDate = now();
         $preparedNotifications = $this->notificationScheduleService->prepareMonthlyNotifications($referenceDate);
-        $notifications = $this->notificationScheduleService->notificationsReadyForDispatch($referenceDate);
+        $notifications = $this->notificationScheduleService->firstRemindersReadyForDispatch($referenceDate);
 
         if ($notifications->isEmpty()) {
-            $this->info('Tidak ada notifikasi jatuh tempo yang perlu dikirim.');
+            $this->info('Tidak ada notifikasi bulanan yang perlu dikirim.');
             return self::SUCCESS;
         }
 
         foreach ($notifications as $notif) {
-            $attempt = $this->notificationDispatchService->dispatch($notif, 'system');
+            $attempt = $this->notificationDispatchService->dispatch($notif, 'first_notice_system');
             $this->info("WA batch awal bulan diproses ke {$notif->kontak} (attempt #{$attempt->id}).");
         }
 
