@@ -37,8 +37,16 @@
 
                             <div class="field-card">
                                 <label class="field-label">Virtual Account</label>
-                                <input type="text" name="virtual_account" class="form-control" value="{{ old('virtual_account') }}">
-                                <small class="field-hint">Opsional, isi jika mitra sudah punya nomor pembayaran khusus.</small>
+                                <select name="virtual_account_bank" class="form-control mb-2">
+                                    <option value="">Pilih Bank</option>
+                                    @foreach ($virtualAccountBanks as $value => $label)
+                                        <option value="{{ $value }}" {{ old('virtual_account_bank') === $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="text" name="virtual_account" class="form-control" value="{{ old('virtual_account') }}" placeholder="Masukkan nomor virtual account">
+                                <small class="field-hint">Opsional. Saat ditampilkan, formatnya akan menjadi `Nama Bank - Nomor Virtual Account`.</small>
                             </div>
 
                             <div class="field-card">
@@ -49,6 +57,7 @@
                             <div class="field-card">
                                 <label class="field-label">Kontak / No. HP <span class="text-danger">*</span></label>
                                 <input type="text" name="kontak" class="form-control" value="{{ old('kontak') }}" required>
+                                <small class="field-hint">Gunakan nomor HP mitra. Sistem akan menyimpan format menjadi `(+62) 8...`.</small>
                             </div>
 
                             <div class="field-card">

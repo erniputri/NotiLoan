@@ -24,6 +24,7 @@ class PeminjamanService
 
             $peminjaman = Peminjaman::create([
                 'nomor_mitra' => $step1['nomor_mitra'] ?? null,
+                'virtual_account_bank' => $step1['virtual_account_bank'] ?? null,
                 'virtual_account' => $step1['virtual_account'] ?? null,
                 'nama_mitra' => $step1['nama_mitra'],
                 'kontak' => $step1['kontak'],
@@ -60,6 +61,7 @@ class PeminjamanService
             $loan = Peminjaman::lockForUpdate()->findOrFail($peminjaman->id);
             $loan->update([
                 'nomor_mitra' => $data['nomor_mitra'] ?? null,
+                'virtual_account_bank' => $data['virtual_account_bank'] ?? null,
                 'virtual_account' => $data['virtual_account'] ?? null,
                 'nama_mitra' => $data['nama_mitra'],
                 'kontak' => $data['kontak'],

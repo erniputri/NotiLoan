@@ -120,7 +120,9 @@ class DataController extends Controller
     // Step 1 hanya menampilkan form identitas dasar mitra.
     public function createStep1()
     {
-        return view('pages.data.create-step-1');
+        $virtualAccountBanks = Peminjaman::virtualAccountBankOptions();
+
+        return view('pages.data.create-step-1', compact('virtualAccountBanks'));
     }
 
     // Data step pertama disimpan ke session agar wizard bisa berjalan bertahap sebelum final submit.
@@ -129,6 +131,7 @@ class DataController extends Controller
         session([
             'peminjaman.step1' => $request->safe()->only([
                 'nomor_mitra',
+                'virtual_account_bank',
                 'virtual_account',
                 'nama_mitra',
                 'kontak',
@@ -214,8 +217,9 @@ class DataController extends Controller
     public function editStep1($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
+        $virtualAccountBanks = Peminjaman::virtualAccountBankOptions();
 
-        return view('pages.data.edit-step-1', compact('peminjaman'));
+        return view('pages.data.edit-step-1', compact('peminjaman', 'virtualAccountBanks'));
     }
 
     // Identitas dipisah ke step sendiri agar perubahan profil tidak bercampur dengan logika saldo pinjaman.

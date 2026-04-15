@@ -22,6 +22,7 @@
                     <div class="detail-grid">
                         <div class="detail-item"><span>Nama Mitra</span><div class="detail-value">{{ $peminjaman->nama_mitra }}</div></div>
                         <div class="detail-item"><span>Kontak</span><div class="detail-value">{{ $peminjaman->kontak }}</div></div>
+                        <div class="detail-item"><span>Virtual Account</span><div class="detail-value">{{ $peminjaman->formatted_virtual_account ?: '-' }}</div></div>
                         <div class="detail-item is-full"><span>Alamat</span><p>{{ $peminjaman->alamat ?: '-' }}</p></div>
                         <div class="detail-item"><span>Kabupaten</span><div class="detail-value">{{ $peminjaman->kabupaten ?: '-' }}</div></div>
                         <div class="detail-item"><span>Sektor</span><div class="detail-value">{{ $peminjaman->sektor ?: '-' }}</div></div>

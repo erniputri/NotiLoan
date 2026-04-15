@@ -262,6 +262,7 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithMapping, Sho
     private function resolveColumnValue(Peminjaman $row, string $column): mixed
     {
         return match ($column) {
+            'virtual_account' => $row->formatted_virtual_account,
             'tgl_peminjaman',
             'tgl_jatuh_tempo',
             'tgl_akhir_pinjaman' => optional($row->{$column})->format('Y-m-d'),

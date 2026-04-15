@@ -115,7 +115,7 @@ class NotificationScheduleService
 
     private function buildMessage(Peminjaman $peminjaman, Carbon $nextDueDate): string
     {
-        $virtualAccount = $peminjaman->virtual_account ?: 'belum tersedia';
+        $virtualAccount = $peminjaman->formatted_virtual_account ?: 'belum tersedia';
 
         return sprintf(
             'Yth %s, pembayaran pinjaman Anda yang jatuh tempo pada %s belum kami terima. Silakan lakukan pembayaran melalui Virtual Account %s.',

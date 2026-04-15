@@ -10,6 +10,7 @@ class Peminjaman extends Model
 
     protected $fillable = [
         'nomor_mitra',
+        'virtual_account_bank',
         'virtual_account',
         'nama_mitra',
         'kontak',
@@ -44,6 +45,47 @@ class Peminjaman extends Model
         'pokok_sisa' => 'integer',
         'jasa_sisa' => 'integer',
     ];
+
+    public function setNomorMitraAttribute($value): void
+    {
+        $this->attributes['nomor_mitra'] = $value === null ? null : trim((string) $value);
+    }
+
+    public function setKontakAttribute($value): void
+    {
+        $this->attributes['kontak'] = $this->normalizeKontak($value);
+    }
+
+    public function getFormattedVirtualAccountAttribute(): ?string
+    {
+        $bank = $this->virtual_account_bank ? trim((string) $this->virtual_account_bank) : null;
+        $number = $this->virtual_account ? trim((string) $this->virtual_account) : null;
+
+        if (! $bank && ! $number) {
+            return null;
+        }
+
+        if ($bank && $number) {
+            return $bank . ' - ' . $number;
+        }
+
+        return $bank ?: $number;
+    }
+
+    public static function virtualAccountBankOptions(): array
+    {
+        return [
+            'Bank BRI' => 'Bank BRI',
+            'Bank BNI' => 'Bank BNI',
+            'Bank Mandiri' => 'Bank Mandiri',
+            'Bank BCA' => 'Bank BCA',
+            'Bank BTN' => 'Bank BTN',
+            'Bank Syariah Indonesia' => 'Bank Syariah Indonesia',
+            'Bank CIMB Niaga' => 'Bank CIMB Niaga',
+            'Bank Permata' => 'Bank Permata',
+            'Bank BRK' => 'Bank Riau Kepri',
+        ];
+    }
 
     public function notifikasi()
     {
@@ -224,5 +266,40 @@ class Peminjaman extends Model
     {
         return $this->is_due_and_unpaid
             && (! $this->notifikasi || ! $this->notifikasi->status);
+    }
+
+    private function normalizeKontak(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $value);
+
+        if ($digits === '') {
+            return $value;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            $digits = '62' . substr($digits, 1);
+        }
+
+        if (! str_starts_with($digits, '62')) {
+            return $value;
+        }
+
+        $localNumber = ltrim(substr($digits, 2), '0');
+
+        if ($localNumber === '') {
+            return '(+62)';
+        }
+
+        return '(+62) ' . $localNumber;
     }
 }
