@@ -28,4 +28,9 @@ class Notification extends Model
     {
         return $this->belongsTo(Peminjaman::class, 'peminjaman_id', 'id');
     }
+
+    public function attempts()
+    {
+        return $this->hasMany(NotificationAttempt::class);
+    }
 }

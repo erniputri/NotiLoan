@@ -31,11 +31,19 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $navbarNotifications = Notification::latest()
+            $navbarNotifications = Notification::whereHas('peminjaman', function ($query) {
+                $query->where('pokok_sisa', '>', 0);
+            })
+                ->latest()
                 ->take(5)
                 ->get();
 
-            $navbarNotifCount = Notification::where('status', false)->count();
+            $navbarNotifCount = Notification::where('status', false)
+                ->where('send_at', '<=', now())
+                ->whereHas('peminjaman', function ($query) {
+                    $query->where('pokok_sisa', '>', 0);
+                })
+                ->count();
 
             $view->with(compact('navbarNotifications', 'navbarNotifCount'));
         });

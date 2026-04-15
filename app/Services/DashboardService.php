@@ -41,9 +41,17 @@ class DashboardService
         ];
 
         $notificationStats = [
-            'total' => Notification::count(),
-            'pending' => Notification::where('status', false)->count(),
-            'sent' => Notification::where('status', true)->count(),
+            'total' => Notification::whereHas('peminjaman', function ($query) {
+                $query->where('pokok_sisa', '>', 0);
+            })->count(),
+            'pending' => Notification::where('status', false)
+                ->whereHas('peminjaman', function ($query) {
+                    $query->where('pokok_sisa', '>', 0);
+                })->count(),
+            'sent' => Notification::where('status', true)
+                ->whereHas('peminjaman', function ($query) {
+                    $query->where('pokok_sisa', '>', 0);
+                })->count(),
         ];
 
         $qualityBreakdown = Peminjaman::query()

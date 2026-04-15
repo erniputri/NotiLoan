@@ -2,14 +2,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Services\NotificationDispatchService;
 use App\Services\NotificationScheduleService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class NotifikasiController extends Controller
 {
     public function __construct(
-        private readonly NotificationScheduleService $notificationScheduleService
+        private readonly NotificationScheduleService $notificationScheduleService,
+        private readonly NotificationDispatchService $notificationDispatchService
     ) {
     }
 
@@ -17,20 +18,28 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-        $pendingNotificationCount = Peminjaman::whereDoesntHave('notifikasi')
-            ->orWhereHas('notifikasi', function ($query) {
-                $query->where('status', false);
+        $pendingNotificationCount = Peminjaman::where('pokok_sisa', '>', 0)
+            ->where(function ($query) {
+                $query->whereDoesntHave('notifikasi')
+                    ->orWhereHas('notifikasi', function ($subQuery) {
+                        $subQuery->where('status', false);
+                    });
             })
             ->count();
 
-        $sentNotificationCount = Peminjaman::whereHas('notifikasi', function ($query) {
-            $query->where('status', true);
-        })->count();
+        $sentNotificationCount = Peminjaman::where('pokok_sisa', '>', 0)
+            ->whereHas('notifikasi', function ($query) {
+                $query->where('status', true);
+            })
+            ->count();
 
-        $dataPeminjaman = Peminjaman::with('notifikasi')
+        $dataPeminjaman = Peminjaman::with(['notifikasi', 'latestPembayaran'])
+            ->where('pokok_sisa', '>', 0)
             ->when($search, function ($query) use ($search) {
-                $query->where('nama_mitra', 'like', "%{$search}%")
-                    ->orWhere('kontak', 'like', "%{$search}%");
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nama_mitra', 'like', "%{$search}%")
+                        ->orWhere('kontak', 'like', "%{$search}%");
+                });
             })
             ->latest()
             ->paginate(10)
@@ -44,35 +53,32 @@ class NotifikasiController extends Controller
         ));
     }
 
-    // Kirim manual memastikan record notifikasi ada lebih dulu, lalu mengunci statusnya sebagai terkirim.
+    // Kirim manual memastikan mitra memang sudah jatuh tempo, belum bayar, dan belum lunas.
     public function send($id)
     {
-        $peminjaman = Peminjaman::with('notifikasi')->findOrFail($id);
+        $peminjaman = Peminjaman::with(['notifikasi', 'latestPembayaran'])->findOrFail($id);
 
-        if (! $peminjaman->notifikasi) {
-            $this->notificationScheduleService->syncForLoan($peminjaman);
-            $peminjaman->load('notifikasi');
+        if ((int) $peminjaman->pokok_sisa <= 0) {
+            return back()->with('info', 'Pinjaman sudah lunas sehingga tidak perlu dikirim notifikasi lagi.');
         }
 
-        $notif = $peminjaman->notifikasi;
-
-        if ($notif->status == 1) {
-            return back()->with('info', 'Notifikasi sudah terkirim.');
+        if (! $this->notificationScheduleService->isLoanDueAndUnpaid($peminjaman)) {
+            return back()->with('info', 'Notifikasi hanya dikirim ke mitra yang sudah jatuh tempo dan belum membayar.');
         }
 
-        //simulasi kirim wa
-        Log::info('WA TERKIRIM MANUAL', [
-            'ke'      => $notif->kontak,
-            'message' => $notif->message,
-        ]);
+        $notif = $this->notificationScheduleService->syncForLoan($peminjaman);
 
-        // Update status
-        $notif->update([
-            'status'  => 1,
-            'sent_at' => now(),
-        ]);
+        if (! $notif) {
+            return back()->with('info', 'Notifikasi belum bisa disiapkan untuk mitra ini.');
+        }
 
-        return back()->with('success', 'WhatsApp berhasil dikirim.');
+        if ($notif->status && $notif->sent_at && $notif->sent_at->isSameMonth(now())) {
+            return back()->with('info', 'Notifikasi bulan ini sudah terkirim.');
+        }
+
+        $attempt = $this->notificationDispatchService->dispatch($notif, 'manual');
+
+        return back()->with('success', "WhatsApp berhasil diproses. Attempt tercatat dengan ID {$attempt->id}.");
     }
 
     /**

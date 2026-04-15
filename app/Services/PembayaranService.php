@@ -12,6 +12,11 @@ use Illuminate\Validation\ValidationException;
 
 class PembayaranService
 {
+    public function __construct(
+        private readonly NotificationScheduleService $notificationScheduleService
+    ) {
+    }
+
     // Create pembayaran wajib dibungkus transaction agar saldo pinjaman dan record pembayaran selalu sinkron.
     public function create(Peminjaman $peminjaman, array $data): Pembayaran
     {
@@ -33,6 +38,7 @@ class PembayaranService
             $loan->pokok_sisa -= (int) $data['jumlah_bayar'];
             $loan->lama_angsuran_bulan = max(0, (int) $loan->lama_angsuran_bulan - 1);
             $loan->syncKualitasKredit();
+            $this->notificationScheduleService->syncForLoan($loan->refresh());
 
             return $pembayaran;
         });
@@ -70,6 +76,7 @@ class PembayaranService
 
             $loan->pokok_sisa = $restoredSaldo - (int) $data['jumlah_bayar'];
             $loan->syncKualitasKredit();
+            $this->notificationScheduleService->syncForLoan($loan->refresh());
 
             return $payment;
         });
@@ -90,6 +97,7 @@ class PembayaranService
             $loan->pokok_sisa += (int) $payment->jumlah_bayar;
             $loan->lama_angsuran_bulan += 1;
             $loan->syncKualitasKredit();
+            $this->notificationScheduleService->syncForLoan($loan->refresh());
 
             $proofPath = $payment->bukti_pembayaran;
             $payment->delete();

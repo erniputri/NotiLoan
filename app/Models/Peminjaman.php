@@ -60,6 +60,17 @@ class Peminjaman extends Model
         return $this->hasOne(Pembayaran::class)->ofMany('tanggal_pembayaran', 'max');
     }
 
+    public function resolveNextDueDate(): Carbon
+    {
+        $referenceDate = $this->relationLoaded('latestPembayaran')
+            ? $this->latestPembayaran?->tanggal_pembayaran
+            : $this->pembayaran()->latest('tanggal_pembayaran')->value('tanggal_pembayaran');
+
+        $referenceDate ??= $this->tgl_peminjaman;
+
+        return Carbon::parse($referenceDate)->addMonth()->startOfDay();
+    }
+
     public function getKualitasKreditAttribute($value)
     {
         return $value ?: $this->hitungKualitasKredit();
@@ -116,6 +127,16 @@ class Peminjaman extends Model
         return $this->tgl_jatuh_tempo?->format('Y-m-d');
     }
 
+    public function getNextDueDateAttribute(): Carbon
+    {
+        return $this->resolveNextDueDate();
+    }
+
+    public function getFormattedNextDueDateAttribute(): string
+    {
+        return $this->resolveNextDueDate()->format('Y-m-d');
+    }
+
     public function getFormattedPokokPinjamanAwalAttribute(): string
     {
         return 'Rp ' . number_format((int) $this->pokok_pinjaman_awal, 0, ',', '.');
@@ -169,24 +190,39 @@ class Peminjaman extends Model
 
     public function getNotificationStatusLabelAttribute(): string
     {
-        if (! $this->notifikasi) {
-            return 'Belum Dijadwalkan';
+        if ((int) $this->pokok_sisa === 0) {
+            return 'Lunas';
         }
 
-        return $this->notifikasi->status ? 'Terkirim' : 'Pending';
+        if (! $this->notifikasi) {
+            return $this->is_due_and_unpaid ? 'Menunggu' : 'Belum Jatuh Tempo';
+        }
+
+        return $this->notifikasi->status ? 'Terkirim' : 'Menunggu';
     }
 
     public function getNotificationStatusClassAttribute(): string
     {
-        if (! $this->notifikasi) {
+        if ((int) $this->pokok_sisa === 0) {
             return 'secondary';
+        }
+
+        if (! $this->notifikasi) {
+            return $this->is_due_and_unpaid ? 'warning' : 'secondary';
         }
 
         return $this->notifikasi->status ? 'success' : 'warning';
     }
 
+    public function getIsDueAndUnpaidAttribute(): bool
+    {
+        return (int) $this->pokok_sisa > 0
+            && $this->resolveNextDueDate()->lte(now()->startOfDay());
+    }
+
     public function getShouldShowNotificationSendActionAttribute(): bool
     {
-        return ! $this->notifikasi || ! $this->notifikasi->status;
+        return $this->is_due_and_unpaid
+            && (! $this->notifikasi || ! $this->notifikasi->status);
     }
 }

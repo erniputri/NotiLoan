@@ -45,7 +45,7 @@
                         </div>
                         <span class="surface-note">
                             <i class="mdi mdi-bell-outline"></i>
-                            Kirim manual hanya muncul bila notifikasi belum terkirim
+                            Kirim manual hanya muncul untuk mitra yang sudah jatuh tempo dan belum membayar
                         </span>
                     </div>
 
@@ -118,7 +118,7 @@
                                         <td>
                                             <span class="status-pill {{ $item->notification_status_class }}">{{ $item->notification_status_label }}</span>
                                         </td>
-                                        <td>{{ $item->formatted_tgl_jatuh_tempo ?? '-' }}</td>
+                                        <td>{{ $item->formatted_next_due_date }}</td>
                                         <td>
                                             <span class="amount-pill">{{ $item->formatted_pokok_pinjaman_awal }}</span>
                                         </td>
@@ -130,8 +130,10 @@
                                                         <i class="mdi mdi-send"></i> Kirim WA
                                                     </button>
                                                 </form>
-                                            @else
+                                            @elseif ($item->notification_status_label === 'Terkirim')
                                                 <span class="muted-meta">Sudah terkirim</span>
+                                            @else
+                                                <span class="muted-meta">Menunggu jatuh tempo</span>
                                             @endif
                                         </td>
                                     </tr>

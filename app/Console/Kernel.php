@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
     {
         $schedule->command('wa:send-notification')
-            ->everyMinute();
+            ->monthlyOn(1, '00:05');
     }
 
     /**
