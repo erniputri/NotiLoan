@@ -114,13 +114,21 @@
                 url('{{ asset('assets/images/auth/oil-palm-login.jpg') }}') center/cover no-repeat;
         }
 
+        .auth-visual .auth-kicker {
+            background: rgba(239, 247, 242, 0.14);
+            color: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            letter-spacing: 0.06em;
+            line-height: 1.5;
+        }
+
         .auth-visual::before {
             content: "";
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(135deg, rgba(210, 154, 43, 0.18), transparent 35%),
-                linear-gradient(0deg, rgba(9, 34, 23, 0.58), rgba(9, 34, 23, 0.05));
+                linear-gradient(135deg, rgba(210, 154, 43, 0.14), transparent 35%),
+                linear-gradient(0deg, rgba(9, 34, 23, 0.72), rgba(9, 34, 23, 0.16));
         }
 
         .auth-visual > * {
@@ -168,23 +176,24 @@
         }
 
         .auth-visual-headline {
-            max-width: 440px;
+            max-width: 470px;
             margin-top: auto;
         }
 
         .auth-visual-headline h2 {
-            font-size: clamp(2rem, 3vw, 3rem);
+            font-size: clamp(1.9rem, 2.8vw, 3.1rem);
             font-weight: 800;
-            line-height: 1.08;
-            margin-bottom: 16px;
+            line-height: 1.14;
+            margin-bottom: 14px;
+            text-wrap: balance;
         }
 
         .auth-visual-headline p {
-            max-width: 400px;
-            color: rgba(255, 255, 255, 0.82);
+            max-width: 430px;
+            color: rgba(255, 255, 255, 0.88);
             margin-bottom: 0;
             font-size: 15px;
-            line-height: 1.8;
+            line-height: 1.75;
         }
 
         .auth-stat-grid {
@@ -197,8 +206,9 @@
         .auth-stat {
             padding: 14px 16px;
             border-radius: 18px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            min-height: 118px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             backdrop-filter: blur(8px);
         }
 
@@ -211,9 +221,16 @@
         }
 
         .auth-stat-value {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 800;
             margin-bottom: 0;
+            line-height: 1.35;
+            color: rgba(255, 255, 255, 0.98);
+        }
+
+        .auth-stat-value--compact {
+            font-size: 1.05rem;
+            line-height: 1.5;
         }
 
         .auth-input-label {
@@ -318,6 +335,10 @@
 
             .auth-visual-headline h2 {
                 font-size: 2rem;
+            }
+
+            .auth-stat {
+                min-height: auto;
             }
         }
     </style>
