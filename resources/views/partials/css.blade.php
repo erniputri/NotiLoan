@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('js/select.dataTables.min.css') }}">
 
 <link rel="stylesheet" href="{{ asset('assets/css/vertical-layout-light/style.css') }}">
-<link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+<link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -154,6 +154,12 @@
 
     .navbar-brand-logo {
         height: 40px;
+    }
+
+    .navbar-brand-logo-mini {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
     }
 
     .navbar-inline-logo {

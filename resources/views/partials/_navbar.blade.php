@@ -1,12 +1,12 @@
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo mr-5 d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="mr-2 navbar-brand-logo">
-            <span class="navbar-brand-text">Notiloan</span>
+            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN NotiLoan" class="mr-2 navbar-brand-logo">
+            <span class="navbar-brand-text">NotiLoan</span>
         </a>
 
         <a class="navbar-brand brand-logo-mini" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/images/logo-mini.svg') }}" alt="logo" />
+            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN NotiLoan" class="navbar-brand-logo-mini" />
         </a>
     </div>
 
