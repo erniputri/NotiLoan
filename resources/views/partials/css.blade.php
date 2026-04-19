@@ -576,7 +576,8 @@
 @if (
     request()->routeIs('data.index') ||
     request()->routeIs('pembayaran.index') ||
-    request()->routeIs('notif.index')
+    request()->routeIs('notif.index') ||
+    request()->routeIs('user.index')
 )
     @include('partials.styles.list-pages')
 @endif
@@ -587,7 +588,10 @@
     request()->routeIs('data.show') ||
     request()->routeIs('pembayaran.create') ||
     request()->routeIs('pembayaran.edit') ||
-    request()->routeIs('pembayaran.show')
+    request()->routeIs('pembayaran.show') ||
+    request()->routeIs('user.create') ||
+    request()->routeIs('user.edit') ||
+    request()->routeIs('user.show')
 )
     @include('partials.styles.work-pages')
 @endif

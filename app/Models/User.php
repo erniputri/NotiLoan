@@ -12,6 +12,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_SUPER_ADMIN = 'super_admin';
+    public const ROLE_ADMIN = 'admin';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,6 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role',
         'password',
     ];
 
@@ -44,5 +48,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function roleOptions(): array
+    {
+        return [
+            self::ROLE_SUPER_ADMIN => 'Super Admin',
+            self::ROLE_ADMIN => 'Admin',
+        ];
+    }
+
+    public function getSapAttribute(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return self::roleOptions()[$this->role] ?? 'Tidak Diketahui';
+    }
+
+    public function getRoleBadgeClassAttribute(): string
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN ? 'success' : 'info';
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }

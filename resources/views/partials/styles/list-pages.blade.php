@@ -256,7 +256,9 @@
         color: #9a6a00;
     }
 
-    .list-page .quality-badge.info {
+    .list-page .quality-badge.info,
+    .list-page .status-pill.info,
+    .list-page .loan-status-badge.info {
         background: #dff2f7;
         color: #176f86;
     }

@@ -64,6 +64,18 @@
                                 </div>
                             @endif
 
+                            @if (session('info'))
+                                <div class="alert alert-info small mb-4">
+                                    {{ session('info') }}
+                                </div>
+                            @endif
+
+                            @if (session('success'))
+                                <div class="alert alert-success small mb-4">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
 
@@ -98,8 +110,7 @@
 
                             <div class="text-center mt-3">
                                 <small class="auth-note">
-                                    Belum punya akun?
-                                    <a href="{{ route('register') }}" class="fw-semibold auth-link">Daftar</a>
+                                    Pembuatan akun dilakukan oleh super admin melalui halaman manajemen user.
                                 </small>
                             </div>
                         </div>

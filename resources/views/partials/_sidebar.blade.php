@@ -32,6 +32,15 @@
                 <span class="menu-title">Pembayaran</span>
             </a>
         </li>
+
+        @if (auth()->user()?->isSuperAdmin())
+            <li class="nav-item {{ request()->routeIs('user.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('user.index') }}">
+                    <i class="icon-head menu-icon"></i>
+                    <span class="menu-title">User</span>
+                </a>
+            </li>
+        @endif
     </ul>
 
 </nav>

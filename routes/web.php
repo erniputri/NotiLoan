@@ -6,6 +6,7 @@ use App\Http\Controllers\DataController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 //Fitur Route
@@ -71,12 +72,25 @@ Route::group(['middleware' => ['checkislogin']], function () {
         ->name('notif.send');
     Route::get('/peminjaman/export', [ExportController::class, 'export'])
         ->name('peminjaman.export');
+
+    Route::middleware('superadmin')->group(function () {
+        Route::resource('user', UserController::class);
+    });
 });
 
 Route::get('/login', [AuthController::class, 'loginView'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/register', [AuthController::class, 'registerView'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::get('/register', function () {
+    return redirect()
+        ->route('login')
+        ->with('info', 'Pembuatan akun dilakukan melalui halaman user oleh super admin.');
+})->name('register');
+
+Route::post('/register', function () {
+    return redirect()
+        ->route('login')
+        ->with('info', 'Pembuatan akun dilakukan melalui halaman user oleh super admin.');
+});
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
