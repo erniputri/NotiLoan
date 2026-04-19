@@ -29,21 +29,20 @@
                                 </div>
 
                                 <div class="auth-visual-headline">
-                                    <span class="auth-kicker mb-3">Tema Perkebunan Sawit</span>
-                                    <h2>Kelola pinjaman dan notifikasi mitra dalam satu tampilan yang lebih tenang.</h2>
+                                    <span class="auth-kicker mb-3">PT. Perkebunan Nusantara IV Regional III</span>
+                                    <h2>Akses mudah untuk pengelolaan pinjaman mitra Anda</h2>
                                     <p>
-                                        Visual hijau perkebunan dan aksen hangat kami bawa ke halaman login agar identitas
-                                        sistem tetap terasa sejak pertama kali dibuka.
+                                        Pantau, atur, dan dapatkan notifikasi penting dalam satu dashboard NotiLoan.
                                     </p>
 
                                     <div class="auth-stat-grid">
                                         <div class="auth-stat">
-                                            <div class="auth-stat-label">Tema Sistem</div>
-                                            <p class="auth-stat-value">Hijau Sawit</p>
+                                            <div class="auth-stat-label">Unit Kerja</div>
+                                            <p class="auth-stat-value auth-stat-value--compact">Divisi Tanggung Jawab Sosial Lingkungan</p>
                                         </div>
                                         <div class="auth-stat">
-                                            <div class="auth-stat-label">Fokus</div>
-                                            <p class="auth-stat-value">Notifikasi</p>
+                                            <div class="auth-stat-label">Layanan Utama</div>
+                                            <p class="auth-stat-value auth-stat-value--compact">Pengelolaan Pinjaman Mitra</p>
                                         </div>
                                     </div>
                                 </div>
