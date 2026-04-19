@@ -29,24 +29,34 @@
 
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list">
                     <p class="mb-0 font-weight-normal float-left dropdown-header">
-                        Notifications
+                        Aktivitas Sistem
                     </p>
 
                     @forelse ($navbarNotifications as $notif)
-                        <a class="dropdown-item preview-item" href="{{ route('notif.index') }}">
+                        <a class="dropdown-item preview-item" href="{{ $notif->url }}">
+                            <div class="preview-thumbnail">
+                                <div class="preview-icon bg-light rounded-circle">
+                                    <i class="{{ $notif->icon }}"></i>
+                                </div>
+                            </div>
+
                             <div class="preview-item-content">
                                 <h6 class="preview-subject font-weight-normal">
-                                    {{ $notif->message }}
+                                    {{ $notif->title }}
                                 </h6>
 
                                 <p class="font-weight-light small-text mb-0 text-muted">
-                                    {{ $notif->created_at->diffForHumans() }}
+                                    {{ $notif->description }}
+                                </p>
+
+                                <p class="font-weight-light small-text mb-0 text-muted">
+                                    {{ $notif->meta }}
                                 </p>
                             </div>
                         </a>
                     @empty
                         <div class="dropdown-item text-center text-muted">
-                            Tidak ada notifikasi
+                            Tidak ada aktivitas sistem yang perlu perhatian
                         </div>
                     @endforelse
                 </div>
