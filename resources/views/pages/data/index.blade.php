@@ -100,6 +100,7 @@
                                 <div>
                                     <h5>Opsi Export Excel</h5>
                                     <p class="section-caption">Pilih kolom sesuai kebutuhan laporan. Hasil export akan mengikuti filter pencarian yang aktif.</p>
+                                    <p class="muted-meta mt-2 mb-0">Untuk import, gunakan template resmi dan isi semua kolom yang tersedia agar data bisa dibaca penuh oleh sistem.</p>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     <button type="button" class="btn btn-sm btn-outline-success" id="selectAllExportColumns">
@@ -111,7 +112,7 @@
                                 </div>
                             </div>
 
-                            <form method="GET" action="{{ route('data.export.excel') }}">
+                            <form method="GET" action="{{ route('data.export.excel') }}" data-no-loader>
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                                 <input type="hidden" name="status" value="{{ $status }}">
 
@@ -129,7 +130,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 mt-3 flex-wrap">
-                                    <a href="{{ route('data.template.excel') }}" class="btn btn-outline-dark">
+                                    <a href="{{ route('data.template.excel') }}" class="btn btn-outline-dark" data-no-loader>
                                         <i class="mdi mdi-download"></i>
                                         Download Template
                                     </a>
