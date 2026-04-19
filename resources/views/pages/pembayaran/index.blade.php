@@ -10,10 +10,9 @@
                 <div class="row align-items-center">
                     <div class="col-xl-7 mb-4 mb-xl-0">
                         <p class="page-kicker">Pembayaran</p>
-                        <h3 class="page-title">Pantau transaksi pembayaran pinjaman</h3>
+                        <h3 class="page-title">Pantau Pembayaran Pinjaman</h3>
                         <p class="page-copy">
-                            Halaman ini membantu admin melihat pembayaran terbaru, memeriksa status pelunasan, dan
-                            masuk ke detail transaksi dengan lebih cepat.
+                            Lihat transaksi, cek status pelunasan, dan kelola pembayaran dengan cepat.
                         </p>
                     </div>
 
@@ -26,7 +25,6 @@
                     <div class="section-heading">
                         <div>
                             <h4>Filter dan Aksi</h4>
-                            <p class="section-caption">Cari transaksi berdasarkan nama mitra dan lanjutkan ke pencatatan pembayaran baru.</p>
                         </div>
                         <a href="{{ route('pembayaran.create') }}" class="btn btn-primary btn-action">
                             <i class="mdi mdi-plus-circle-outline"></i>
@@ -55,10 +53,6 @@
                             </div>
                         </form>
 
-                        <span class="surface-note">
-                            <i class="mdi mdi-information-outline"></i>
-                            Status dibaca dari sisa pokok pinjaman saat ini
-                        </span>
                     </div>
                 </div>
             </div>
@@ -68,7 +62,6 @@
                     <div class="section-heading">
                         <div>
                             <h4>Daftar Pembayaran</h4>
-                            <p class="section-caption">Gunakan tabel ini untuk melihat progres pembayaran setiap mitra secara cepat.</p>
                         </div>
                     </div>
 

@@ -10,10 +10,9 @@
                 <div class="row align-items-center">
                     <div class="col-xl-7 mb-4 mb-xl-0">
                         <p class="page-kicker">Notifikasi</p>
-                        <h3 class="page-title">Kelola reminder dan pengiriman notifikasi</h3>
+                        <h3 class="page-title">Reminder & Notifikasi Mitra</h3>
                         <p class="page-copy">
-                            Halaman ini membantu admin melihat status notifikasi tiap mitra, mengetahui mana yang masih
-                            menunggu, dan mengirim notifikasi manual tanpa bingung mencari data terkait.
+                            Pantau status dan kirim notifikasi mitra dengan cepat dan terorganisir.
                         </p>
                     </div>
                     <div class="col-xl-5">
@@ -41,7 +40,6 @@
                     <div class="section-heading">
                         <div>
                             <h4>Filter Data</h4>
-                            <p class="section-caption">Cari mitra berdasarkan nama atau kontak untuk mempercepat tindak lanjut notifikasi.</p>
                         </div>
                         <span class="surface-note">
                             <i class="mdi mdi-bell-outline"></i>

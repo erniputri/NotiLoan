@@ -10,10 +10,9 @@
                 <div class="row align-items-center">
                     <div class="col-xl-7 mb-4 mb-xl-0">
                         <p class="page-kicker">Data Pinjaman</p>
-                        <h3 class="page-title">Kelola data nasabah dan pinjaman</h3>
+                        <h3 class="page-title">Kelola data pinjaman mitra</h3>
                         <p class="page-copy">
-                            Halaman ini dipakai untuk mencari, meninjau, menambah, mengubah, menghapus, dan menyiapkan
-                            export data pinjaman. Susunannya dibuat ringkas supaya admin lebih cepat membaca isi tabel.
+                            Kelola dan pantau pinjaman mitra dengan mudah, cepat, dan terorganisir.
                         </p>
                     </div>
                     <div class="col-xl-5">

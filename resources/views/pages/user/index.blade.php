@@ -7,10 +7,9 @@
                 <div class="row align-items-center">
                     <div class="col-xl-7 mb-4 mb-xl-0">
                         <p class="page-kicker">Manajemen User</p>
-                        <h3 class="page-title">Kelola akun admin sistem</h3>
+                        <h3 class="page-title">Admin Sistem</h3>
                         <p class="page-copy">
-                            Halaman ini dipakai super admin untuk melihat akun yang aktif, menambah admin baru, dan
-                            menjaga akses dashboard tetap terkendali.
+                            Pantau, tambah, dan kelola akses admin dengan mudah dan aman.
                         </p>
                     </div>
                     <div class="col-xl-5">
@@ -67,7 +66,7 @@
                             <div class="stack-actions">
                                 <span class="surface-note">
                                     <i class="mdi mdi-shield-account-outline"></i>
-                                    Super admin dibuat dari seeder dan tidak dikelola dari form
+                                    manage admin
                                 </span>
                                 <a href="{{ route('user.create') }}" class="btn btn-primary btn-action">
                                     <i class="mdi mdi-account-plus-outline"></i>
