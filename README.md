@@ -28,7 +28,7 @@ Project ini dipakai untuk:
 
 - PHP 8.4
 - Laravel 12
-- MySQL
+- MySQL 8.0.30
 - Blade
 - TailwindCSS
 - Laravel Excel (`maatwebsite/excel`)
@@ -125,6 +125,49 @@ Atau jalankan semua seeder:
 ```bash
 php artisan db:seed
 ```
+
+## Opsi Restore Menggunakan File SQL
+
+Project ini juga menyediakan file database siap pakai di root project:
+
+- `notiloan.sql`
+
+File ini disediakan untuk kebutuhan restore manual ke server, terutama jika deployment tidak menggunakan `php artisan migrate`.
+
+Catatan:
+
+- `notiloan.sql` adalah versi SQL yang sudah dirapikan agar lebih mudah dibaca
+- file tersebut berisi struktur tabel dan data awal utama aplikasi
+- backup dump mentah tetap dapat disimpan terpisah jika dibutuhkan
+
+### Cara Import SQL ke MySQL
+
+1. Pastikan database tujuan sudah ada atau biarkan file SQL membuat database otomatis.
+2. Jalankan command berikut:
+
+```bash
+mysql -u root -p < notiloan.sql
+```
+
+Jika ingin langsung menargetkan database tertentu:
+
+```bash
+mysql -u root -p notiloan < notiloan.sql
+```
+
+### Kapan Menggunakan File SQL
+
+Gunakan `notiloan.sql` jika:
+
+- server tujuan tidak menjalankan migration Laravel
+- Anda ingin restore database secara cepat
+- Anda membutuhkan paket project yang sudah menyertakan struktur dan data awal
+
+### Catatan Penting
+
+- jika data lokal berubah, file `notiloan.sql` perlu diperbarui ulang agar tetap sesuai kondisi database terbaru
+- file SQL bisa berisi data aplikasi, jadi jangan upload ke repository publik jika data di dalamnya bersifat sensitif
+- untuk development normal, migration Laravel tetap menjadi cara yang lebih terstruktur
 
 ## Menjalankan Aplikasi
 
@@ -336,4 +379,3 @@ Jika ingin melanjutkan pengembangan project ini, area yang biasanya paling serin
 - `app/Exports`
 - `resources/views/pages`
 - `routes/web.php`
-
