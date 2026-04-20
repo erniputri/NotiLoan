@@ -337,6 +337,3 @@ Jika ingin melanjutkan pengembangan project ini, area yang biasanya paling serin
 - `resources/views/pages`
 - `routes/web.php`
 
-## Lisensi
-
-Project ini mengikuti lisensi internal sesuai kebutuhan pengembangan aplikasi NotiLoan.
