@@ -39,7 +39,7 @@ Pastikan environment Anda minimal memiliki:
 
 - PHP `8.4+`
 - Composer
-- MySQL / MariaDB
+- MySQL / MariaDB `8.0+`
 - Node.js dan npm
 - Web server lokal seperti Laragon, XAMPP, atau `php artisan serve`
 
