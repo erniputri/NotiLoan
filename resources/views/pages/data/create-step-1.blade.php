@@ -40,20 +40,20 @@
                             <label class="field-label">Pilih Mitra yang Sudah Ada</label>
                             <select name="mitra_id" id="mitraSelector" class="form-control">
                                 <option value="">Input mitra baru</option>
-                                @foreach ($mitraOptions as $mitra)
-                                    <option value="{{ $mitra->id }}"
-                                        data-nomor_mitra="{{ $mitra->nomor_mitra }}"
-                                        data-virtual_account_bank="{{ $mitra->virtual_account_bank }}"
-                                        data-virtual_account="{{ $mitra->virtual_account }}"
-                                        data-nama_mitra="{{ $mitra->nama_mitra }}"
-                                        data-kontak="{{ $mitra->kontak }}"
-                                        data-alamat="{{ $mitra->alamat }}"
-                                        data-kabupaten="{{ $mitra->kabupaten }}"
-                                        data-sektor="{{ $mitra->sektor }}"
-                                        {{ old('mitra_id') == $mitra->id ? 'selected' : '' }}>
-                                        {{ $mitra->nama_mitra }}{{ $mitra->nomor_mitra ? ' - ' . $mitra->nomor_mitra : '' }}
+                                @if ($selectedMitra)
+                                    <option value="{{ $selectedMitra->id }}"
+                                        data-nomor_mitra="{{ $selectedMitra->nomor_mitra }}"
+                                        data-virtual_account_bank="{{ $selectedMitra->virtual_account_bank }}"
+                                        data-virtual_account="{{ $selectedMitra->virtual_account }}"
+                                        data-nama_mitra="{{ $selectedMitra->nama_mitra }}"
+                                        data-kontak="{{ $selectedMitra->kontak }}"
+                                        data-alamat="{{ $selectedMitra->alamat }}"
+                                        data-kabupaten="{{ $selectedMitra->kabupaten }}"
+                                        data-sektor="{{ $selectedMitra->sektor }}"
+                                        selected>
+                                        {{ $selectedMitra->nama_mitra }}{{ $selectedMitra->nomor_mitra ? ' - ' . $selectedMitra->nomor_mitra : '' }}
                                     </option>
-                                @endforeach
+                                @endif
                             </select>
                             <small class="field-hint">Cari berdasarkan nama. Jika tidak ditemukan, biarkan kosong lalu isi data mitra baru di bawah.</small>
                         </div>
@@ -134,9 +134,9 @@
 
             let isAutofilling = false;
 
-            function fillFromSelectedOption() {
-                const selectedOption = selector.find('option:selected');
-                const mitraId = selectedOption.val();
+            function fillFromSelectedOption(selectedData = null) {
+                const currentSelection = selectedData || selector.select2('data')[0];
+                const mitraId = currentSelection?.id;
 
                 if (!mitraId) {
                     return;
@@ -145,7 +145,7 @@
                 isAutofilling = true;
 
                 Object.keys(fields).forEach(function(key) {
-                    const nextValue = selectedOption.data(key) ?? '';
+                    const nextValue = currentSelection[key] ?? '';
 
                     if (fields[key].tagName === 'SELECT') {
                         fields[key].value = nextValue;
@@ -168,7 +168,33 @@
             selector.select2({
                 placeholder: 'Cari mitra yang sudah ada...',
                 allowClear: true,
-                width: '100%'
+                width: '100%',
+                minimumInputLength: 1,
+                ajax: {
+                    url: @json(route('data.search.mitra')),
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term || ''
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results || []
+                        };
+                    }
+                },
+                templateResult: function(item) {
+                    return item.text || item.id;
+                },
+                templateSelection: function(item) {
+                    return item.text || 'Input mitra baru';
+                }
+            });
+
+            selector.on('select2:select', function(event) {
+                fillFromSelectedOption(event.params.data);
             });
 
             selector.on('change', function() {

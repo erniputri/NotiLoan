@@ -27,6 +27,7 @@ Route::group(['middleware' => ['checkislogin']], function () {
 
         // INDEX (INI YANG KURANG)
         Route::get('/', [DataController::class, 'index'])->name('index');
+        Route::get('/search/mitra', [DataController::class, 'searchMitra'])->name('search.mitra');
 
         // EDIT & UPDATE
         // =========================
@@ -68,6 +69,8 @@ Route::group(['middleware' => ['checkislogin']], function () {
             ->name('template.excel');
     });
 
+    Route::get('/pembayaran/search/peminjaman', [PembayaranController::class, 'searchPeminjaman'])
+        ->name('pembayaran.search.peminjaman');
     Route::resource('pembayaran', PembayaranController::class);
     Route::resource('mitra', MitraController::class)->only(['index', 'show', 'edit', 'update']);
     Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])

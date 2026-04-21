@@ -39,7 +39,20 @@ class DataController extends Controller
         $activeLoanCount = Peminjaman::where('pokok_sisa', '>', 0)->count();
         $settledLoanCount = Peminjaman::where('pokok_sisa', 0)->count();
 
-        $query = Peminjaman::when($search, function ($query) use ($search) {
+        $query = Peminjaman::query()
+            ->select([
+                'id',
+                'mitra_id',
+                'nomor_mitra',
+                'nama_mitra',
+                'kontak',
+                'kabupaten',
+                'tgl_peminjaman',
+                'pokok_pinjaman_awal',
+                'pokok_sisa',
+                'kualitas_kredit',
+            ])
+            ->when($search, function ($query) use ($search) {
             $query->where('nama_mitra', 'like', "%{$search}%")
                 ->orWhere('kontak', 'like', "%{$search}%")
                 ->orWhere('kabupaten', 'like', "%{$search}%")
@@ -145,9 +158,19 @@ class DataController extends Controller
     public function createStep1()
     {
         $virtualAccountBanks = Peminjaman::virtualAccountBankOptions();
-        $mitraOptions = Mitra::query()
-            ->orderBy('nama_mitra')
-            ->get([
+        $selectedMitra = old('mitra_id')
+            ? Mitra::query()->find(old('mitra_id'))
+            : null;
+
+        return view('pages.data.create-step-1', compact('virtualAccountBanks', 'selectedMitra'));
+    }
+
+    public function searchMitra(Request $request)
+    {
+        $search = trim((string) $request->string('q'));
+
+        $results = Mitra::query()
+            ->select([
                 'id',
                 'nomor_mitra',
                 'virtual_account_bank',
@@ -157,9 +180,37 @@ class DataController extends Controller
                 'alamat',
                 'kabupaten',
                 'sektor',
-            ]);
+            ])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nama_mitra', 'like', "%{$search}%")
+                        ->orWhere('nomor_mitra', 'like', "%{$search}%")
+                        ->orWhere('kontak', 'like', "%{$search}%")
+                        ->orWhere('kabupaten', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('nama_mitra')
+            ->limit(20)
+            ->get()
+            ->map(function (Mitra $mitra) {
+                return [
+                    'id' => $mitra->id,
+                    'text' => trim($mitra->nama_mitra . ($mitra->nomor_mitra ? ' - ' . $mitra->nomor_mitra : '')),
+                    'nomor_mitra' => $mitra->nomor_mitra,
+                    'virtual_account_bank' => $mitra->virtual_account_bank,
+                    'virtual_account' => $mitra->virtual_account,
+                    'nama_mitra' => $mitra->nama_mitra,
+                    'kontak' => $mitra->kontak,
+                    'alamat' => $mitra->alamat,
+                    'kabupaten' => $mitra->kabupaten,
+                    'sektor' => $mitra->sektor,
+                ];
+            })
+            ->values();
 
-        return view('pages.data.create-step-1', compact('virtualAccountBanks', 'mitraOptions'));
+        return response()->json([
+            'results' => $results,
+        ]);
     }
 
     // Data step pertama disimpan ke session agar wizard bisa berjalan bertahap sebelum final submit.

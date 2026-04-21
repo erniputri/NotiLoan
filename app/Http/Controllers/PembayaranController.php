@@ -6,6 +6,7 @@ use App\Http\Requests\Pembayaran\UpdatePembayaranRequest;
 use App\Models\Pembayaran;
 use App\Models\Peminjaman;
 use App\Services\PembayaranService;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class PembayaranController extends Controller
@@ -18,7 +19,16 @@ class PembayaranController extends Controller
     // Index pembayaran fokus pada list transaksi dan filter nama mitra agar pencarian cepat dilakukan.
     public function index(\Illuminate\Http\Request $request)
     {
-        $query = Pembayaran::with('peminjaman');
+        $query = Pembayaran::query()
+            ->select([
+                'id',
+                'peminjaman_id',
+                'tanggal_pembayaran',
+                'jumlah_bayar',
+                'bukti_pembayaran',
+                'created_at',
+            ])
+            ->with('peminjaman:id,nama_mitra');
 
         if ($request->search) {
             $query->whereHas('peminjaman', function ($q) use ($request) {
@@ -34,16 +44,56 @@ class PembayaranController extends Controller
     // Form create hanya menawarkan pinjaman yang masih punya sisa pokok untuk dibayar.
     public function create()
     {
-        $peminjaman = Peminjaman::select(
-            'id',
-            'nama_mitra',
-            'pokok_sisa',
-            'lama_angsuran_bulan'
-        )
-            ->where('pokok_sisa', '>', 0)
-            ->get();
+        $selectedPeminjaman = old('peminjaman_id')
+            ? Peminjaman::query()
+                ->select('id', 'nama_mitra', 'lama_angsuran_bulan')
+                ->find(old('peminjaman_id'))
+            : null;
 
-        return view('pages.pembayaran.create', compact('peminjaman'));
+        return view('pages.pembayaran.create', compact('selectedPeminjaman'));
+    }
+
+    public function searchPeminjaman(Request $request)
+    {
+        $search = trim((string) $request->string('q'));
+
+        $results = Peminjaman::query()
+            ->select([
+                'id',
+                'nomor_mitra',
+                'nama_mitra',
+                'kontak',
+                'kabupaten',
+                'pokok_sisa',
+                'lama_angsuran_bulan',
+            ])
+            ->where('pokok_sisa', '>', 0)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nama_mitra', 'like', "%{$search}%")
+                        ->orWhere('nomor_mitra', 'like', "%{$search}%")
+                        ->orWhere('kontak', 'like', "%{$search}%")
+                        ->orWhere('kabupaten', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('nama_mitra')
+            ->limit(20)
+            ->get()
+            ->map(function (Peminjaman $peminjaman) {
+                return [
+                    'id' => $peminjaman->id,
+                    'text' => sprintf(
+                        '%s (Sisa Bulan: %s)',
+                        $peminjaman->nama_mitra,
+                        $peminjaman->lama_angsuran_bulan
+                    ),
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'results' => $results,
+        ]);
     }
 
     // Controller hanya mengatur flow request, sedangkan hitung saldo dan transaksi dijalankan oleh service.

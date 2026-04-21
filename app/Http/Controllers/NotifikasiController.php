@@ -18,7 +18,13 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-        $notificationSummary = Peminjaman::with(['notifikasi', 'latestPembayaran'])
+        $notificationSummary = Peminjaman::query()
+            ->select([
+                'id',
+                'tgl_peminjaman',
+                'pokok_sisa',
+            ])
+            ->with(['notifikasi', 'latestPembayaran'])
             ->where('pokok_sisa', '>', 0)
             ->get();
 
@@ -37,7 +43,17 @@ class NotifikasiController extends Controller
             ], true))
             ->count();
 
-        $dataPeminjaman = Peminjaman::with(['notifikasi', 'latestPembayaran'])
+        $dataPeminjaman = Peminjaman::query()
+            ->select([
+                'id',
+                'nomor_mitra',
+                'nama_mitra',
+                'kontak',
+                'tgl_peminjaman',
+                'pokok_pinjaman_awal',
+                'pokok_sisa',
+            ])
+            ->with(['notifikasi', 'latestPembayaran'])
             ->where('pokok_sisa', '>', 0)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {

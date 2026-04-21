@@ -22,6 +22,13 @@ class MitraController extends Controller
         $loanStatus = $request->loan_status;
 
         $mitras = Mitra::query()
+            ->select([
+                'id',
+                'nomor_mitra',
+                'nama_mitra',
+                'kontak',
+                'kabupaten',
+            ])
             ->with('latestPeminjaman')
             ->withCount('peminjaman')
             ->withCount(['peminjaman as active_loan_count' => fn ($query) => $query->where('pokok_sisa', '>', 0)])

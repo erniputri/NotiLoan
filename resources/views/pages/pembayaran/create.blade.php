@@ -40,13 +40,11 @@
                                 <label class="field-label">Nama Mitra <span class="text-danger">*</span></label>
                                 <select name="peminjaman_id" class="form-control select-mitra" required>
                                     <option value="">-- Pilih Mitra --</option>
-                                    @foreach ($peminjaman as $item)
-                                        @if ($item->lama_angsuran_bulan > 0)
-                                            <option value="{{ $item->id }}" {{ old('peminjaman_id') == $item->id ? 'selected' : '' }}>
-                                                {{ $item->nama_mitra }} (Sisa Bulan: {{ $item->lama_angsuran_bulan }})
-                                            </option>
-                                        @endif
-                                    @endforeach
+                                    @if ($selectedPeminjaman)
+                                        <option value="{{ $selectedPeminjaman->id }}" selected>
+                                            {{ $selectedPeminjaman->nama_mitra }} (Sisa Bulan: {{ $selectedPeminjaman->lama_angsuran_bulan }})
+                                        </option>
+                                    @endif
                                 </select>
                             </div>
                             <div class="field-card">
@@ -81,7 +79,23 @@
                 $('.select-mitra').select2({
                     placeholder: "-- Pilih Mitra --",
                     allowClear: true,
-                    width: '100%'
+                    width: '100%',
+                    minimumInputLength: 1,
+                    ajax: {
+                        url: @json(route('pembayaran.search.peminjaman')),
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                q: params.term || ''
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data.results || []
+                            };
+                        }
+                    }
                 });
             });
         </script>
