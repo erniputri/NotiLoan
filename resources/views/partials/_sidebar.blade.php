@@ -19,6 +19,13 @@
             </a>
         </li>
 
+        <li class="nav-item {{ request()->routeIs('mitra.*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('mitra.index') }}">
+                <i class="icon-head menu-icon"></i>
+                <span class="menu-title">Mitra</span>
+            </a>
+        </li>
+
         <li class="nav-item {{ request()->routeIs('notif.*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('notif.index') }}">
                 <i class="icon-bell menu-icon"></i>

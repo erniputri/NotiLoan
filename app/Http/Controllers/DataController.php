@@ -12,6 +12,7 @@ use App\Http\Requests\Peminjaman\UpdateStep1Request;
 use App\Http\Requests\Peminjaman\UpdateStep2Request;
 use App\Http\Requests\Peminjaman\UpdateStep3Request;
 use App\Imports\PeminjamanImport;
+use App\Models\Mitra;
 use App\Models\Peminjaman;
 use App\Services\PeminjamanService;
 use Carbon\Carbon;
@@ -68,9 +69,32 @@ class DataController extends Controller
 
     public function show($id)
     {
-        $peminjaman = Peminjaman::findOrFail($id);
+        $peminjaman = Peminjaman::with([
+            'mitra',
+            'notifikasi',
+            'latestPembayaran',
+            'pembayaran' => fn ($query) => $query->latest('tanggal_pembayaran'),
+        ])->findOrFail($id);
 
-        return view('pages.data.show', compact('peminjaman'));
+        $totalPembayaran = $peminjaman->pembayaran->count();
+        $perkiraanTotalAngsuran = $totalPembayaran + (int) $peminjaman->lama_angsuran_bulan;
+        $angsuranKe = $perkiraanTotalAngsuran === 0
+            ? 0
+            : ((int) $peminjaman->pokok_sisa === 0
+                ? $totalPembayaran
+                : min($perkiraanTotalAngsuran, $totalPembayaran + 1));
+
+        $angsuranTerakhir = $peminjaman->latestPembayaran;
+        $totalTerbayar = (int) $peminjaman->pokok_pinjaman_awal - (int) $peminjaman->pokok_sisa;
+
+        return view('pages.data.show', compact(
+            'peminjaman',
+            'totalPembayaran',
+            'perkiraanTotalAngsuran',
+            'angsuranKe',
+            'angsuranTerakhir',
+            'totalTerbayar'
+        ));
     }
 
     // Export dijaga dengan whitelist kolom agar admin fleksibel, tetapi field yang keluar tetap aman.
@@ -121,8 +145,21 @@ class DataController extends Controller
     public function createStep1()
     {
         $virtualAccountBanks = Peminjaman::virtualAccountBankOptions();
+        $mitraOptions = Mitra::query()
+            ->orderBy('nama_mitra')
+            ->get([
+                'id',
+                'nomor_mitra',
+                'virtual_account_bank',
+                'virtual_account',
+                'nama_mitra',
+                'kontak',
+                'alamat',
+                'kabupaten',
+                'sektor',
+            ]);
 
-        return view('pages.data.create-step-1', compact('virtualAccountBanks'));
+        return view('pages.data.create-step-1', compact('virtualAccountBanks', 'mitraOptions'));
     }
 
     // Data step pertama disimpan ke session agar wizard bisa berjalan bertahap sebelum final submit.
@@ -130,6 +167,7 @@ class DataController extends Controller
     {
         session([
             'peminjaman.step1' => $request->safe()->only([
+                'mitra_id',
                 'nomor_mitra',
                 'virtual_account_bank',
                 'virtual_account',

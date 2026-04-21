@@ -9,6 +9,7 @@ class Peminjaman extends Model
     protected $table = 'peminjaman';
 
     protected $fillable = [
+        'mitra_id',
         'nomor_mitra',
         'virtual_account_bank',
         'virtual_account',
@@ -90,6 +91,11 @@ class Peminjaman extends Model
     public function notifikasi()
     {
         return $this->hasOne(Notification::class, 'peminjaman_id', 'id');
+    }
+
+    public function mitra()
+    {
+        return $this->belongsTo(Mitra::class);
     }
 
     public function pembayaran()

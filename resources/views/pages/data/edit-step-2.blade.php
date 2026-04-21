@@ -37,7 +37,7 @@
 
                             <div class="field-card">
                                 <label class="field-label">Tanggal Peminjaman <span class="text-danger">*</span></label>
-                                <input type="date" name="tgl_peminjaman" class="form-control" value="{{ old('tgl_peminjaman', $peminjaman->tgl_peminjaman) }}" required>
+                                <input type="date" name="tgl_peminjaman" class="form-control" value="{{ old('tgl_peminjaman', $peminjaman->formatted_tgl_peminjaman) }}" required>
                             </div>
 
                             <div class="field-card">

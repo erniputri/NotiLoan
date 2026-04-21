@@ -229,6 +229,11 @@
                                                 <a href="{{ route('data.show', $item->id) }}" class="btn btn-sm btn-info">
                                                     <i class="mdi mdi-eye"></i> Detail
                                                 </a>
+                                                @if ($item->mitra_id)
+                                                    <a href="{{ route('mitra.show', $item->mitra_id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="mdi mdi-account-details"></i> Mitra
+                                                    </a>
+                                                @endif
                                                 <a href="{{ route('data.edit.step1', $item->id) }}" class="btn btn-sm btn-warning">
                                                     <i class="mdi mdi-pencil"></i> Edit
                                                 </a>
@@ -259,7 +264,7 @@
 
                     <div class="footer-row">
                         {{-- Footer tabel dipakai untuk petunjuk singkat dan navigasi antar halaman data. --}}
-                        <p class="muted-meta mb-0">Gunakan tombol detail untuk melihat data lengkap per mitra sebelum melakukan perubahan.</p>
+                        <p class="muted-meta mb-0">Gunakan tombol mitra untuk melihat profil dan riwayat pinjaman mitra secara menyeluruh.</p>
                         <div>
                             {{ $dataPeminjaman->onEachSide(1)->links('pagination::bootstrap-5') }}
                         </div>

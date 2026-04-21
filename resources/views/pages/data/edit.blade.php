@@ -45,7 +45,7 @@
                         <div class="col-md-6 mb-3">
                             <label>Tanggal Peminjaman</label>
                             <input type="date" name="tgl_peminjaman" class="form-control"
-                                value="{{ $dataPeminjaman->tgl_peminjaman }}">
+                                value="{{ old('tgl_peminjaman', $dataPeminjaman->formatted_tgl_peminjaman) }}">
                         </div>
 
                         <div class="col-md-6 mb-3">

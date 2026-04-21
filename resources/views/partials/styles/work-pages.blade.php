@@ -221,7 +221,102 @@
         margin-top: 20px;
     }
 
+    .work-page .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .work-page .summary-tile {
+        border: 1px solid #dcebe1;
+        border-radius: 18px;
+        padding: 18px;
+        background: linear-gradient(180deg, #fcfefd, #f4fbf6);
+    }
+
+    .work-page .summary-tile span {
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #73847b;
+        margin-bottom: 8px;
+    }
+
+    .work-page .summary-tile strong {
+        display: block;
+        color: #203126;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .work-page .summary-tile strong small {
+        font-size: 13px;
+        color: #73847b;
+        font-weight: 600;
+    }
+
+    .work-page .detail-tabs {
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 0;
+    }
+
+    .work-page .detail-tabs .nav-link {
+        border: 1px solid #dcebe1;
+        border-radius: 999px;
+        background: #f3faf5;
+        color: #4b6554;
+        font-weight: 700;
+        padding: 10px 18px;
+        transition: all 0.2s ease;
+    }
+
+    .work-page .detail-tabs .nav-link.active,
+    .work-page .detail-tabs .nav-link:hover {
+        background: linear-gradient(135deg, var(--theme-green-700), var(--theme-green-500));
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(31, 111, 80, 0.16);
+    }
+
+    .work-page .detail-tab-content {
+        margin-top: 8px;
+    }
+
+    .work-page .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .work-page .history-header h5 {
+        margin-bottom: 6px;
+        font-weight: 700;
+        color: #203126;
+    }
+
+    .work-page .history-header p {
+        margin-bottom: 0;
+        color: #6f7f74;
+        font-size: 14px;
+    }
+
+    .work-page .history-table {
+        margin-bottom: 0;
+    }
+
+    .work-page .table-message {
+        min-width: 260px;
+        color: #4e6257;
+        white-space: normal;
+        line-height: 1.5;
+    }
+
     @media (max-width: 991.98px) {
+        .work-page .summary-grid,
         .work-page .section-grid,
         .work-page .detail-grid {
             grid-template-columns: 1fr;
@@ -229,7 +324,8 @@
 
         .work-page .page-card-header,
         .work-page .form-actions,
-        .work-page .detail-actions {
+        .work-page .detail-actions,
+        .work-page .history-header {
             flex-direction: column;
             align-items: stretch;
         }

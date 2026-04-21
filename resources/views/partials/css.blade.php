@@ -581,6 +581,7 @@
 
 @if (
     request()->routeIs('data.index') ||
+    request()->routeIs('mitra.index') ||
     request()->routeIs('pembayaran.index') ||
     request()->routeIs('notif.index') ||
     request()->routeIs('user.index')
@@ -592,6 +593,8 @@
     request()->routeIs('data.create.*') ||
     request()->routeIs('data.edit.*') ||
     request()->routeIs('data.show') ||
+    request()->routeIs('mitra.show') ||
+    request()->routeIs('mitra.edit') ||
     request()->routeIs('pembayaran.create') ||
     request()->routeIs('pembayaran.edit') ||
     request()->routeIs('pembayaran.show') ||

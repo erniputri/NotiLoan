@@ -26,7 +26,7 @@
                         <div class="section-grid">
                             <div class="field-card">
                                 <label class="field-label">Tanggal Pembayaran <span class="text-danger">*</span></label>
-                                <input type="date" name="tanggal_pembayaran" class="form-control" value="{{ old('tanggal_pembayaran', $pembayaran->tanggal_pembayaran) }}" required>
+                                <input type="date" name="tanggal_pembayaran" class="form-control" value="{{ old('tanggal_pembayaran', $pembayaran->formatted_tanggal_pembayaran) }}" required>
                             </div>
 
                             <div class="field-card">

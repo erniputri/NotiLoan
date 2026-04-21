@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Peminjaman;
+namespace App\Http\Requests\Mitra;
 
 use App\Models\Peminjaman;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreStep1Request extends FormRequest
+class UpdateMitraRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +16,6 @@ class StoreStep1Request extends FormRequest
     public function rules(): array
     {
         return [
-            'mitra_id' => ['nullable', 'integer', 'exists:mitras,id'],
             'nomor_mitra' => ['nullable', 'string', 'max:50'],
             'virtual_account_bank' => ['nullable', 'string', Rule::in(array_keys(Peminjaman::virtualAccountBankOptions()))],
             'virtual_account' => ['nullable', 'string', 'max:50', 'required_with:virtual_account_bank'],

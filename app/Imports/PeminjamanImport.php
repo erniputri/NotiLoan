@@ -3,15 +3,22 @@
 namespace App\Imports;
 
 use App\Models\Peminjaman;
+use App\Services\MitraService;
 use App\Services\NotificationScheduleService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class PeminjamanImport implements ToCollection, WithHeadingRow
 {
+    public function __construct(
+        private readonly ?MitraService $mitraService = null
+    ) {
+    }
+
     private const IMPORT_COLUMNS = [
         'nomor_mitra',
         'virtual_account_bank',
@@ -62,32 +69,50 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
 
             $this->validateRow($row, $index);
 
-            $peminjaman = Peminjaman::create([
-                'nomor_mitra' => $this->requiredString($row, 'nomor_mitra', $index),
-                'virtual_account_bank' => $this->requiredString($row, 'virtual_account_bank', $index),
-                'virtual_account' => $this->requiredString($row, 'virtual_account', $index),
-                'nama_mitra' => $this->requiredString($row, 'nama_mitra', $index),
-                'kontak' => $this->requiredString($row, 'kontak', $index),
-                'alamat' => $this->requiredString($row, 'alamat', $index),
-                'kabupaten' => $this->requiredString($row, 'kabupaten', $index),
-                'sektor' => $this->requiredString($row, 'sektor', $index),
-                'tgl_peminjaman' => Carbon::parse($this->requiredString($row, 'tgl_peminjaman', $index)),
-                'tgl_jatuh_tempo' => Carbon::parse($this->requiredString($row, 'tgl_jatuh_tempo', $index)),
-                'tgl_akhir_pinjaman' => Carbon::parse($this->requiredString($row, 'tgl_akhir_pinjaman', $index)),
-                'lama_angsuran_bulan' => (int) $this->normalizeNumber($this->requiredValue($row, 'lama_angsuran_bulan', $index)),
-                'bunga_persen' => (float) $this->normalizeNumber($this->requiredValue($row, 'bunga_persen', $index)),
-                'pokok_pinjaman_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_pinjaman_awal', $index)),
-                'administrasi_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'administrasi_awal', $index)),
-                'no_surat_perjanjian' => $this->requiredString($row, 'no_surat_perjanjian', $index),
-                'jaminan' => $this->requiredString($row, 'jaminan', $index),
-                'pokok_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_cicilan_sd', $index)),
-                'jasa_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_cicilan_sd', $index)),
-                'pokok_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_sisa', $index)),
-                'jasa_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_sisa', $index)),
-                'kualitas_kredit' => $this->requiredString($row, 'kualitas_kredit', $index),
-            ]);
+            DB::transaction(function () use ($row, $index) {
+                $mitraPayload = [
+                    'nomor_mitra' => $this->requiredString($row, 'nomor_mitra', $index),
+                    'virtual_account_bank' => $this->requiredString($row, 'virtual_account_bank', $index),
+                    'virtual_account' => $this->requiredString($row, 'virtual_account', $index),
+                    'nama_mitra' => $this->requiredString($row, 'nama_mitra', $index),
+                    'kontak' => $this->requiredString($row, 'kontak', $index),
+                    'alamat' => $this->requiredString($row, 'alamat', $index),
+                    'kabupaten' => $this->requiredString($row, 'kabupaten', $index),
+                    'sektor' => $this->requiredString($row, 'sektor', $index),
+                ];
 
-            app(NotificationScheduleService::class)->syncForLoan($peminjaman);
+                $mitraService = $this->mitraService ?? app(MitraService::class);
+                $mitra = $mitraService->resolveOrCreate($mitraPayload);
+                $mitraService->guardActiveLoanConflict($mitra);
+
+                $peminjaman = Peminjaman::create([
+                    'mitra_id' => $mitra->id,
+                    'nomor_mitra' => $mitraPayload['nomor_mitra'],
+                    'virtual_account_bank' => $mitraPayload['virtual_account_bank'],
+                    'virtual_account' => $mitraPayload['virtual_account'],
+                    'nama_mitra' => $mitraPayload['nama_mitra'],
+                    'kontak' => $mitraPayload['kontak'],
+                    'alamat' => $mitraPayload['alamat'],
+                    'kabupaten' => $mitraPayload['kabupaten'],
+                    'sektor' => $mitraPayload['sektor'],
+                    'tgl_peminjaman' => Carbon::parse($this->requiredString($row, 'tgl_peminjaman', $index)),
+                    'tgl_jatuh_tempo' => Carbon::parse($this->requiredString($row, 'tgl_jatuh_tempo', $index)),
+                    'tgl_akhir_pinjaman' => Carbon::parse($this->requiredString($row, 'tgl_akhir_pinjaman', $index)),
+                    'lama_angsuran_bulan' => (int) $this->normalizeNumber($this->requiredValue($row, 'lama_angsuran_bulan', $index)),
+                    'bunga_persen' => (float) $this->normalizeNumber($this->requiredValue($row, 'bunga_persen', $index)),
+                    'pokok_pinjaman_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_pinjaman_awal', $index)),
+                    'administrasi_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'administrasi_awal', $index)),
+                    'no_surat_perjanjian' => $this->requiredString($row, 'no_surat_perjanjian', $index),
+                    'jaminan' => $this->requiredString($row, 'jaminan', $index),
+                    'pokok_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_cicilan_sd', $index)),
+                    'jasa_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_cicilan_sd', $index)),
+                    'pokok_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_sisa', $index)),
+                    'jasa_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_sisa', $index)),
+                    'kualitas_kredit' => $this->requiredString($row, 'kualitas_kredit', $index),
+                ]);
+
+                app(NotificationScheduleService::class)->syncForLoan($peminjaman);
+            });
         }
     }
 

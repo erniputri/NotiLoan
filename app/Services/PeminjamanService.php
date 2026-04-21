@@ -10,7 +10,8 @@ use Illuminate\Validation\ValidationException;
 class PeminjamanService
 {
     public function __construct(
-        private readonly NotificationScheduleService $notificationScheduleService
+        private readonly NotificationScheduleService $notificationScheduleService,
+        private readonly MitraService $mitraService
     ) {
     }
 
@@ -21,8 +22,11 @@ class PeminjamanService
             // Jika administrasi tidak diisi manual, sistem tetap punya nilai default dari persentase bunga.
             $administrasiOtomatis = $step2['pokok_pinjaman_awal'] * ($step2['bunga_persen'] / 100);
             $administrasiFinal = $step3['administrasi_awal'] ?? $administrasiOtomatis;
+            $mitra = $this->mitraService->resolveOrCreate($step1);
+            $this->mitraService->guardActiveLoanConflict($mitra);
 
             $peminjaman = Peminjaman::create([
+                'mitra_id' => $mitra->id,
                 'nomor_mitra' => $step1['nomor_mitra'] ?? null,
                 'virtual_account_bank' => $step1['virtual_account_bank'] ?? null,
                 'virtual_account' => $step1['virtual_account'] ?? null,
@@ -59,16 +63,7 @@ class PeminjamanService
     {
         return DB::transaction(function () use ($peminjaman, $data) {
             $loan = Peminjaman::lockForUpdate()->findOrFail($peminjaman->id);
-            $loan->update([
-                'nomor_mitra' => $data['nomor_mitra'] ?? null,
-                'virtual_account_bank' => $data['virtual_account_bank'] ?? null,
-                'virtual_account' => $data['virtual_account'] ?? null,
-                'nama_mitra' => $data['nama_mitra'],
-                'kontak' => $data['kontak'],
-                'alamat' => $data['alamat'] ?? null,
-                'kabupaten' => $data['kabupaten'] ?? null,
-                'sektor' => $data['sektor'] ?? null,
-            ]);
+            $loan = $this->mitraService->syncLoanWithMitra($loan, $data);
 
             $this->notificationScheduleService->syncForLoan($loan->refresh());
 
@@ -135,6 +130,11 @@ class PeminjamanService
         return DB::transaction(function () use ($peminjaman, $data) {
             $loan = Peminjaman::lockForUpdate()->findOrFail($peminjaman->id);
             $this->guardPokokPinjaman($loan, (float) $data['pokok_pinjaman_awal']);
+            $loan = $this->mitraService->syncLoanWithMitra($loan, array_merge([
+                'nomor_mitra' => $loan->nomor_mitra,
+                'virtual_account_bank' => $loan->virtual_account_bank,
+                'virtual_account' => $loan->virtual_account,
+            ], $data));
 
             $lama = (int) $data['lama_angsuran_bulan'];
             $tglJatuhTempo = Carbon::parse($data['tgl_peminjaman'])
@@ -143,11 +143,6 @@ class PeminjamanService
             $jumlahTerbayar = $this->jumlahTerbayar($loan);
 
             $loan->update([
-                'nama_mitra' => $data['nama_mitra'],
-                'kontak' => $data['kontak'],
-                'alamat' => $data['alamat'] ?? null,
-                'kabupaten' => $data['kabupaten'] ?? null,
-                'sektor' => $data['sektor'],
                 'kualitas_kredit' => $data['kualitas_kredit'],
                 'tgl_peminjaman' => $data['tgl_peminjaman'],
                 'lama_angsuran_bulan' => $lama,
