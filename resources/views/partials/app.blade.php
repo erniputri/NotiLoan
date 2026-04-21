@@ -20,9 +20,6 @@
 
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
-            <!-- partial:partials/_settings-panel.html -->
-            @include('partials._settings-panel')
-            <!-- partial -->
             <!-- partial:partials/_sidebar.html -->
             @include('partials._sidebar')
             <!-- partial -->

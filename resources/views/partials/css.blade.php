@@ -1,14 +1,18 @@
+@php
+    $usesSelect2 = request()->routeIs('data.create.step1') || request()->routeIs('pembayaran.create');
+@endphp
+
 <link rel="stylesheet" href="{{ asset('assets/vendors/feather/feather.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
 
-<link rel="stylesheet" href="{{ asset('assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('js/select.dataTables.min.css') }}">
-
 <link rel="stylesheet" href="{{ asset('assets/css/vertical-layout-light/style.css') }}">
 <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@if ($usesSelect2)
+    <link rel="stylesheet" href="{{ asset('assets/vendors/select2/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendors/select2-bootstrap-theme/select2-bootstrap.min.css') }}">
+@endif
 
 <style>
     :root {
