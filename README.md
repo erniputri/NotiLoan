@@ -136,23 +136,45 @@ File ini disediakan untuk kebutuhan restore manual ke server, terutama jika depl
 
 Catatan:
 
-- `notiloan.sql` adalah versi SQL yang sudah dirapikan agar lebih mudah dibaca
-- file tersebut berisi struktur tabel dan data awal utama aplikasi
-- backup dump mentah tetap dapat disimpan terpisah jika dibutuhkan
+- `notiloan.sql` adalah dump database terbaru dari MySQL lokal
+- file tersebut berisi struktur tabel dan data yang sedang digunakan aplikasi
+- file SQL ini berguna untuk menjaga data tetap aman ketika server tidak memakai migration Laravel
+- backup sebelum update terakhir tersedia pada file `notiloan-before-update-20260423-161344.sql`
 
 ### Cara Import SQL ke MySQL
 
-1. Pastikan database tujuan sudah ada atau biarkan file SQL membuat database otomatis.
-2. Jalankan command berikut:
+1. Buat database tujuan terlebih dahulu jika belum ada:
 
-```bash
-mysql -u root -p < notiloan.sql
+```sql
+CREATE DATABASE notiloan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Jika ingin langsung menargetkan database tertentu:
+2. Import file SQL ke database tersebut:
 
 ```bash
 mysql -u root -p notiloan < notiloan.sql
+```
+
+Jika menggunakan Laragon/XAMPP dan password MySQL kosong, command biasanya menjadi:
+
+```bash
+mysql -u root notiloan < notiloan.sql
+```
+
+Jika database sudah ada dan Anda ingin refresh isi databasenya, pastikan data lama memang boleh ditimpa karena file SQL akan melakukan `DROP TABLE` sebelum membuat tabel kembali.
+
+### Cara Update File SQL dari Database Lokal
+
+Jika data di aplikasi sudah berubah dan ingin menyimpan kondisi database terbaru ke file SQL root, jalankan:
+
+```bash
+mysqldump -u root -p notiloan > notiloan.sql
+```
+
+Jika password MySQL kosong:
+
+```bash
+mysqldump -u root notiloan > notiloan.sql
 ```
 
 ### Kapan Menggunakan File SQL
@@ -168,6 +190,7 @@ Gunakan `notiloan.sql` jika:
 - jika data lokal berubah, file `notiloan.sql` perlu diperbarui ulang agar tetap sesuai kondisi database terbaru
 - file SQL bisa berisi data aplikasi, jadi jangan upload ke repository publik jika data di dalamnya bersifat sensitif
 - untuk development normal, migration Laravel tetap menjadi cara yang lebih terstruktur
+- untuk server yang tidak menjalankan migration, pastikan import SQL dilakukan sebelum aplikasi dipakai
 
 ## Menjalankan Aplikasi
 
