@@ -64,10 +64,19 @@
 
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                    <span class="navbar-user-copy d-none d-md-inline-flex">
+                        <strong>{{ auth()->user()?->name }}</strong>
+                        <small>{{ auth()->user()?->role_label }}</small>
+                    </span>
                     <img src="{{ asset('assets/images/user.png') }}" alt="profile" class="navbar-avatar">
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown">
+                    <div class="dropdown-user-summary">
+                        <strong>{{ auth()->user()?->name }}</strong>
+                        <small>{{ auth()->user()?->sap }} | {{ auth()->user()?->role_label }}</small>
+                    </div>
+
                     <a class="dropdown-item">
                         <i class="ti-settings text-primary"></i> Settings
                     </a>

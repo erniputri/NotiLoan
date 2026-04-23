@@ -12,7 +12,9 @@
                             <div class="col-xl-7 mb-4 mb-xl-0">
                                 <p class="hero-kicker">Dashboard TJSL PTPN IV REGIONAL III</p>
                                 <h3 class="hero-title">Halo, {{ Auth::user()->name }}</h3>
-                                <p class="hero-copy"></p>
+                                <p class="hero-copy">
+                                    Pantau pinjaman mitra, pembayaran, dan notifikasi jatuh tempo dari satu ruang kerja yang ringkas.
+                                </p>
                             </div>
                             <div class="col-xl-5">
                                 <div class="hero-stat-grid">

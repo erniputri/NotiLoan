@@ -1,11 +1,30 @@
 <style>
                 /* Namespace .dashboard-page dipakai agar styling dashboard tidak bocor ke halaman modul lain. */
                 .dashboard-page .hero-panel {
+                    position: relative;
+                    overflow: hidden;
                     background: linear-gradient(135deg, #123524 0%, #1f6f50 58%, #d7efe4 100%);
                     border-radius: 24px;
                     padding: 28px;
                     color: #fff;
                     box-shadow: 0 18px 38px rgba(18, 53, 36, 0.18);
+                }
+
+                .dashboard-page .hero-panel::after {
+                    content: "";
+                    position: absolute;
+                    width: 260px;
+                    height: 260px;
+                    right: -80px;
+                    top: -90px;
+                    border-radius: 999px;
+                    background: rgba(210, 154, 43, 0.18);
+                    filter: blur(2px);
+                }
+
+                .dashboard-page .hero-panel > .row {
+                    position: relative;
+                    z-index: 1;
                 }
 
                 .dashboard-page .hero-kicker {
@@ -67,6 +86,12 @@
                     border-radius: 20px;
                     height: 100%;
                     box-shadow: 0 12px 30px rgba(20, 30, 58, 0.08);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+
+                .dashboard-page .metric-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 18px 36px rgba(18, 53, 36, 0.11);
                 }
 
                 .dashboard-page .metric-card .card-body {
@@ -99,13 +124,13 @@
                 }
 
                 .dashboard-page .metric-icon--primary {
-                    background: #e8f3ff;
-                    color: #266dd3;
+                    background: #e5f5ec;
+                    color: #1f6f50;
                 }
 
                 .dashboard-page .metric-icon--warning {
                     background: #fbeed8;
-                    color: #c98012;
+                    color: #a26b07;
                 }
 
                 .dashboard-page .metric-icon--success {
@@ -114,8 +139,8 @@
                 }
 
                 .dashboard-page .metric-icon--accent {
-                    background: #efe9ff;
-                    color: #6f42c1;
+                    background: #fff5dc;
+                    color: #a26b07;
                 }
 
                 .dashboard-page .metric-value {
@@ -141,6 +166,7 @@
                     border-radius: 22px;
                     box-shadow: 0 12px 30px rgba(20, 30, 58, 0.08);
                     height: 100%;
+                    background: rgba(255, 255, 255, 0.97);
                 }
 
                 .dashboard-page .surface-card .card-body {
@@ -211,12 +237,13 @@
                 }
 
                 .dashboard-page .mini-stat-item {
-                    border: 1px solid #edf1f7;
+                    border: 1px solid #e1eee6;
                     border-radius: 16px;
                     padding: 14px 16px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    background: linear-gradient(180deg, #ffffff, #fbfefd);
                 }
 
                 .dashboard-page .mini-stat-item span {
@@ -248,9 +275,16 @@
                 }
 
                 .dashboard-page .priority-item {
-                    border: 1px solid #edf1f7;
+                    border: 1px solid #e1eee6;
                     border-radius: 16px;
                     padding: 14px 16px;
+                    background: #fff;
+                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                }
+
+                .dashboard-page .priority-item:hover {
+                    border-color: #b9dfc8;
+                    box-shadow: 0 12px 24px rgba(18, 53, 36, 0.07);
                 }
 
                 .dashboard-page .priority-head {
@@ -281,7 +315,8 @@
                 }
 
                 .dashboard-page .priority-meta-card {
-                    background: #f7f9fc;
+                    background: #f7fbf8;
+                    border: 1px solid #e4f0e8;
                     border-radius: 14px;
                     padding: 10px 12px;
                 }
@@ -317,7 +352,7 @@
                 }
 
                 .dashboard-page .table-shell {
-                    border: 1px solid #edf1f7;
+                    border: 1px solid #e1eee6;
                     border-radius: 18px;
                     overflow: hidden;
                 }

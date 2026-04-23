@@ -1,11 +1,30 @@
 <style>
     .work-page .page-hero {
+        position: relative;
+        overflow: hidden;
         background: linear-gradient(135deg, #123524 0%, #1f6f50 62%, #d7efe4 100%);
         border-radius: 24px;
         padding: 26px 28px;
         color: #fff;
         box-shadow: 0 18px 36px rgba(18, 53, 36, 0.16);
         margin-bottom: 22px;
+    }
+
+    .work-page .page-hero::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: -70px;
+        top: -90px;
+        border-radius: 999px;
+        background: rgba(210, 154, 43, 0.16);
+    }
+
+    .work-page .page-hero > .row,
+    .work-page .page-hero > * {
+        position: relative;
+        z-index: 1;
     }
 
     .work-page .page-kicker {
@@ -29,7 +48,7 @@
     }
 
     .work-page .page-card {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.97);
         border: 1px solid #dcebe1;
         border-radius: 24px;
         box-shadow: 0 14px 30px rgba(18, 53, 36, 0.07);
@@ -102,6 +121,12 @@
         padding: 16px;
         background: #fcfefd;
         height: 100%;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .work-page .field-card:focus-within {
+        border-color: #8bcfb0;
+        background: #ffffff;
     }
 
     .work-page .field-card.is-full {
@@ -232,6 +257,7 @@
         border-radius: 18px;
         padding: 18px;
         background: linear-gradient(180deg, #fcfefd, #f4fbf6);
+        box-shadow: 0 10px 20px rgba(18, 53, 36, 0.04);
     }
 
     .work-page .summary-tile span {
@@ -316,6 +342,14 @@
     }
 
     @media (max-width: 991.98px) {
+        .work-page .page-hero {
+            padding: 22px;
+        }
+
+        .work-page .page-title {
+            font-size: 24px;
+        }
+
         .work-page .summary-grid,
         .work-page .section-grid,
         .work-page .detail-grid {

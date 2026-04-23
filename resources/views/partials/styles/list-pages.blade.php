@@ -1,11 +1,30 @@
 <style>
     .list-page .page-hero {
+        position: relative;
+        overflow: hidden;
         background: linear-gradient(135deg, #123524 0%, #1f6f50 62%, #d7efe4 100%);
         border-radius: 24px;
         padding: 26px 28px;
         color: #fff;
         box-shadow: 0 18px 36px rgba(18, 53, 36, 0.16);
         margin-bottom: 22px;
+    }
+
+    .list-page .page-hero::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: -70px;
+        top: -90px;
+        border-radius: 999px;
+        background: rgba(210, 154, 43, 0.16);
+    }
+
+    .list-page .page-hero > .row,
+    .list-page .page-hero > * {
+        position: relative;
+        z-index: 1;
     }
 
     .list-page .page-kicker {
@@ -62,7 +81,7 @@
     }
 
     .list-page .surface-card {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.97);
         border: 1px solid #dcebe1;
         border-radius: 22px;
         box-shadow: 0 14px 30px rgba(18, 53, 36, 0.07);
@@ -202,6 +221,10 @@
         padding-bottom: 16px;
     }
 
+    .list-page .table tbody tr:hover {
+        background: #fbfefd;
+    }
+
     .list-page .name-cell strong {
         display: block;
         color: #203126;
@@ -284,6 +307,7 @@
 
     .list-page .action-group .btn {
         border-radius: 10px;
+        box-shadow: none;
     }
 
     .list-page .action-cell {
@@ -293,13 +317,14 @@
     .list-page .option-card {
         border: 1px solid #dcebe1;
         border-radius: 14px;
-        transition: border-color 0.2s ease, background-color 0.2s ease;
+        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         background: #fff;
     }
 
     .list-page .option-card:hover {
         border-color: #8bcfb0;
         background: #f8fcf9;
+        box-shadow: 0 10px 20px rgba(18, 53, 36, 0.06);
     }
 
     .list-page .empty-state {
@@ -326,6 +351,14 @@
     }
 
     @media (max-width: 991.98px) {
+        .list-page .page-hero {
+            padding: 22px;
+        }
+
+        .list-page .page-title {
+            font-size: 24px;
+        }
+
         .list-page .hero-stat-grid,
         .list-page .toolbar-grid {
             grid-template-columns: 1fr;

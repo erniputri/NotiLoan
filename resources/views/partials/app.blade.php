@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <!-- Required meta tags -->
@@ -12,7 +12,7 @@
 </head>
 
 
-<body>
+<body class="app-shell">
 
     <div class="container-scroller">
         <!-- partial:partials/_navbar.html -->
