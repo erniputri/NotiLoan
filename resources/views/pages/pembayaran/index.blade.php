@@ -15,7 +15,46 @@
                             Lihat transaksi, cek status pelunasan, dan kelola pembayaran dengan cepat.
                         </p>
                     </div>
+                    <div class="col-xl-5">
+                        <div class="hero-stat-grid">
+                            <div class="hero-stat">
+                                <span>Total Transaksi</span>
+                                <strong>{{ $pembayaran->total() }}</strong>
+                            </div>
+                            <div class="hero-stat">
+                                <span>Ditampilkan</span>
+                                <strong>{{ $pembayaran->count() }}</strong>
+                            </div>
+                            <div class="hero-stat">
+                                <span>Status Filter</span>
+                                <strong>{{ request('search') ? 'Aktif' : 'Semua' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="page-guide-grid">
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-cash-plus"></i></span>
+                    <div>
+                        <strong>Catat pembayaran</strong>
+                        <span>Tambahkan transaksi pembayaran sesuai mitra dan tanggal bayar.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-progress-check"></i></span>
+                    <div>
+                        <strong>Cek sisa pinjaman</strong>
+                        <span>Gunakan kolom sisa pokok untuk melihat progres pelunasan.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-history"></i></span>
+                    <div>
+                        <strong>Riwayat transaksi</strong>
+                        <span>Detail pembayaran tetap tersedia untuk audit dan pengecekan ulang.</span>
+                    </div>
                 </div>
             </div>
 

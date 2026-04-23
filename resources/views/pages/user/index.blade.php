@@ -31,6 +31,30 @@
                 </div>
             </div>
 
+            <div class="page-guide-grid">
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-shield-account-outline"></i></span>
+                    <div>
+                        <strong>Akses berbasis role</strong>
+                        <span>Super admin mengelola user, admin fokus pada operasional aplikasi.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-account-plus-outline"></i></span>
+                    <div>
+                        <strong>Tambah admin</strong>
+                        <span>User baru dibuat sebagai admin biasa agar akses sistem tetap terkontrol.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-lock-check-outline"></i></span>
+                    <div>
+                        <strong>Akun sistem aman</strong>
+                        <span>Akun super admin tidak diedit sembarang dari halaman operasional.</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="card surface-card">
                 <div class="card-body">
                     <div class="section-heading">

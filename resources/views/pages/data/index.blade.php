@@ -30,6 +30,30 @@
                 </div>
             </div>
 
+            <div class="page-guide-grid">
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-magnify"></i></span>
+                    <div>
+                        <strong>Cari data cepat</strong>
+                        <span>Gunakan nama, kontak, kabupaten, sektor, atau status pinjaman.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-file-excel-outline"></i></span>
+                    <div>
+                        <strong>Import dan export</strong>
+                        <span>Gunakan template resmi agar struktur Excel tetap sesuai sistem.</span>
+                    </div>
+                </div>
+                <div class="guide-card">
+                    <span class="guide-icon"><i class="mdi mdi-check-decagram-outline"></i></span>
+                    <div>
+                        <strong>Pantau status lunas</strong>
+                        <span>Data yang sudah lunas tetap tersimpan sebagai riwayat pinjaman mitra.</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="card surface-card">
                 <div class="card-body">
                     {{-- Area filter dan aksi dipisah dari tabel agar tombol utama lebih mudah ditemukan admin. --}}

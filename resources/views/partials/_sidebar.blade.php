@@ -1,15 +1,5 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
 
-    <div class="sidebar-brand-card">
-        <div class="sidebar-brand-icon">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
-        </div>
-        <div>
-            <strong>NotiLoan</strong>
-            <span>Monitoring pinjaman mitra</span>
-        </div>
-    </div>
-
     <div class="sidebar-menu-header">
         MENU
     </div>

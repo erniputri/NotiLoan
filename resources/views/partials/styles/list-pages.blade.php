@@ -80,6 +80,52 @@
         font-weight: 700;
     }
 
+    .list-page .page-guide-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .list-page .guide-card {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 12px;
+        align-items: start;
+        padding: 16px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #dcebe1;
+        box-shadow: 0 12px 24px rgba(18, 53, 36, 0.06);
+    }
+
+    .list-page .guide-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #e6f5ec, #f7fbf8);
+        color: var(--theme-green-700);
+        font-size: 20px;
+        border: 1px solid #d6eadf;
+    }
+
+    .list-page .guide-card strong {
+        display: block;
+        color: #203126;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .list-page .guide-card span {
+        display: block;
+        color: #6f7f74;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
     .list-page .surface-card {
         background: rgba(255, 255, 255, 0.97);
         border: 1px solid #dcebe1;
@@ -98,6 +144,18 @@
         align-items: flex-start;
         gap: 16px;
         margin-bottom: 18px;
+    }
+
+    .list-page .section-heading h4::before,
+    .list-page .section-heading h5::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-right: 8px;
+        border-radius: 999px;
+        background: var(--theme-gold);
+        vertical-align: 2px;
     }
 
     .list-page .section-heading h4,
@@ -201,6 +259,7 @@
         border: 1px solid #e1eee6;
         border-radius: 18px;
         overflow: hidden;
+        background: #fff;
     }
 
     .list-page .table {
@@ -212,6 +271,7 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
         border-bottom: 1px solid #e1eee6;
+        white-space: nowrap;
     }
 
     .list-page .table td {
@@ -219,6 +279,10 @@
         border-color: #edf5f0;
         padding-top: 16px;
         padding-bottom: 16px;
+    }
+
+    .list-page .table tbody tr:last-child td {
+        border-bottom: 0;
     }
 
     .list-page .table tbody tr:hover {
@@ -348,6 +412,10 @@
         gap: 12px;
         margin-top: 18px;
         flex-wrap: wrap;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f8fcf9;
+        border: 1px solid #e2efe7;
     }
 
     @media (max-width: 991.98px) {
@@ -360,6 +428,7 @@
         }
 
         .list-page .hero-stat-grid,
+        .list-page .page-guide-grid,
         .list-page .toolbar-grid {
             grid-template-columns: 1fr;
         }

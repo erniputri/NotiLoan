@@ -91,12 +91,6 @@
                 </div>
             </li>
 
-            <li class="nav-item nav-settings d-none d-lg-flex">
-                <a class="nav-link" href="#">
-                    <i class="icon-ellipsis"></i>
-                </a>
-            </li>
-
             <li class="nav-item d-flex align-items-center ml-3">
                 <img src="{{ asset('assets/images/logo.png') }}" alt="logo" class="navbar-inline-logo">
             </li>
