@@ -72,6 +72,8 @@ Route::group(['middleware' => ['checkislogin']], function () {
     Route::get('/pembayaran/search/peminjaman', [PembayaranController::class, 'searchPeminjaman'])
         ->name('pembayaran.search.peminjaman');
     Route::resource('pembayaran', PembayaranController::class);
+    Route::get('/mitra/{id}/riwayat-pembayaran/print', [MitraController::class, 'printPaymentHistory'])
+        ->name('mitra.payments.print');
     Route::resource('mitra', MitraController::class)->only(['index', 'show', 'edit', 'update']);
     Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
         ->name('notif.send');
