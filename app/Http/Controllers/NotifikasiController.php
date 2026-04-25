@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Services\NotificationAutomationService;
 use App\Services\NotificationDispatchService;
 use App\Services\NotificationScheduleService;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 class NotifikasiController extends Controller
 {
     public function __construct(
+        private readonly NotificationAutomationService $notificationAutomationService,
         private readonly NotificationScheduleService $notificationScheduleService,
         private readonly NotificationDispatchService $notificationDispatchService
     ) {
@@ -65,12 +67,55 @@ class NotifikasiController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $notificationChannelModeLabel = match (config('services.whatsapp.driver', 'simulator')) {
+            'api' => 'API WhatsApp',
+            default => 'Simulator',
+        };
+
         return view('pages.notifikasi.index', compact(
             'dataPeminjaman',
             'search',
             'pendingNotificationCount',
-            'sentNotificationCount'
+            'sentNotificationCount',
+            'notificationChannelModeLabel'
         ));
+    }
+
+    // Trigger manual ini tetap memakai rule sistem agar demo client sesuai perilaku scheduler asli.
+    public function sendMonthlyBatch()
+    {
+        $result = $this->notificationAutomationService->dispatchMonthlyBatch(now());
+
+        if ($result['processed_count'] === 0) {
+            return back()->with(
+                'info',
+                "Tidak ada notifikasi bulanan yang perlu dikirim. Queue bulan ini tersusun {$result['prepared_count']} data."
+            );
+        }
+
+        $attemptList = implode(', #', $result['attempt_ids']);
+
+        return back()->with(
+            'success',
+            "Batch notifikasi bulanan diproses sistem ke {$result['processed_count']} mitra. Attempt: #{$attemptList}."
+        );
+    }
+
+    // Pengingat kedua dipicu ulang lewat sistem untuk kebutuhan demo tanpa mengubah jadwal otomatis harian.
+    public function sendSystemFollowUp()
+    {
+        $result = $this->notificationAutomationService->dispatchOverdueFollowUpBatch(now());
+
+        if ($result['processed_count'] === 0) {
+            return back()->with('info', 'Tidak ada pengingat kedua yang perlu dikirim saat ini.');
+        }
+
+        $attemptList = implode(', #', $result['attempt_ids']);
+
+        return back()->with(
+            'success',
+            "Pengingat kedua diproses sistem ke {$result['processed_count']} mitra. Attempt: #{$attemptList}."
+        );
     }
 
     // Kirim manual memastikan mitra memang sudah jatuh tempo, belum bayar, dan belum lunas.
@@ -100,7 +145,6 @@ class NotifikasiController extends Controller
 
         return back()->with('success', "WhatsApp berhasil diproses. Attempt tercatat dengan ID {$attempt->id}.");
     }
-
     /**
      * Show the form for creating a new resource.
      */

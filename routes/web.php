@@ -75,6 +75,10 @@ Route::group(['middleware' => ['checkislogin']], function () {
     Route::resource('mitra', MitraController::class)->only(['index', 'show', 'edit', 'update']);
     Route::post('/notif/send/{id}', [NotifikasiController::class, 'send'])
         ->name('notif.send');
+    Route::post('/notif/system/monthly', [NotifikasiController::class, 'sendMonthlyBatch'])
+        ->name('notif.system.monthly');
+    Route::post('/notif/system/followup', [NotifikasiController::class, 'sendSystemFollowUp'])
+        ->name('notif.system.followup');
     Route::get('/peminjaman/export', [ExportController::class, 'export'])
         ->name('peminjaman.export');
 

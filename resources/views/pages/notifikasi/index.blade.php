@@ -64,11 +64,18 @@
                     <div class="section-heading">
                         <div>
                             <h4>Filter Data</h4>
+                            <p class="section-caption">Gunakan filter untuk meninjau penerima, lalu jalankan batch sistem bila ingin mendemokan pengiriman otomatis.</p>
                         </div>
-                        <span class="surface-note">
-                            <i class="mdi mdi-bell-outline"></i>
-                            Kirim manual hanya muncul untuk mitra yang sudah jatuh tempo dan belum membayar
-                        </span>
+                        <div class="d-flex flex-wrap gap-2 justify-content-xl-end">
+                            <span class="surface-note">
+                                <i class="mdi mdi-radar"></i>
+                                Mode pengiriman: {{ $notificationChannelModeLabel }}
+                            </span>
+                            <span class="surface-note">
+                                <i class="mdi mdi-bell-outline"></i>
+                                Kirim manual hanya muncul untuk mitra yang sudah jatuh tempo dan belum membayar
+                            </span>
+                        </div>
                     </div>
 
                     <div class="toolbar-grid">
@@ -95,6 +102,27 @@
                         <span class="surface-note">
                             <i class="mdi mdi-filter-outline"></i>
                             {{ $search ? 'Filter aktif: "'.$search.'"' : 'Menampilkan seluruh data yang tersedia' }}
+                        </span>
+                    </div>
+
+                    <div class="summary-strip mt-3">
+                        <form action="{{ route('notif.system.monthly') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-action">
+                                <i class="mdi mdi-calendar-month-outline"></i>
+                                Jalankan Notifikasi Bulanan
+                            </button>
+                        </form>
+                        <form action="{{ route('notif.system.followup') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-primary btn-action">
+                                <i class="mdi mdi-bell-alert-outline"></i>
+                                Jalankan Pengingat Kedua
+                            </button>
+                        </form>
+                        <span class="summary-chip">
+                            <i class="mdi mdi-information-outline"></i>
+                            Tombol ini memakai rule sistem yang sama dengan scheduler otomatis.
                         </span>
                     </div>
                 </div>

@@ -35,10 +35,11 @@ return [
         ],
     ],
 
-    // 'whatsapp' => [
-    //     'url'       => env('WA_API_URL'),
-    //     'token'     => env('WA_API_TOKEN'),
-    //     'device_id' => env('WA_API_DEVICE_ID'),
-    // ],
+    'whatsapp' => [
+        'driver' => env('WA_DRIVER', 'simulator'),
+        'url' => env('WA_API_URL'),
+        'token' => env('WA_API_TOKEN'),
+        'device_id' => env('WA_API_DEVICE_ID'),
+    ],
 
 ];
