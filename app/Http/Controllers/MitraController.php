@@ -124,4 +124,69 @@ class MitraController extends Controller
             ->route('mitra.show', $mitra->id)
             ->with('success', 'Data mitra berhasil diperbarui.');
     }
+
+    public function printPaymentHistory($id)
+    {
+        $mitra = Mitra::with([
+            'peminjaman' => function ($query) {
+                $query->with([
+                    'pembayaran' => function ($paymentQuery) {
+                        $paymentQuery->orderBy('tanggal_pembayaran')->orderBy('id');
+                    },
+                ])
+                    ->orderByDesc('tgl_peminjaman')
+                    ->orderByDesc('id');
+            },
+        ])->findOrFail($id);
+
+        $currentLoan = $mitra->peminjaman
+            ->firstWhere('pokok_sisa', '>', 0)
+            ?? $mitra->peminjaman->first();
+
+        $payments = collect();
+
+        if ($currentLoan) {
+            $runningPaid = 0;
+
+            foreach ($currentLoan->pembayaran as $index => $payment) {
+                $runningPaid += (int) $payment->jumlah_bayar;
+                $payment->setRelation('peminjaman', $currentLoan);
+                $payment->installment_number = $index + 1;
+                $payment->remaining_after_payment = max(0, (int) $currentLoan->pokok_pinjaman_awal - $runningPaid);
+                $payment->loan_quality_label = $currentLoan->kualitas_kredit_label;
+                $payments->push($payment);
+            }
+        }
+
+        $payments = $payments->values();
+        $latestPayment = $payments->last();
+        $overallLoanStatus = $currentLoan?->kualitas_kredit_label ?? 'Tidak Diketahui';
+
+        $summary = [
+            'payment_count' => $payments->count(),
+            'payment_total' => (int) $payments->sum('jumlah_bayar'),
+            'latest_payment' => $latestPayment,
+            'last_installment_number' => $latestPayment?->installment_number,
+            'overall_loan_status' => $overallLoanStatus,
+            'current_loan_status' => $currentLoan?->loan_status_label ?? 'Belum Ada Pinjaman',
+            'current_loan_quality' => $currentLoan?->kualitas_kredit_label ?? 'Tidak Diketahui',
+            'current_loan_principal' => (int) ($currentLoan?->pokok_pinjaman_awal ?? 0),
+            'current_loan_remaining' => (int) ($currentLoan?->pokok_sisa ?? 0),
+            'current_loan_initial_tenor' => $currentLoan
+                ? ($currentLoan->pembayaran->count() + (int) $currentLoan->lama_angsuran_bulan)
+                : null,
+        ];
+
+        $printedAt = now();
+        $printedBy = auth()->user()?->name ?? 'Administrator';
+
+        return view('pages.mitra.print-riwayat-pembayaran', compact(
+            'mitra',
+            'payments',
+            'summary',
+            'currentLoan',
+            'printedAt',
+            'printedBy'
+        ));
+    }
 }

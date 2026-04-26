@@ -151,6 +151,10 @@
                             <h4>Riwayat Pembayaran</h4>
                             <p>Semua pembayaran dari seluruh pinjaman mitra terkumpul dalam satu tabel.</p>
                         </div>
+                        <a href="{{ route('mitra.payments.print', $mitra->id) }}" target="_blank"
+                            class="btn btn-outline-primary">
+                            Cetak / Simpan PDF
+                        </a>
                     </div>
 
                     <div class="table-responsive">
