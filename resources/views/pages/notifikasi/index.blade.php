@@ -3,7 +3,7 @@
 @section('content')
     <div class="main-panel">
         <div class="content-wrapper list-page list-page--notif">
-            
+
 
             {{-- Hero dipakai untuk menjelaskan bahwa halaman ini fokus pada monitoring dan pengiriman notifikasi. --}}
             <div class="page-hero">
@@ -67,10 +67,10 @@
                             <p class="section-caption">Gunakan filter untuk meninjau penerima, lalu jalankan batch sistem bila ingin mendemokan pengiriman otomatis.</p>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-xl-end">
-                            <span class="surface-note">
+                            {{-- <span class="surface-note">
                                 <i class="mdi mdi-radar"></i>
                                 Mode pengiriman: {{ $notificationChannelModeLabel }}
-                            </span>
+                            </span> --}}
                             <span class="surface-note">
                                 <i class="mdi mdi-bell-outline"></i>
                                 Kirim manual hanya muncul untuk mitra yang sudah jatuh tempo dan belum membayar
@@ -105,7 +105,7 @@
                         </span>
                     </div>
 
-                    <div class="summary-strip mt-3">
+                    {{-- <div class="summary-strip mt-3">
                         <form action="{{ route('notif.system.monthly') }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-success btn-action">
@@ -124,7 +124,7 @@
                             <i class="mdi mdi-information-outline"></i>
                             Tombol ini memakai rule sistem yang sama dengan scheduler otomatis.
                         </span>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 

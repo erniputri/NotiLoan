@@ -91,6 +91,7 @@ class Peminjaman extends Model
     public function notifikasi()
     {
         return $this->hasOne(Notification::class, 'peminjaman_id', 'id');
+        
     }
 
     public function mitra()

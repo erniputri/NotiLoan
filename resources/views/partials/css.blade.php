@@ -394,6 +394,24 @@
 
     .sidebar .nav .nav-item {
         margin-bottom: 6px;
+        background: transparent !important;
+        border-radius: 14px;
+        box-shadow: none !important;
+    }
+
+    .sidebar .nav:not(.sub-menu) > .nav-item {
+        background: transparent !important;
+    }
+
+    .sidebar .nav:not(.sub-menu) > .nav-item:not(.active) {
+        background: transparent !important;
+    }
+
+    .sidebar .nav:not(.sub-menu) > .nav-item:not(.active) > .nav-link {
+        background: rgba(255, 255, 255, 0.82) !important;
+        color: #4e5d53 !important;
+        border: 1px solid #dfebe4 !important;
+        box-shadow: 0 6px 14px rgba(18, 53, 36, 0.04) !important;
     }
 
     .sidebar .nav .nav-item .nav-link {
@@ -402,6 +420,9 @@
         color: #4e5d53;
         min-height: 46px;
         font-weight: 700;
+        background: rgba(255, 255, 255, 0.78) !important;
+        border: 1px solid #dfebe4;
+        box-shadow: 0 6px 14px rgba(18, 53, 36, 0.04);
     }
 
     .sidebar .nav .nav-item .nav-link .menu-title,
@@ -414,6 +435,7 @@
         background: var(--theme-green-100);
         color: var(--theme-green-800);
         transform: translateX(3px);
+        border-color: #c8e0d1;
     }
 
     .sidebar .nav:not(.sub-menu) > .nav-item:hover > .nav-link,
@@ -422,6 +444,7 @@
     .sidebar .nav:not(.sub-menu) > .nav-item > .nav-link:focus {
         background: var(--theme-green-100) !important;
         color: var(--theme-green-800) !important;
+        border-color: #c8e0d1 !important;
     }
 
     .sidebar .nav:not(.sub-menu) > .nav-item:hover > .nav-link i,
@@ -439,6 +462,7 @@
         background: linear-gradient(135deg, var(--theme-green-700), var(--theme-green-500));
         color: #fff;
         box-shadow: 0 10px 20px rgba(31, 111, 80, 0.18);
+        border-color: transparent;
     }
 
     .sidebar .nav .nav-item.active .nav-link .menu-title,
@@ -452,6 +476,10 @@
     .sidebar .nav:not(.sub-menu) > .nav-item.active > .nav-link[aria-expanded="true"] {
         background: linear-gradient(135deg, var(--theme-green-700), var(--theme-green-500)) !important;
         color: #fff !important;
+    }
+
+    .sidebar .nav:not(.sub-menu) > .nav-item.active {
+        background: transparent !important;
     }
 
     .sidebar .nav:not(.sub-menu) > .nav-item.active > .nav-link i,
