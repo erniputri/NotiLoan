@@ -272,7 +272,7 @@ Project ini memiliki scheduler otomatis di [bootstrap/app.php](./bootstrap/app.p
 
 ### Penjelasan Alur Scheduler
 
-Bagian ini dibuat agar alur notifikasi mudah dijelaskan saat demo, sidang, atau saat project dilanjutkan oleh programmer lain.
+Bagian ini dibuat agar alur notifikasi mudah dipahami oleh siapa pun yang ingin mengetahui cara kerja scheduler pada aplikasi ini.
 
 Catatan:
 
@@ -606,7 +606,7 @@ Arti logic:
 
 ### 8. Cara sistem mendeteksi kirim ulang notifikasi
 
-Bagian ini penting karena sering menjadi pertanyaan saat review atau sidang.
+Bagian ini penting karena menjelaskan bagaimana sistem membedakan notifikasi baru dengan percobaan kirim ulang.
 
 Prinsip utamanya:
 
@@ -692,7 +692,7 @@ Arti logic:
 - jika belum ada pembayaran, jatuh tempo dihitung dari `tgl_peminjaman + 1 bulan`
 - hasil inilah yang dipakai oleh scheduler saat memilih siapa yang harus dikirimi notifikasi
 
-### 10. Penjelasan saat penguji mempertanyakan row notifikasi tidak bertambah setiap bulan
+### 10. Penjelasan mengapa row notifikasi tidak bertambah setiap bulan
 
 Ini adalah bagian yang sering menimbulkan salah paham.
 
@@ -726,7 +726,7 @@ Urutan proses lengkapnya:
 
 ### 12. Peta perubahan kondisi bisnis dan bagian kode yang harus diubah
 
-Bagian ini disusun agar programmer berikutnya tahu titik ubah mana yang paling relevan ketika kebijakan perusahaan berubah.
+Bagian ini disusun agar siapa pun yang melanjutkan pengembangan aplikasi tahu titik ubah mana yang paling relevan ketika kebijakan perusahaan berubah.
 
 #### A. Jika perusahaan ingin mengubah tanggal atau jam scheduler utama
 
