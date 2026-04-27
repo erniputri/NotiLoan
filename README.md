@@ -604,7 +604,60 @@ Arti logic:
 - jika ada trigger ulang untuk reminder kedua, sistem mencatatnya sebagai `skipped`, bukan `success`
 - semua proses tetap dicatat ke tabel `notification_attempts` untuk audit
 
-### 8. Cara sistem menentukan jatuh tempo berikutnya
+### 8. Cara sistem mendeteksi kirim ulang notifikasi
+
+Bagian ini penting karena sering menjadi pertanyaan saat review atau sidang.
+
+Prinsip utamanya:
+
+- sistem tidak mendeteksi kirim ulang hanya dari ada atau tidaknya row di tabel `notifications`
+- sistem membedakan antara `siklus jatuh tempo yang sama` dan `siklus jatuh tempo baru`
+- selama masih satu siklus, notifikasi tidak boleh dikirim ulang
+- jika sudah masuk siklus baru, row yang sama boleh dipakai lagi setelah di-reset
+
+File utama:
+
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `13-45`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-105`
+- [app/Services/NotificationDispatchService.php](./app/Services/NotificationDispatchService.php) baris `40-56`
+
+Potongan kode pembanding siklus:
+
+```php
+$sameCycle = $notification->due_date
+    && $notification->due_date->isSameDay($nextDueDate);
+
+if (! $sameCycle) {
+    $payload['status'] = 0;
+    $payload['sent_at'] = null;
+    $payload['follow_up_sent_at'] = null;
+}
+```
+
+Arti logic:
+
+- jika `due_date` notifikasi masih sama dengan `next_due_date` pinjaman, maka sistem menganggap itu masih satu siklus
+- jika berbeda, maka sistem menganggap sudah masuk siklus baru
+- pada siklus baru, row notifikasi lama tidak dibuang, tetapi di-reset agar bisa dipakai lagi
+
+Deteksi kirim ulang reminder pertama:
+
+- scheduler hanya mengambil data dengan `status = false`
+- jika `status = true`, berarti reminder pertama pada siklus itu sudah pernah dikirim
+
+Deteksi kirim ulang reminder kedua:
+
+- scheduler hanya mengambil data dengan `follow_up_sent_at is null`
+- jika `follow_up_sent_at` sudah terisi, berarti reminder kedua sudah pernah dikirim
+- jika ada trigger ulang, dispatch service akan menandainya sebagai `skipped`
+
+Kesimpulan:
+
+- notifikasi pertama dikendalikan oleh kombinasi `status` dan `sameCycle`
+- notifikasi kedua dikendalikan oleh kombinasi `follow_up_sent_at` dan `sameCycle`
+- histori pengiriman detail tetap ada di tabel `notification_attempts`
+
+### 9. Cara sistem menentukan jatuh tempo berikutnya
 
 File: [app/Models/Peminjaman.php](./app/Models/Peminjaman.php)
 
@@ -639,7 +692,28 @@ Arti logic:
 - jika belum ada pembayaran, jatuh tempo dihitung dari `tgl_peminjaman + 1 bulan`
 - hasil inilah yang dipakai oleh scheduler saat memilih siapa yang harus dikirimi notifikasi
 
-### 9. Ringkasan flow sederhana
+### 10. Penjelasan saat penguji mempertanyakan row notifikasi tidak bertambah setiap bulan
+
+Ini adalah bagian yang sering menimbulkan salah paham.
+
+Yang benar:
+
+- tabel `notifications` pada desain ini berfungsi sebagai `status aktif notifikasi per pinjaman`
+- tabel `notifications` bukan tabel histori bulanan
+- karena itu, untuk `peminjaman_id` yang sama, sistem memang tidak menambah row notifikasi baru setiap bulan
+- row notifikasi yang sama akan diupdate dan di-reset jika pinjaman masuk siklus jatuh tempo baru
+
+Kalimat yang bisa dipakai:
+
+`Pada desain ini, tabel notifications menyimpan status aktif notifikasi per pinjaman, bukan histori notifikasi bulanan. Jadi row untuk peminjaman_id yang sama memang di-update, bukan diinsert ulang. Histori detail pengiriman disimpan di tabel notification_attempts.`
+
+Implikasi bisnisnya:
+
+- jika mitra sudah membayar, `next_due_date` maju ke bulan berikutnya, sehingga row notifikasi lama di-reset dan bisa dipakai lagi
+- jika mitra belum membayar, `next_due_date` tidak maju, sehingga sistem tidak menganggap ada siklus bulanan baru
+- dalam kondisi belum bayar, yang bekerja adalah flow `overdue follow-up`, bukan `first reminder` bulanan baru
+
+### 11. Ringkasan flow sederhana
 
 Urutan proses lengkapnya:
 
@@ -650,13 +724,49 @@ Urutan proses lengkapnya:
 5. Status notifikasi diupdate.
 6. Semua hit pengiriman dicatat ke tabel `notification_attempts`.
 
-### 10. Contoh kondisi yang bisa dirubah
+### 12. Peta perubahan kondisi bisnis dan bagian kode yang harus diubah
 
-Bagian ini penting untuk programmer berikutnya jika perusahaan mengubah kebutuhan.
+Bagian ini disusun agar programmer berikutnya tahu titik ubah mana yang paling relevan ketika kebijakan perusahaan berubah.
 
-#### A. Jika perusahaan ingin notifikasi pertama dikirim 2 kali dalam sebulan
+#### A. Jika perusahaan ingin mengubah tanggal atau jam scheduler utama
 
-Bagian yang perlu dicek:
+Bagian yang perlu diubah:
+
+- [bootstrap/app.php](./bootstrap/app.php) baris `16-20`
+
+Contoh:
+
+```php
+$schedule->command('wa:send-notification')
+    ->monthlyOn(5, '07:30');
+```
+
+Dampak:
+
+- hanya mengubah waktu eksekusi command
+- tidak mengubah aturan seleksi data
+
+#### B. Jika perusahaan ingin reminder kedua dikirim pada jam yang berbeda
+
+Bagian yang perlu diubah:
+
+- [bootstrap/app.php](./bootstrap/app.php) baris `19-20`
+
+Contoh:
+
+```php
+$schedule->command('wa:send-overdue-followup')
+    ->dailyAt('16:00');
+```
+
+Dampak:
+
+- hanya mengubah jam follow-up
+- tidak mengubah rule overdue
+
+#### C. Jika perusahaan ingin notifikasi pertama dikirim 2 kali dalam sebulan
+
+Bagian yang perlu dicek dan diubah:
 
 - [bootstrap/app.php](./bootstrap/app.php) baris `16-20`
 - [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `163-166`
@@ -679,35 +789,37 @@ Catatan:
   - `first_batch_sent_at`
   - `second_batch_sent_at`
 
-#### B. Jika perusahaan ingin jam pengiriman diubah
+Alasan:
 
-Bagian yang dirubah:
+- saat ini scheduler pertama hanya mengenal satu status kirim utama
+- bila ada dua batch reguler dalam satu bulan, sistem membutuhkan penanda yang lebih rinci agar batch pertama dan batch kedua tidak saling menimpa
 
-- [bootstrap/app.php](./bootstrap/app.php) baris `17-20`
+#### D. Jika perusahaan ingin pinjaman yang belum bayar tetap menerima reminder pertama lagi pada bulan berikutnya
 
-Contoh:
+Ini adalah perubahan rule yang cukup besar.
 
-```php
-$schedule->command('wa:send-notification')
-    ->monthlyOn(1, '07:30');
-```
+Bagian yang perlu dicek dan diubah:
 
-#### C. Jika perusahaan ingin reminder kedua dikirim tiap sore
+- [app/Models/Peminjaman.php](./app/Models/Peminjaman.php) baris `112-120`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `49-64`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-85`
+- kemungkinan struktur tabel `notifications`
 
-Bagian yang dirubah:
+Alasan:
 
-- [bootstrap/app.php](./bootstrap/app.php) baris `19-20`
+- saat ini `next_due_date` hanya maju jika ada pembayaran
+- jadi bila belum ada pembayaran, sistem tidak menganggap ada due cycle baru
+- kalau perusahaan ingin reminder bulanan berulang sampai lunas, desain sekarang belum cukup
 
-Contoh:
+Solusi yang biasanya dipertimbangkan:
 
-```php
-$schedule->command('wa:send-overdue-followup')
-    ->dailyAt('16:00');
-```
+- menambah histori notifikasi per periode
+- atau menambah field khusus seperti `last_monthly_reminder_sent_at`
+- atau mengubah `notifications` dari tabel status aktif menjadi tabel histori per siklus
 
-#### D. Jika perusahaan ingin message diubah
+#### E. Jika perusahaan ingin message diubah
 
-Bagian yang dirubah:
+Bagian yang perlu diubah:
 
 - [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `127-149`
 
@@ -716,9 +828,23 @@ Contoh:
 - ubah isi `buildMonthlyMessage()`
 - ubah isi `buildOverdueMessage()`
 
-#### E. Jika perusahaan ingin pakai API WhatsApp sungguhan
+#### F. Jika perusahaan ingin mengganti logic siapa yang layak menerima notifikasi
 
-Bagian yang dirubah:
+Bagian yang perlu diubah:
+
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `49-64`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-85`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `89-115`
+
+Contoh kasus:
+
+- menambah filter wilayah
+- hanya mengirim ke kategori kredit tertentu
+- hanya mengirim ke mitra yang validasi kontaknya lolos
+
+#### G. Jika perusahaan ingin pakai API WhatsApp sungguhan
+
+Bagian yang perlu diubah:
 
 - [app/Services/NotificationDispatchService.php](./app/Services/NotificationDispatchService.php) baris `73-87`
 
