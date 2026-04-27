@@ -27,6 +27,7 @@ class PeminjamanNotificationStateTest extends TestCase
 
         $loan->setRelation('latestPembayaran', null);
         $loan->setRelation('notifikasi', new Notification([
+            'period_start' => '2026-04-01',
             'status' => true,
             'due_date' => '2026-04-01',
             'sent_at' => '2026-04-01 00:05:00',
@@ -50,6 +51,7 @@ class PeminjamanNotificationStateTest extends TestCase
 
         $loan->setRelation('latestPembayaran', null);
         $loan->setRelation('notifikasi', new Notification([
+            'period_start' => '2026-04-01',
             'status' => true,
             'due_date' => '2026-05-10',
             'sent_at' => '2026-05-01 00:05:00',
@@ -72,6 +74,7 @@ class PeminjamanNotificationStateTest extends TestCase
 
         $loan->setRelation('latestPembayaran', null);
         $loan->setRelation('notifikasi', new Notification([
+            'period_start' => '2026-04-01',
             'status' => true,
             'due_date' => '2026-04-01',
             'sent_at' => '2026-04-01 00:05:00',

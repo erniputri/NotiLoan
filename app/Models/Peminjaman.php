@@ -88,10 +88,16 @@ class Peminjaman extends Model
         ];
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'peminjaman_id', 'id');
+    }
+
     public function notifikasi()
     {
-        return $this->hasOne(Notification::class, 'peminjaman_id', 'id');
-        
+        return $this->hasOne(Notification::class, 'peminjaman_id', 'id')
+            ->orderByDesc('period_start')
+            ->orderByDesc('id');
     }
 
     public function mitra()
@@ -243,11 +249,11 @@ class Peminjaman extends Model
             return 'Lunas';
         }
 
-        if (! $this->notifikasi) {
-            return $this->is_due_and_unpaid ? 'Perlu Pengingat Kedua' : 'Belum Terkirim';
+        if (! $this->notifikasi || ! $this->notifikasi->period_start || ! $this->notifikasi->period_start->isSameMonth(now())) {
+            return 'Belum Terkirim';
         }
 
-        if ($this->is_due_and_unpaid && ! $this->notifikasi->follow_up_sent_at) {
+        if ($this->is_due_and_unpaid && $this->notifikasi->status && ! $this->notifikasi->follow_up_sent_at) {
             return 'Perlu Pengingat Kedua';
         }
 
@@ -264,11 +270,11 @@ class Peminjaman extends Model
             return 'secondary';
         }
 
-        if (! $this->notifikasi) {
-            return $this->is_due_and_unpaid ? 'danger' : 'secondary';
+        if (! $this->notifikasi || ! $this->notifikasi->period_start || ! $this->notifikasi->period_start->isSameMonth(now())) {
+            return 'secondary';
         }
 
-        if ($this->is_due_and_unpaid && ! $this->notifikasi->follow_up_sent_at) {
+        if ($this->is_due_and_unpaid && $this->notifikasi->status && ! $this->notifikasi->follow_up_sent_at) {
             return 'danger';
         }
 
@@ -289,7 +295,11 @@ class Peminjaman extends Model
     {
         return (int) $this->pokok_sisa > 0
             && $this->is_due_and_unpaid
-            && (! $this->notifikasi || ! $this->notifikasi->follow_up_sent_at);
+            && $this->notifikasi
+            && $this->notifikasi->period_start
+            && $this->notifikasi->period_start->isSameMonth(now())
+            && $this->notifikasi->status
+            && ! $this->notifikasi->follow_up_sent_at;
     }
 
     private function normalizeKontak(?string $value): ?string

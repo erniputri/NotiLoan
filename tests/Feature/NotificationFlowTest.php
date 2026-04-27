@@ -85,6 +85,7 @@ class NotificationFlowTest extends TestCase
         $this->assertNotNull($notification);
         $this->assertTrue($notification->status);
         $this->assertSame('2026-04-10', $notification->due_date?->format('Y-m-d'));
+        $this->assertSame('2026-04-01', $notification->period_start?->format('Y-m-d'));
         $this->assertNotNull($notification->sent_at);
         $this->assertNotNull($attempt);
         $this->assertSame('first_notice_system', $attempt->trigger_type);
@@ -135,6 +136,14 @@ class NotificationFlowTest extends TestCase
             'virtual_account' => '1234500099',
         ]);
 
+        app(NotificationScheduleService::class)->prepareMonthlyNotifications(Carbon::parse('2026-04-01 00:05:00'));
+        Notification::where('peminjaman_id', $loan->id)
+            ->whereDate('period_start', '2026-04-01')
+            ->update([
+                'status' => true,
+                'sent_at' => Carbon::parse('2026-04-01 00:05:00'),
+            ]);
+
         $this->actingAs($user)
             ->from(route('notif.index'))
             ->post(route('notif.send', $loan->id))
@@ -153,6 +162,94 @@ class NotificationFlowTest extends TestCase
         $this->assertTrue($attempt->is_success);
         $this->assertStringContainsString('telah jatuh tempo', $attempt->message);
         $this->assertStringContainsString('1234500099', $attempt->message);
+    }
+
+    public function test_unpaid_loan_creates_new_notification_row_each_month_until_settled(): void
+    {
+        $loan = $this->createLoan([
+            'nomor_mitra' => 'MTR-REPEAT-001',
+            'nama_mitra' => 'Mitra Reminder Berulang',
+            'tgl_peminjaman' => '2026-03-10',
+            'pokok_pinjaman_awal' => 1200000,
+            'pokok_sisa' => 1200000,
+        ]);
+
+        Carbon::setTestNow('2026-04-01 00:05:00');
+        app(NotificationScheduleService::class)->prepareMonthlyNotifications(now());
+        Notification::where('peminjaman_id', $loan->id)
+            ->whereDate('period_start', '2026-04-01')
+            ->update([
+                'status' => true,
+                'sent_at' => Carbon::parse('2026-04-01 00:05:00'),
+            ]);
+
+        Carbon::setTestNow('2026-05-01 00:05:00');
+        $preparedNotifications = app(NotificationScheduleService::class)->prepareMonthlyNotifications(now());
+        $readyNotifications = app(NotificationScheduleService::class)->firstRemindersReadyForDispatch(now());
+
+        $this->assertSame(2, Notification::where('peminjaman_id', $loan->id)->count());
+
+        $mayNotification = Notification::where('peminjaman_id', $loan->id)
+            ->whereDate('period_start', '2026-05-01')
+            ->first();
+
+        $this->assertNotNull($preparedNotifications->firstWhere('peminjaman_id', $loan->id));
+        $this->assertNotNull($mayNotification);
+        $this->assertFalse($mayNotification->status);
+        $this->assertNull($mayNotification->sent_at);
+        $this->assertSame('2026-04-10', $mayNotification->due_date?->format('Y-m-d'));
+        $this->assertStringContainsString('belum kami terima', $mayNotification->message);
+        $this->assertNotNull($readyNotifications->firstWhere('id', $mayNotification->id));
+    }
+
+    public function test_monthly_prepare_does_not_duplicate_notification_in_same_period(): void
+    {
+        $loan = $this->createLoan([
+            'nomor_mitra' => 'MTR-ONCE-001',
+            'nama_mitra' => 'Mitra Idempotent',
+        ]);
+
+        Carbon::setTestNow('2026-04-01 00:05:00');
+
+        app(NotificationScheduleService::class)->prepareMonthlyNotifications(now());
+        app(NotificationScheduleService::class)->prepareMonthlyNotifications(now());
+
+        $this->assertSame(1, Notification::where('peminjaman_id', $loan->id)->count());
+        $this->assertDatabaseHas('notifications', [
+            'peminjaman_id' => $loan->id,
+            'period_start' => '2026-04-01',
+        ]);
+    }
+
+    public function test_dashboard_and_notification_pages_render_for_authenticated_user(): void
+    {
+        Carbon::setTestNow('2026-04-15 08:00:00');
+
+        $user = User::factory()->create();
+
+        $loan = $this->createLoan([
+            'nomor_mitra' => 'MTR-PAGE-001',
+            'nama_mitra' => 'Mitra Halaman',
+            'tgl_peminjaman' => '2026-03-01',
+            'pokok_sisa' => 800000,
+        ]);
+
+        app(NotificationScheduleService::class)->prepareMonthlyNotifications(Carbon::parse('2026-04-01 00:05:00'));
+
+        Notification::where('peminjaman_id', $loan->id)
+            ->whereDate('period_start', '2026-04-01')
+            ->update([
+                'status' => true,
+                'sent_at' => Carbon::parse('2026-04-01 00:05:00'),
+            ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk();
+
+        $this->actingAs($user)
+            ->get(route('notif.index'))
+            ->assertOk();
     }
 
     // Helper ini menyiapkan row pinjaman minimal yang valid agar fokus test tetap pada flow notifikasi.

@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $navbarData = Cache::remember('navbar_notifications:v1', now()->addSeconds(30), function () {
+            $navbarData = Cache::remember('navbar_notifications:v2', now()->addSeconds(30), function () {
                 $activeLoans = Peminjaman::query()
                     ->select([
                         'id',
@@ -50,7 +50,18 @@ class AppServiceProvider extends ServiceProvider
                                 'pembayarans.tanggal_pembayaran',
                             ]);
                         },
-                        'notifikasi:id,peminjaman_id,status,send_at,sent_at,due_date,follow_up_sent_at',
+                        'notifikasi' => function ($query) {
+                            $query->select([
+                                'notifications.id',
+                                'notifications.peminjaman_id',
+                                'notifications.status',
+                                'notifications.send_at',
+                                'notifications.sent_at',
+                                'notifications.due_date',
+                                'notifications.period_start',
+                                'notifications.follow_up_sent_at',
+                            ]);
+                        },
                     ])
                     ->get();
 
@@ -69,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
 
                 $firstReminderActivities = Notification::query()
                     ->with('peminjaman:id,nama_mitra,pokok_sisa')
+                    ->whereDate('period_start', now()->startOfMonth()->toDateString())
                     ->where('status', false)
                     ->where('send_at', '<=', now())
                     ->whereHas('peminjaman', function ($query) {

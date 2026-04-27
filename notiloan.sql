@@ -165,7 +165,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -174,7 +174,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'0_create_peminjaman_table',1),(5,'2025_12_17_065548_create_notifications_table',1),(6,'2025_12_23_044841_add_peminjaman_id_to_notifications_table',1),(7,'2026_02_05_152028_add_extra_columns_to_peminjaman',1),(8,'2026_02_10_104236_create_pembayaran_table',1),(9,'2026_02_13_135027_add_sent_at_to_notifications',1),(10,'2026_04_12_000001_create_notification_attempts_table',1),(11,'2026_04_15_000002_add_due_date_and_follow_up_sent_at_to_notifications_table',1),(12,'2026_04_15_211000_normalize_kontak_format',1),(13,'2026_04_15_220000_add_virtual_account_bank_to_peminjaman',1),(14,'2026_04_19_000001_add_role_to_users_table',2),(15,'2026_04_21_000001_create_mitras_table',3),(16,'2026_04_21_160000_add_performance_indexes_to_notiloan_tables',4);
+INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'0_create_peminjaman_table',1),(5,'2025_12_17_065548_create_notifications_table',1),(6,'2025_12_23_044841_add_peminjaman_id_to_notifications_table',1),(7,'2026_02_05_152028_add_extra_columns_to_peminjaman',1),(8,'2026_02_10_104236_create_pembayaran_table',1),(9,'2026_02_13_135027_add_sent_at_to_notifications',1),(10,'2026_04_12_000001_create_notification_attempts_table',1),(11,'2026_04_15_000002_add_due_date_and_follow_up_sent_at_to_notifications_table',1),(12,'2026_04_15_211000_normalize_kontak_format',1),(13,'2026_04_15_220000_add_virtual_account_bank_to_peminjaman',1),(14,'2026_04_19_000001_add_role_to_users_table',2),(15,'2026_04_21_000001_create_mitras_table',3),(16,'2026_04_21_160000_add_performance_indexes_to_notiloan_tables',4),(17,'2026_04_27_000001_add_period_start_to_notifications_table',5),(18,'2026_04_27_000002_add_unique_period_constraint_to_notifications_table',6);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -268,6 +268,7 @@ CREATE TABLE `notifications` (
   `kontak` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `due_date` date DEFAULT NULL,
+  `period_start` date DEFAULT NULL,
   `send_at` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -275,10 +276,12 @@ CREATE TABLE `notifications` (
   `sent_at` timestamp NULL DEFAULT NULL,
   `follow_up_sent_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `notifications_loan_period_unique` (`peminjaman_id`,`period_start`),
   KEY `notifications_peminjaman_id_foreign` (`peminjaman_id`),
   KEY `notifications_status_index` (`status`),
   KEY `notifications_send_at_index` (`send_at`),
   KEY `notifications_due_date_index` (`due_date`),
+  KEY `notifications_loan_period_index` (`peminjaman_id`,`period_start`),
   CONSTRAINT `notifications_peminjaman_id_foreign` FOREIGN KEY (`peminjaman_id`) REFERENCES `peminjaman` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -289,7 +292,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (3,3,'(+62) 82287654321','Yth Erni, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-15. Silakan siapkan pembayaran melalui Virtual Account Bank BRK - 123456768.','2026-05-15','2026-05-01 00:05:00',0,'2026-04-19 08:01:48','2026-04-19 08:01:48',NULL,NULL),(4,4,'(+62) 82287654321','Yth Erni sianturi, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-21. Silakan siapkan pembayaran melalui Virtual Account Bank Mandiri - 92813023121.','2026-05-21','2026-05-01 00:05:00',0,'2026-04-19 08:01:48','2026-04-21 05:29:10',NULL,NULL),(5,5,'(+62) 82287654321','Yth test 1, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-21. Silakan siapkan pembayaran melalui Virtual Account Bank BRI - Bank BRK - 123456768.','2026-05-21','2026-05-01 00:05:00',0,'2026-04-19 08:03:32','2026-04-21 06:54:07',NULL,NULL);
+INSERT INTO `notifications` VALUES (3,3,'(+62) 82287654321','Yth Erni, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-15. Silakan siapkan pembayaran melalui Virtual Account Bank BRK - 123456768.','2026-05-15','2026-05-01','2026-05-01 00:05:00',0,'2026-04-19 08:01:48','2026-04-19 08:01:48',NULL,NULL),(4,4,'(+62) 82287654321','Yth Erni sianturi, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-21. Silakan siapkan pembayaran melalui Virtual Account Bank Mandiri - 92813023121.','2026-05-21','2026-05-01','2026-05-01 00:05:00',0,'2026-04-19 08:01:48','2026-04-21 05:29:10',NULL,NULL),(5,5,'(+62) 82287654321','Yth test 1, pembayaran pinjaman Anda dijadwalkan jatuh tempo pada 2026-05-21. Silakan siapkan pembayaran melalui Virtual Account Bank BRI - Bank BRK - 123456768.','2026-05-21','2026-05-01','2026-05-01 00:05:00',0,'2026-04-19 08:03:32','2026-04-21 06:54:07',NULL,NULL);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -477,4 +480,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-23 16:14:54
+-- Dump completed on 2026-04-27 23:05:00

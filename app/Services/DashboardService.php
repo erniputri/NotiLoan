@@ -40,20 +40,6 @@ class DashboardService
             'settled' => Peminjaman::where('pokok_sisa', 0)->count(),
         ];
 
-        $notificationStats = [
-            'total' => Notification::whereHas('peminjaman', function ($query) {
-                $query->where('pokok_sisa', '>', 0);
-            })->count(),
-            'pending' => Notification::where('status', false)
-                ->whereHas('peminjaman', function ($query) {
-                    $query->where('pokok_sisa', '>', 0);
-                })->count(),
-            'sent' => Notification::where('status', true)
-                ->whereHas('peminjaman', function ($query) {
-                    $query->where('pokok_sisa', '>', 0);
-                })->count(),
-        ];
-
         $qualityBreakdown = Peminjaman::query()
             ->whereBetween('tgl_peminjaman', $this->chartDateRange($resolvedChartPeriod))
             ->selectRaw('COALESCE(kualitas_kredit, ?) as kualitas, COUNT(*) as total', ['Tidak Diketahui'])
@@ -92,14 +78,29 @@ class DashboardService
                     $query->select([
                         'notifications.id',
                         'notifications.peminjaman_id',
+                        'notifications.period_start',
                         'notifications.status',
                         'notifications.send_at',
                         'notifications.sent_at',
+                        'notifications.follow_up_sent_at',
                     ]);
                 },
             ])
             ->withCount('pembayaran')
             ->get();
+
+        $notificationStats = [
+            'total' => $activeLoans->count(),
+            'pending' => $activeLoans->filter(fn (Peminjaman $loan) => in_array($loan->notification_status_label, [
+                'Belum Terkirim',
+                'Menunggu',
+                'Perlu Pengingat Kedua',
+            ], true))->count(),
+            'sent' => $activeLoans->filter(fn (Peminjaman $loan) => in_array($loan->notification_status_label, [
+                'Terkirim',
+                'Pengingat Kedua Terkirim',
+            ], true))->count(),
+        ];
 
         // Data mentah diubah dulu menjadi item siap tampil agar Blade tidak dibebani logika bisnis.
         $dueItems = $this->transformDueItems($activeLoans, $today);

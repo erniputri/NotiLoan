@@ -69,7 +69,7 @@ class DemoNotificationScenarioSeeder extends Seeder
             'kualitas_kredit' => 'Lancar',
         ]);
 
-        app(NotificationScheduleService::class)->syncForLoan($loan);
+        app(NotificationScheduleService::class)->syncForLoan($loan, Carbon::parse('2026-04-01 00:05:00'), true);
     }
 
     // Skenario 2: pinjaman sudah lunas sehingga tidak lagi ikut antrean notifikasi.
@@ -159,7 +159,7 @@ class DemoNotificationScenarioSeeder extends Seeder
             'kualitas_kredit' => 'Kurang Lancar',
         ]);
 
-        $notification = app(NotificationScheduleService::class)->syncForLoan($loan);
+        $notification = app(NotificationScheduleService::class)->syncForLoan($loan, Carbon::parse('2026-04-01 00:05:00'), true);
 
         $notification?->update([
             'status' => true,

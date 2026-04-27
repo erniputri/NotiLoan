@@ -14,6 +14,7 @@ class Notification extends Model
         'kontak',
         'message',
         'due_date',
+        'period_start',
         'send_at',
         'sent_at',
         'follow_up_sent_at',
@@ -22,6 +23,7 @@ class Notification extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'period_start' => 'date',
         'send_at' => 'datetime',
         'sent_at' => 'datetime',
         'follow_up_sent_at' => 'datetime',

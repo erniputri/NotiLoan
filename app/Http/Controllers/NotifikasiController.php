@@ -131,10 +131,14 @@ class NotifikasiController extends Controller
             return back()->with('info', 'Notifikasi hanya dikirim ke mitra yang sudah jatuh tempo dan belum membayar.');
         }
 
-        $notif = $this->notificationScheduleService->syncForLoan($peminjaman);
+        $notif = $this->notificationScheduleService->syncForLoan($peminjaman, now(), true);
 
         if (! $notif) {
             return back()->with('info', 'Notifikasi belum bisa disiapkan untuk mitra ini.');
+        }
+
+        if (! $notif->status) {
+            return back()->with('info', 'Pengingat bulanan periode ini belum terkirim oleh sistem.');
         }
 
         if ($this->notificationScheduleService->hasSentSecondReminderForCurrentDueDate($notif)) {

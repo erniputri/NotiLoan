@@ -19,7 +19,7 @@ Project ini dipakai untuk:
 - CRUD pembayaran
 - Monitoring notifikasi
 - Pengingat notifikasi otomatis:
-  - notifikasi awal bulan
+  - notifikasi bulanan berulang setiap awal bulan untuk pinjaman yang belum lunas
   - pengingat kedua untuk pinjaman jatuh tempo yang belum dibayar
 - Import dan export Excel
 - Dashboard monitoring pinjaman
@@ -270,6 +270,13 @@ Project ini memiliki scheduler otomatis di [bootstrap/app.php](./bootstrap/app.p
 - `wa:send-overdue-followup`
   - jalan setiap hari pukul `08:00`
 
+Rule aktif saat ini:
+
+- setiap pinjaman dengan `pokok_sisa > 0` akan dibuatkan row notifikasi baru setiap awal bulan
+- row notifikasi bulanan dibedakan dengan field `period_start`
+- pengingat kedua manual maupun sistem hanya berlaku untuk row notifikasi pada bulan berjalan
+- satu pinjaman bisa memiliki banyak row di tabel `notifications` selama belum lunas
+
 ### Penjelasan Alur Scheduler
 
 Bagian ini dibuat agar alur notifikasi mudah dipahami oleh siapa pun yang ingin mengetahui cara kerja scheduler pada aplikasi ini.
@@ -442,26 +449,23 @@ File: [app/Services/NotificationScheduleService.php](./app/Services/Notification
 
 Baris penting:
 
-- baris `13-45` menjaga satu pinjaman selalu punya jadwal notifikasi aktif
-- baris `49-64` menyiapkan queue bulanan
-- baris `67-85` memilih reminder pertama yang siap dikirim
+- baris `13-53` menjaga histori row notifikasi per periode bulanan
+- baris `57-69` menyiapkan queue bulanan
+- baris `72-86` memilih reminder pertama yang siap dikirim
 
 Potongan kode penyiapan queue bulanan:
 
 ```php
 public function prepareMonthlyNotifications(?Carbon $referenceDate = null): Collection
 {
-    $referenceDate = ($referenceDate ?: now())->copy()->startOfMonth();
-    $monthStart = $referenceDate->copy()->startOfMonth();
-    $monthEnd = $referenceDate->copy()->endOfMonth();
+    $periodStart = $this->resolvePeriodStart($referenceDate);
 
     return Peminjaman::query()
         ->where('pokok_sisa', '>', 0)
         ->with(['latestPembayaran', 'notifikasi'])
         ->get()
-        ->filter(fn (Peminjaman $loan) => $loan->next_due_date->between($monthStart, $monthEnd))
-        ->map(function (Peminjaman $loan) use ($referenceDate) {
-            return $this->syncForLoan($loan);
+        ->map(function (Peminjaman $loan) use ($periodStart) {
+            return $this->syncForLoan($loan, $periodStart, true);
         })
         ->filter()
         ->values();
@@ -474,21 +478,17 @@ Potongan kode reminder pertama siap kirim:
 public function firstRemindersReadyForDispatch(?Carbon $referenceDate = null): Collection
 {
     $referenceDate = ($referenceDate ?: now())->copy();
-    $monthStart = $referenceDate->copy()->startOfMonth();
-    $monthEnd = $referenceDate->copy()->endOfMonth();
+    $periodStart = $this->resolvePeriodStart($referenceDate);
 
     return Notification::query()
         ->with(['peminjaman.latestPembayaran'])
+        ->whereDate('period_start', $periodStart->toDateString())
         ->where('status', false)
         ->where('send_at', '<=', $referenceDate)
-        ->whereBetween('due_date', [$monthStart->toDateString(), $monthEnd->toDateString()])
         ->whereHas('peminjaman', function ($query) {
             $query->where('pokok_sisa', '>', 0);
         })
         ->get()
-        ->filter(fn (Notification $notification) => $notification->peminjaman
-            && $notification->due_date
-            && $notification->due_date->isSameDay($notification->peminjaman->next_due_date))
         ->values();
 }
 ```
@@ -496,11 +496,14 @@ public function firstRemindersReadyForDispatch(?Carbon $referenceDate = null): C
 Arti logic:
 
 - hanya pinjaman dengan `pokok_sisa > 0` yang masuk antrian
-- hanya pinjaman yang jatuh tempo pada bulan berjalan yang disiapkan
+- setiap pinjaman yang belum lunas akan dibuatkan row notifikasi untuk `periode bulan berjalan`
+- tabel `notifications` sekarang menyimpan histori reminder per bulan melalui field `period_start`
+- proses sinkronisasi bersifat idempotent, jadi scheduler yang terpanggil ulang pada bulan yang sama tidak membuat row ganda
 - notifikasi pertama hanya boleh dikirim jika:
+  - `period_start` sama dengan bulan yang sedang dijalankan
   - `status = false`
   - `send_at` sudah lewat atau sama dengan waktu sekarang
-  - `due_date` masih sama dengan siklus jatuh tempo aktif
+  - pinjaman masih belum lunas
 
 ### 6. Logic seleksi notifikasi kedua
 
@@ -508,8 +511,8 @@ File: [app/Services/NotificationScheduleService.php](./app/Services/Notification
 
 Baris penting:
 
-- baris `89-105` memilih reminder kedua
-- baris `108-115` memastikan pinjaman benar-benar jatuh tempo dan belum lunas
+- baris `90-107` memilih reminder kedua
+- baris `110-116` memastikan pinjaman benar-benar jatuh tempo dan belum lunas
 
 Potongan kode:
 
@@ -517,9 +520,12 @@ Potongan kode:
 public function secondRemindersReadyForDispatch(?Carbon $referenceDate = null): Collection
 {
     $referenceDate = ($referenceDate ?: now())->copy()->startOfDay();
+    $periodStart = $this->resolvePeriodStart($referenceDate);
 
     return Notification::query()
         ->with(['peminjaman.latestPembayaran'])
+        ->whereDate('period_start', $periodStart->toDateString())
+        ->where('status', true)
         ->whereDate('due_date', '<=', $referenceDate->toDateString())
         ->whereNull('follow_up_sent_at')
         ->whereHas('peminjaman', function ($query) {
@@ -527,8 +533,6 @@ public function secondRemindersReadyForDispatch(?Carbon $referenceDate = null): 
         })
         ->get()
         ->filter(fn (Notification $notification) => $notification->peminjaman
-            && $notification->due_date
-            && $notification->due_date->isSameDay($notification->peminjaman->next_due_date)
             && $this->isLoanDueAndUnpaid($notification->peminjaman, $referenceDate))
         ->values();
 }
@@ -550,9 +554,29 @@ public function isLoanDueAndUnpaid(Peminjaman $peminjaman, ?Carbon $referenceDat
 Arti logic:
 
 - reminder kedua hanya dipilih jika `due_date` sudah masuk hari ini atau sudah lewat
+- reminder kedua hanya bekerja pada `row notifikasi bulan berjalan`
+- reminder kedua baru boleh dikirim setelah reminder bulanan bulan itu sudah terkirim (`status = true`)
 - `follow_up_sent_at` harus masih kosong
 - pinjaman masih aktif dan belum lunas
-- sistem mengecek ulang apakah pinjaman benar-benar overdue pada siklus saat ini
+- sistem mengecek ulang apakah pinjaman benar-benar overdue saat ini
+- ketika masuk awal bulan berikutnya, flow kembali ke reminder bulanan otomatis dengan row `period_start` yang baru
+
+### 6A. Logic tombol kirim pengingat kedua di halaman notifikasi
+
+File: [app/Http/Controllers/NotifikasiController.php](./app/Http/Controllers/NotifikasiController.php)
+
+Baris penting:
+
+- baris `121-150`
+
+Arti logic:
+
+- admin hanya bisa mengirim pengingat kedua jika pinjaman masih aktif
+- pinjaman harus benar-benar sudah jatuh tempo dan belum dibayar
+- row notifikasi bulan berjalan harus sudah ada
+- reminder bulanan bulan berjalan harus sudah terkirim terlebih dahulu
+- `follow_up_sent_at` harus masih kosong
+- hasil kirim manual tetap masuk ke tabel `notification_attempts`
 
 ### 7. Logic anti duplikasi agar tidak spam
 
@@ -611,50 +635,50 @@ Bagian ini penting karena menjelaskan bagaimana sistem membedakan notifikasi bar
 Prinsip utamanya:
 
 - sistem tidak mendeteksi kirim ulang hanya dari ada atau tidaknya row di tabel `notifications`
-- sistem membedakan antara `siklus jatuh tempo yang sama` dan `siklus jatuh tempo baru`
-- selama masih satu siklus, notifikasi tidak boleh dikirim ulang
-- jika sudah masuk siklus baru, row yang sama boleh dipakai lagi setelah di-reset
+- sistem membedakan antara `periode reminder bulan yang sama` dan `periode reminder bulan berikutnya`
+- setiap awal bulan sistem membuat row notifikasi baru untuk periode bulan itu
+- selama masih pada periode bulan yang sama, reminder tidak boleh dikirim ulang tanpa penanda yang sesuai
 
 File utama:
 
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `13-45`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-105`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `13-53`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `72-107`
 - [app/Services/NotificationDispatchService.php](./app/Services/NotificationDispatchService.php) baris `40-56`
 
-Potongan kode pembanding siklus:
+Potongan kode penanda periode bulanan:
 
 ```php
-$sameCycle = $notification->due_date
-    && $notification->due_date->isSameDay($nextDueDate);
-
-if (! $sameCycle) {
-    $payload['status'] = 0;
-    $payload['sent_at'] = null;
-    $payload['follow_up_sent_at'] = null;
-}
+$notification = Notification::query()
+    ->where('peminjaman_id', $loan->id)
+    ->whereDate('period_start', $periodStart->toDateString())
+    ->lockForUpdate()
+    ->latest('id')
+    ->first();
 ```
 
 Arti logic:
 
-- jika `due_date` notifikasi masih sama dengan `next_due_date` pinjaman, maka sistem menganggap itu masih satu siklus
-- jika berbeda, maka sistem menganggap sudah masuk siklus baru
-- pada siklus baru, row notifikasi lama tidak dibuang, tetapi di-reset agar bisa dipakai lagi
+- setiap row notifikasi sekarang mewakili satu `periode awal bulan`
+- `period_start` dipakai untuk memastikan reminder April, Mei, Juni, dan seterusnya tersimpan terpisah
+- histori reminder lama tidak ditimpa karena bulan berikutnya akan memakai row baru
 
 Deteksi kirim ulang reminder pertama:
 
+- scheduler hanya mengambil data dengan `period_start = bulan yang sedang berjalan`
 - scheduler hanya mengambil data dengan `status = false`
 - jika `status = true`, berarti reminder pertama pada siklus itu sudah pernah dikirim
 
 Deteksi kirim ulang reminder kedua:
 
+- scheduler hanya mengambil data dengan `period_start = bulan yang sedang berjalan`
 - scheduler hanya mengambil data dengan `follow_up_sent_at is null`
 - jika `follow_up_sent_at` sudah terisi, berarti reminder kedua sudah pernah dikirim
 - jika ada trigger ulang, dispatch service akan menandainya sebagai `skipped`
 
 Kesimpulan:
 
-- notifikasi pertama dikendalikan oleh kombinasi `status` dan `sameCycle`
-- notifikasi kedua dikendalikan oleh kombinasi `follow_up_sent_at` dan `sameCycle`
+- notifikasi pertama dikendalikan oleh kombinasi `period_start` dan `status`
+- notifikasi kedua dikendalikan oleh kombinasi `period_start`, `status`, dan `follow_up_sent_at`
 - histori pengiriman detail tetap ada di tabel `notification_attempts`
 
 ### 9. Cara sistem menentukan jatuh tempo berikutnya
@@ -692,26 +716,33 @@ Arti logic:
 - jika belum ada pembayaran, jatuh tempo dihitung dari `tgl_peminjaman + 1 bulan`
 - hasil inilah yang dipakai oleh scheduler saat memilih siapa yang harus dikirimi notifikasi
 
-### 10. Penjelasan mengapa row notifikasi tidak bertambah setiap bulan
+### 10. Penjelasan mengapa row notifikasi bertambah setiap bulan
 
-Ini adalah bagian yang sering menimbulkan salah paham.
+Pada desain saat ini, tabel `notifications` memang menyimpan histori reminder bulanan per pinjaman.
 
 Yang benar:
 
-- tabel `notifications` pada desain ini berfungsi sebagai `status aktif notifikasi per pinjaman`
-- tabel `notifications` bukan tabel histori bulanan
-- karena itu, untuk `peminjaman_id` yang sama, sistem memang tidak menambah row notifikasi baru setiap bulan
-- row notifikasi yang sama akan diupdate dan di-reset jika pinjaman masuk siklus jatuh tempo baru
+- tabel `notifications` menyimpan `row baru per periode bulan`
+- satu `peminjaman_id` dapat memiliki banyak row notifikasi selama pinjaman belum lunas
+- field `period_start` membedakan row reminder April, Mei, Juni, dan seterusnya
+- row notifikasi lama tetap dipertahankan sebagai histori
+- kombinasi `peminjaman_id + period_start` dijaga unik agar satu bulan tidak memiliki row ganda untuk pinjaman yang sama
+
+File yang terkait:
+
+- [database/migrations/2026_04_27_000001_add_period_start_to_notifications_table.php](./database/migrations/2026_04_27_000001_add_period_start_to_notifications_table.php)
+- [database/migrations/2026_04_27_000002_add_unique_period_constraint_to_notifications_table.php](./database/migrations/2026_04_27_000002_add_unique_period_constraint_to_notifications_table.php)
+- [app/Models/Notification.php](./app/Models/Notification.php)
 
 Kalimat yang bisa dipakai:
 
-`Pada desain ini, tabel notifications menyimpan status aktif notifikasi per pinjaman, bukan histori notifikasi bulanan. Jadi row untuk peminjaman_id yang sama memang di-update, bukan diinsert ulang. Histori detail pengiriman disimpan di tabel notification_attempts.`
+`Pada desain ini, tabel notifications menyimpan histori reminder bulanan per pinjaman. Jadi peminjaman_id yang sama dapat memiliki row notifikasi baru setiap awal bulan selama pinjaman belum lunas. Histori detail pengiriman tetap dilengkapi lagi oleh tabel notification_attempts.`
 
 Implikasi bisnisnya:
 
-- jika mitra sudah membayar, `next_due_date` maju ke bulan berikutnya, sehingga row notifikasi lama di-reset dan bisa dipakai lagi
-- jika mitra belum membayar, `next_due_date` tidak maju, sehingga sistem tidak menganggap ada siklus bulanan baru
-- dalam kondisi belum bayar, yang bekerja adalah flow `overdue follow-up`, bukan `first reminder` bulanan baru
+- jika mitra belum membayar, pada tanggal 1 bulan berikutnya sistem tetap membuat row reminder bulanan baru
+- jika mitra tetap belum membayar di pertengahan bulan, admin atau scheduler follow-up masih bisa mengirim pengingat kedua untuk row periode bulan itu
+- proses ini berulang sampai pinjaman lunas
 
 ### 11. Ringkasan flow sederhana
 
@@ -769,8 +800,10 @@ Dampak:
 Bagian yang perlu dicek dan diubah:
 
 - [bootstrap/app.php](./bootstrap/app.php) baris `16-20`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `163-166`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-85`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) method `resolvePeriodStart()`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) method `prepareMonthlyNotifications()`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) method `firstRemindersReadyForDispatch()`
+- kemungkinan struktur tabel `notifications`
 
 Contoh perubahan scheduler:
 
@@ -791,37 +824,30 @@ Catatan:
 
 Alasan:
 
-- saat ini scheduler pertama hanya mengenal satu status kirim utama
-- bila ada dua batch reguler dalam satu bulan, sistem membutuhkan penanda yang lebih rinci agar batch pertama dan batch kedua tidak saling menimpa
+- saat ini satu row notifikasi mewakili satu periode awal bulan
+- bila ada dua batch reguler dalam satu bulan, sistem membutuhkan penanda periode yang lebih rinci, misalnya `period_key`, `sequence`, atau field batch tambahan
 
 #### D. Jika perusahaan ingin pinjaman yang belum bayar tetap menerima reminder pertama lagi pada bulan berikutnya
 
-Ini adalah perubahan rule yang cukup besar.
+Rule ini sekarang sudah didukung oleh sistem.
 
 Bagian yang perlu dicek dan diubah:
 
-- [app/Models/Peminjaman.php](./app/Models/Peminjaman.php) baris `112-120`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `49-64`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-85`
-- kemungkinan struktur tabel `notifications`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) method `prepareMonthlyNotifications()`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) method `buildMonthlyMessage()`
+- [app/Models/Notification.php](./app/Models/Notification.php) field `period_start`
 
 Alasan:
 
-- saat ini `next_due_date` hanya maju jika ada pembayaran
-- jadi bila belum ada pembayaran, sistem tidak menganggap ada due cycle baru
-- kalau perusahaan ingin reminder bulanan berulang sampai lunas, desain sekarang belum cukup
-
-Solusi yang biasanya dipertimbangkan:
-
-- menambah histori notifikasi per periode
-- atau menambah field khusus seperti `last_monthly_reminder_sent_at`
-- atau mengubah `notifications` dari tabel status aktif menjadi tabel histori per siklus
+- sistem sekarang tidak lagi bergantung pada perubahan `next_due_date` untuk membuat reminder bulanan baru
+- selama `pokok_sisa > 0`, pinjaman akan tetap dibuatkan row notifikasi baru setiap awal bulan
+- `next_due_date` tetap dipakai untuk isi pesan dan validasi overdue, tetapi tidak lagi menjadi satu-satunya syarat reminder bulanan berulang
 
 #### E. Jika perusahaan ingin message diubah
 
 Bagian yang perlu diubah:
 
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `127-149`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `134-167`
 
 Contoh:
 
@@ -832,9 +858,9 @@ Contoh:
 
 Bagian yang perlu diubah:
 
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `49-64`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `67-85`
-- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `89-115`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `57-69`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `72-86`
+- [app/Services/NotificationScheduleService.php](./app/Services/NotificationScheduleService.php) baris `90-116`
 
 Contoh kasus:
 
