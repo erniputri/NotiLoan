@@ -32,22 +32,22 @@
 
             <div class="page-guide-grid">
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-magnify"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-magnify"></i></span>
+                    <div class="guide-copy">
                         <strong>Cari data cepat</strong>
                         <span>Gunakan nama, kontak, kabupaten, sektor, atau status pinjaman.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-file-excel-outline"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-file-excel"></i></span>
+                    <div class="guide-copy">
                         <strong>Import dan export</strong>
                         <span>Gunakan template resmi agar struktur Excel tetap sesuai sistem.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-check-decagram-outline"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-check-decagram"></i></span>
+                    <div class="guide-copy">
                         <strong>Pantau status lunas</strong>
                         <span>Data yang sudah lunas tetap tersimpan sebagai riwayat pinjaman mitra.</span>
                     </div>
@@ -110,7 +110,7 @@
 
                                 <button type="button" class="btn btn-success btn-action" data-toggle="collapse"
                                     data-target="#exportOptions" aria-expanded="false" aria-controls="exportOptions">
-                                    <i class="mdi mdi-file-excel-outline"></i>
+                                    <i class="mdi mdi-file-excel"></i>
                                     Export
                                 </button>
                             </div>
@@ -185,7 +185,7 @@
                             Menampilkan {{ $dataPeminjaman->count() }} dari {{ $dataPeminjaman->total() }} data
                         </span>
                         <a href="{{ route('data.index') }}" class="summary-chip {{ ! $status ? 'is-active' : '' }}">
-                            <i class="mdi mdi-view-grid-outline"></i>
+                            <i class="mdi mdi-view-grid"></i>
                             Semua
                         </a>
                         <a href="{{ route('data.index', ['status' => 'aktif', 'search' => $search]) }}"

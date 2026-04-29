@@ -105,6 +105,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
         border-radius: 15px;
         background: linear-gradient(135deg, #e6f5ec, #f7fbf8);
         color: var(--theme-green-700);
@@ -112,14 +113,20 @@
         border: 1px solid #d6eadf;
     }
 
-    .list-page .guide-card strong {
+    .list-page .guide-icon i,
+    .list-page .guide-icon i::before {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .list-page .guide-card .guide-copy strong {
         display: block;
         color: #203126;
         font-size: 14px;
         margin-bottom: 4px;
     }
 
-    .list-page .guide-card span {
+    .list-page .guide-card .guide-copy span {
         display: block;
         color: #6f7f74;
         font-size: 12px;

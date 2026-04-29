@@ -36,22 +36,22 @@
 
             <div class="page-guide-grid">
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-cash-plus"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-cash-multiple"></i></span>
+                    <div class="guide-copy">
                         <strong>Catat pembayaran</strong>
                         <span>Tambahkan transaksi pembayaran sesuai mitra dan tanggal bayar.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-progress-check"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-progress-check"></i></span>
+                    <div class="guide-copy">
                         <strong>Cek sisa pinjaman</strong>
                         <span>Gunakan kolom sisa pokok untuk melihat progres pelunasan.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-history"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-history"></i></span>
+                    <div class="guide-copy">
                         <strong>Riwayat transaksi</strong>
                         <span>Detail pembayaran tetap tersedia untuk audit dan pengecekan ulang.</span>
                     </div>
@@ -161,7 +161,7 @@
                                     <tr>
                                         {{-- Empty state ini muncul saat belum ada transaksi atau hasil pencarian tidak menemukan data. --}}
                                         <td colspan="7" class="empty-state">
-                                            <i class="mdi mdi-cash-remove"></i>
+                                            <i class="mdi mdi-cash"></i>
                                             <strong class="d-block mb-1">Belum ada data pembayaran</strong>
                                             <span>Tambahkan pembayaran baru atau ubah kata kunci pencarian.</span>
                                         </td>

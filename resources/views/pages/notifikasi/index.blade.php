@@ -36,22 +36,22 @@
 
             <div class="page-guide-grid">
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-bell-ring-outline"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-bell-ring-outline"></i></span>
+                    <div class="guide-copy">
                         <strong>Status pengiriman</strong>
                         <span>Lihat apakah notifikasi masih pending, terkirim, atau tidak perlu dikirim.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-calendar-alert"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-calendar-alert"></i></span>
+                    <div class="guide-copy">
                         <strong>Jatuh tempo</strong>
                         <span>Prioritaskan mitra yang sudah masuk jatuh tempo dan belum membayar.</span>
                     </div>
                 </div>
                 <div class="guide-card">
-                    <span class="guide-icon"><i class="mdi mdi-send-check-outline"></i></span>
-                    <div>
+                    <span class="guide-icon" aria-hidden="true"><i class="mdi mdi-send"></i></span>
+                    <div class="guide-copy">
                         <strong>Kirim manual</strong>
                         <span>Tombol kirim muncul hanya pada data yang memang perlu ditindaklanjuti.</span>
                     </div>
