@@ -1,12 +1,12 @@
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo mr-5 d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN NotiLoan" class="mr-2 navbar-brand-logo">
-            <span class="navbar-brand-text">NotiLoan</span>
+            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN {{ config('app.name', 'Notiloan') }}" class="mr-2 navbar-brand-logo">
+            <span class="navbar-brand-text">{{ config('app.name', 'Notiloan') }}</span>
         </a>
 
         <a class="navbar-brand brand-logo-mini" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN NotiLoan" class="navbar-brand-logo-mini" />
+            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo PTPN {{ config('app.name', 'Notiloan') }}" class="navbar-brand-logo-mini" />
         </a>
     </div>
 

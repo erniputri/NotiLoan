@@ -189,6 +189,11 @@
         grid-template-columns: minmax(240px, 1.2fr) minmax(280px, 1fr);
     }
 
+    .list-page--mitra .toolbar-grid {
+        grid-template-columns: minmax(320px, 1.35fr) auto;
+        align-items: end;
+    }
+
     .list-page--notif .toolbar-grid {
         grid-template-columns: minmax(260px, 1fr) auto;
     }
@@ -260,6 +265,11 @@
 
     .list-page .search-status-select {
         max-width: 180px;
+    }
+
+    .list-page--mitra .search-status-select--wide {
+        min-width: 260px;
+        max-width: 260px;
     }
 
     .list-page .table-shell {

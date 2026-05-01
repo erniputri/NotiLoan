@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="main-panel">
-        <div class="content-wrapper list-page">
+        <div class="content-wrapper list-page list-page--mitra">
             <div class="page-hero">
                 <div class="row align-items-center">
                     <div class="col-xl-7 mb-4 mb-xl-0">
@@ -41,16 +41,17 @@
                         </div>
                     </div>
 
-                    <form method="GET" action="{{ route('mitra.index') }}" class="mb-4">
-                        <div class="toolbar-grid">
-                            <div class="search-box">
-                                <i class="mdi mdi-magnify"></i>
-                                <input type="text" name="search" value="{{ $search }}"
-                                    placeholder="Cari nama, nomor mitra, kontak, atau kabupaten..."
-                                    class="form-control">
-                            </div>
-                            <div>
-                                <select name="loan_status" class="form-control">
+                    <div class="toolbar-grid mb-4">
+                        <form method="GET" action="{{ route('mitra.index') }}">
+                            <label class="muted-meta mb-2 d-block">Cari mitra</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="search-box flex-grow-1">
+                                    <i class="mdi mdi-magnify"></i>
+                                    <input type="text" name="search" value="{{ $search }}"
+                                        placeholder="Cari nama, nomor mitra, kontak, atau kabupaten..."
+                                        class="form-control">
+                                </div>
+                                <select name="loan_status" class="form-control search-status-select search-status-select--wide">
                                     <option value="">Semua Status Pinjaman</option>
                                     <option value="aktif" {{ $loanStatus === 'aktif' ? 'selected' : '' }}>
                                         Mitra Dengan Pinjaman Aktif
@@ -59,8 +60,6 @@
                                         Mitra Dengan Pinjaman Lunas
                                     </option>
                                 </select>
-                            </div>
-                            <div class="stack-actions">
                                 <button type="submit" class="btn btn-primary btn-action">
                                     <i class="mdi mdi-magnify"></i>
                                     Cari
@@ -71,8 +70,13 @@
                                     </a>
                                 @endif
                             </div>
-                        </div>
-                    </form>
+                        </form>
+
+                        <span class="surface-note">
+                            <i class="mdi mdi-account-filter-outline"></i>
+                            {{ $search || $loanStatus ? 'Filter mitra sedang aktif' : 'Menampilkan seluruh daftar mitra' }}
+                        </span>
+                    </div>
 
                     <div class="table-responsive table-shell">
                         <table class="table">

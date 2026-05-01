@@ -14,7 +14,7 @@
 
             @if ($peminjaman->mitra)
                 <div class="context-banner">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
                     <div>
                         <strong>Detail mitra dipisahkan ke halaman khusus</strong>
                         <p>

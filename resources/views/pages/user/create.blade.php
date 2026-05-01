@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="context-banner">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo {{ config('app.name', 'Notiloan') }}">
                         <div>
                             <strong>Role akun akan ditetapkan sebagai Admin</strong>
                             <p>Super admin hanya dibuat dari seeder agar hak akses tertinggi tetap terkendali.</p>

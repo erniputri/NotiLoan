@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="context-banner">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo {{ config('app.name', 'Notiloan') }}">
                         <div>
                             <strong>Anda sedang mengubah akun admin</strong>
                             <p>Password hanya akan diperbarui jika Anda mengisi field password baru.</p>

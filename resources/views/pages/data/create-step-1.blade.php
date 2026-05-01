@@ -29,7 +29,7 @@
                         @csrf
 
                         <div class="context-banner">
-                            <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
                             <div>
                                 <strong>Pilih mitra lama atau input mitra baru</strong>
                                 <p>Dropdown di bawah mendukung pencarian. Jika Anda mulai mengubah field secara manual, sistem akan menganggap data sebagai mitra baru.</p>

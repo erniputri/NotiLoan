@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
+    <title>Login | {{ config('app.name', 'Notiloan') }}</title>
     @include('partials.auth.css')
     <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
 </head>
@@ -20,11 +20,11 @@
                             <div class="auth-visual w-100">
                                 <div class="auth-brand">
                                     <div class="auth-brand-mark">
-                                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo {{ config('app.name', 'Notiloan') }}">
                                     </div>
                                     <div>
                                         <p class="auth-brand-label">Sistem Monitoring</p>
-                                        <h1 class="auth-brand-name">NotiLoan</h1>
+                                        <h1 class="auth-brand-name">{{ config('app.name', 'Notiloan') }}</h1>
                                     </div>
                                 </div>
 
@@ -32,7 +32,7 @@
                                     <span class="auth-kicker mb-3">PT. Perkebunan Nusantara IV Regional III</span>
                                     <h2>Akses mudah untuk pengelolaan pinjaman mitra Anda</h2>
                                     <p>
-                                        Pantau, atur, dan dapatkan notifikasi penting dalam satu dashboard NotiLoan.
+                                        Pantau, atur, dan dapatkan notifikasi penting dalam satu dashboard {{ config('app.name', 'Notiloan') }}.
                                     </p>
 
                                     <div class="auth-stat-grid">
@@ -54,7 +54,7 @@
                                 <span class="auth-kicker mb-3">Akses Dashboard</span>
                                 <h4 class="auth-title mb-2">Masuk ke akun Anda</h4>
                                 <p class="auth-copy">
-                                    Gunakan nomor SAP dan password terdaftar untuk melanjutkan ke dashboard NotiLoan.
+                                    Gunakan nomor SAP dan password terdaftar untuk melanjutkan ke dashboard {{ config('app.name', 'Notiloan') }}.
                                 </p>
                             </div>
 

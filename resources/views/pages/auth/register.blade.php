@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register</title>
+    <title>Register | {{ config('app.name', 'Notiloan') }}</title>
     @include('partials.auth.css')
     <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
 </head>
@@ -20,11 +20,11 @@
                             <div class="auth-visual w-100">
                                 <div class="auth-brand">
                                     <div class="auth-brand-mark">
-                                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo {{ config('app.name', 'Notiloan') }}">
                                     </div>
                                     <div>
                                         <p class="auth-brand-label">Registrasi Pengguna</p>
-                                        <h1 class="auth-brand-name">NotiLoan</h1>
+                                        <h1 class="auth-brand-name">{{ config('app.name', 'Notiloan') }}</h1>
                                     </div>
                                 </div>
 
@@ -55,7 +55,7 @@
                                 <span class="auth-kicker mb-3">Buat Akun</span>
                                 <h4 class="auth-title mb-2">Daftarkan pengguna baru</h4>
                                 <p class="auth-copy">
-                                    Lengkapi nama, nomor SAP, dan password untuk membuat akun baru pada sistem NotiLoan.
+                                    Lengkapi nama, nomor SAP, dan password untuk membuat akun baru pada sistem {{ config('app.name', 'Notiloan') }}.
                                 </p>
                             </div>
 

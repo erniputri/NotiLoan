@@ -128,7 +128,7 @@ class DataController extends Controller
 
         return Excel::download(
             new PeminjamanExport($selectedColumns, $search, $status),
-            'Data-NotiLoan-'.now()->format('Ymd-His').'.xlsx'
+            'Data-Notiloan-'.now()->format('Ymd-His').'.xlsx'
         );
     }
 
@@ -150,7 +150,7 @@ class DataController extends Controller
     {
         return Excel::download(
             new PeminjamanTemplateExport,
-            'Template-Import-NotiLoan.xlsx'
+            'Template-Import-Notiloan.xlsx'
         );
     }
 

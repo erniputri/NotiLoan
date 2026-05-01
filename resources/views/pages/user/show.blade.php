@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="context-banner {{ $user->isSuperAdmin() ? 'is-warning' : '' }}">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo NotiLoan">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo {{ config('app.name', 'Notiloan') }}">
                         <div>
                             <strong>{{ $user->role_label }}</strong>
                             <p>

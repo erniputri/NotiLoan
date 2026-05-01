@@ -21,7 +21,7 @@
 
                     @if (session('reminder'))
                         <div class="context-banner is-warning">
-                            <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
                             <div>
                                 <strong>Pembayaran dalam 30 hari terakhir terdeteksi</strong>
                                 <p>Mitra ini sudah melakukan pembayaran dalam 30 hari terakhir. Jika ingin tetap menyimpan, klik tombol simpan lagi.</p>

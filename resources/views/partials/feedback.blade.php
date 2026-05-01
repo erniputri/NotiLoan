@@ -13,7 +13,7 @@
         @foreach ($flashMessages as $message)
             <div class="app-feedback-toast is-{{ $message['class'] }}" data-feedback-toast>
                 <div class="app-feedback-logo">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
                 </div>
                 <div class="app-feedback-body">
                     <strong>{{ $message['title'] }}</strong>
@@ -28,7 +28,7 @@
         @if ($errors->any())
             <div class="app-feedback-toast is-danger" data-feedback-toast>
                 <div class="app-feedback-logo">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
                 </div>
                 <div class="app-feedback-body">
                     <strong>Periksa kembali input Anda</strong>
@@ -48,7 +48,7 @@
 
 <div class="app-loading-overlay" id="appLoadingOverlay" aria-hidden="true">
     <div class="app-loading-card">
-        <img src="{{ asset('assets/images/logo.png') }}" alt="NotiLoan">
+        <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name', 'Notiloan') }}">
         <h6>Memproses permintaan</h6>
         <p>Mohon tunggu sebentar, data sedang kami siapkan.</p>
     </div>
