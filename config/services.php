@@ -40,6 +40,13 @@ return [
         'url' => env('WA_API_URL'),
         'token' => env('WA_API_TOKEN'),
         'device_id' => env('WA_API_DEVICE_ID'),
+        'twilio' => [
+            'account_sid' => env('TWILIO_ACCOUNT_SID'),
+            'auth_token' => env('TWILIO_AUTH_TOKEN'),
+            'sandbox_number' => env('TWILIO_WHATSAPP_SANDBOX_NUMBER', '+14155238886'),
+            'content_sid' => env('TWILIO_WHATSAPP_CONTENT_SID'),
+            'ca_bundle' => env('TWILIO_CA_BUNDLE'),
+        ],
     ],
 
 ];
