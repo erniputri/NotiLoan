@@ -87,7 +87,7 @@
                             <div class="field-card">
                                 <label class="field-label">Kontak / No. HP <span class="text-danger">*</span></label>
                                 <input type="text" name="kontak" id="kontak" class="form-control" value="{{ old('kontak') }}" required>
-                                <small class="field-hint">Gunakan nomor HP mitra. Sistem akan menyimpan format menjadi `(+62) 8...`.</small>
+                                <small class="field-hint">Gunakan nomor HP mitra. Sistem akan menyimpan format menjadi `+62 8...`.</small>
                             </div>
 
                             <div class="field-card">

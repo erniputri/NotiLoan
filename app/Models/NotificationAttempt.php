@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FormatsIndonesianContact;
 use Illuminate\Database\Eloquent\Model;
 
 class NotificationAttempt extends Model
 {
+    use FormatsIndonesianContact;
+
     protected $fillable = [
         'notification_id',
         'peminjaman_id',
