@@ -28,7 +28,7 @@ class PembayaranController extends Controller
                 'bukti_pembayaran',
                 'created_at',
             ])
-            ->with('peminjaman:id,nama_mitra');
+            ->with('peminjaman:id,nama_mitra,pokok_pinjaman_awal,pokok_sisa');
 
         if ($request->search) {
             $query->whereHas('peminjaman', function ($q) use ($request) {

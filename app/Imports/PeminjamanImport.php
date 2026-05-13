@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class PeminjamanImport implements ToCollection, WithHeadingRow
 {
@@ -37,11 +38,6 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
         'administrasi_awal',
         'no_surat_perjanjian',
         'jaminan',
-        'pokok_cicilan_sd',
-        'jasa_cicilan_sd',
-        'pokok_sisa',
-        'jasa_sisa',
-        'kualitas_kredit',
     ];
 
     public static function importColumns(): array
@@ -56,8 +52,6 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
                 'file' => 'File import tidak berisi data. Gunakan template import yang sudah disediakan sistem.',
             ]);
         }
-
-        $this->validateHeaders(collect($rows->first())->toArray());
 
         foreach ($rows as $index => $row) {
             $row = collect($row)->toArray();
@@ -85,6 +79,11 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
                 $mitra = $mitraService->resolveOrCreate($mitraPayload);
                 $mitraService->guardActiveLoanConflict($mitra);
 
+                $pokokPinjamanAwal = (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_pinjaman_awal', $index));
+                $lamaAngsuran = (int) $this->normalizeNumber($this->requiredValue($row, 'lama_angsuran_bulan', $index));
+                $bungaPersen = (float) $this->normalizeNumber($this->requiredValue($row, 'bunga_persen', $index));
+                $administrasiAwal = (int) $this->normalizeNumber($this->requiredValue($row, 'administrasi_awal', $index));
+
                 $peminjaman = Peminjaman::create([
                     'mitra_id' => $mitra->id,
                     'nomor_mitra' => $mitraPayload['nomor_mitra'],
@@ -95,39 +94,26 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
                     'alamat' => $mitraPayload['alamat'],
                     'kabupaten' => $mitraPayload['kabupaten'],
                     'sektor' => $mitraPayload['sektor'],
-                    'tgl_peminjaman' => Carbon::parse($this->requiredString($row, 'tgl_peminjaman', $index)),
-                    'tgl_jatuh_tempo' => Carbon::parse($this->requiredString($row, 'tgl_jatuh_tempo', $index)),
-                    'tgl_akhir_pinjaman' => Carbon::parse($this->requiredString($row, 'tgl_akhir_pinjaman', $index)),
-                    'lama_angsuran_bulan' => (int) $this->normalizeNumber($this->requiredValue($row, 'lama_angsuran_bulan', $index)),
-                    'bunga_persen' => (float) $this->normalizeNumber($this->requiredValue($row, 'bunga_persen', $index)),
-                    'pokok_pinjaman_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_pinjaman_awal', $index)),
-                    'administrasi_awal' => (int) $this->normalizeNumber($this->requiredValue($row, 'administrasi_awal', $index)),
+                    'tgl_peminjaman' => $this->parseDateValue($this->requiredValue($row, 'tgl_peminjaman', $index), 'tgl_peminjaman', $index),
+                    'tgl_jatuh_tempo' => $this->parseDateValue($this->requiredValue($row, 'tgl_jatuh_tempo', $index), 'tgl_jatuh_tempo', $index),
+                    'tgl_akhir_pinjaman' => $this->parseDateValue($this->requiredValue($row, 'tgl_akhir_pinjaman', $index), 'tgl_akhir_pinjaman', $index),
+                    'lama_angsuran_bulan' => $lamaAngsuran,
+                    'bunga_persen' => $bungaPersen,
+                    'pokok_pinjaman_awal' => $pokokPinjamanAwal,
+                    'administrasi_awal' => $administrasiAwal,
                     'no_surat_perjanjian' => $this->requiredString($row, 'no_surat_perjanjian', $index),
                     'jaminan' => $this->requiredString($row, 'jaminan', $index),
-                    'pokok_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_cicilan_sd', $index)),
-                    'jasa_cicilan_sd' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_cicilan_sd', $index)),
-                    'pokok_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'pokok_sisa', $index)),
-                    'jasa_sisa' => (int) $this->normalizeNumber($this->requiredValue($row, 'jasa_sisa', $index)),
-                    'kualitas_kredit' => $this->requiredString($row, 'kualitas_kredit', $index),
+                    'pokok_cicilan_sd' => 0,
+                    'jasa_cicilan_sd' => 0,
+                    'pokok_sisa' => $pokokPinjamanAwal,
+                    'jasa_sisa' => 0,
+                    'kualitas_kredit' => 'Lancar',
                 ]);
 
+                $peminjaman->syncKualitasKredit();
                 app(NotificationScheduleService::class)->syncForLoan($peminjaman);
             });
         }
-    }
-
-    private function validateHeaders(array $row): void
-    {
-        $headers = array_keys($row);
-        $missingHeaders = array_values(array_diff(self::IMPORT_COLUMNS, $headers));
-
-        if ($missingHeaders === []) {
-            return;
-        }
-
-        throw ValidationException::withMessages([
-            'file' => 'Header file import belum lengkap. Kolom yang wajib ada: ' . implode(', ', $missingHeaders) . '.',
-        ]);
     }
 
     private function validateRow(array $row, int $index): void
@@ -143,14 +129,14 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
             $value = $row[$key];
 
             if (in_array($key, ['tgl_peminjaman', 'tgl_jatuh_tempo', 'tgl_akhir_pinjaman'], true)) {
-                Carbon::parse($value);
+                $this->parseDateValue($value, $key, $index);
             }
 
             return $value;
         }
 
         throw ValidationException::withMessages([
-            'file' => 'Kolom ' . $key . ' wajib diisi pada baris ' . ($index + 2) . '.',
+            'file' => 'Kolom ' . $key . ' wajib ada pada template dan wajib diisi pada baris ' . ($index + 2) . '.',
         ]);
     }
 
@@ -192,5 +178,20 @@ class PeminjamanImport implements ToCollection, WithHeadingRow
         }
 
         return is_numeric($value) ? $value + 0 : 0;
+    }
+
+    protected function parseDateValue(mixed $value, string $key, int $index): Carbon
+    {
+        try {
+            if (is_numeric($value)) {
+                return Carbon::instance(ExcelDate::excelToDateTimeObject((float) $value))->startOfDay();
+            }
+
+            return Carbon::parse(trim((string) $value))->startOfDay();
+        } catch (\Throwable) {
+            throw ValidationException::withMessages([
+                'file' => 'Kolom ' . $key . ' pada baris ' . ($index + 2) . ' harus berupa tanggal yang valid.',
+            ]);
+        }
     }
 }
