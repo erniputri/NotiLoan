@@ -94,13 +94,15 @@ class NotificationScheduleService
     // Reminder kedua bekerja per periode bulanan aktif, lalu berhenti ketika periode berikutnya sudah dibuat.
     public function secondRemindersReadyForDispatch(?Carbon $referenceDate = null): Collection
     {
+        # tanggal acuan diubah ke awal hari, lalu dicari periode bulan aktif
         $referenceDate = ($referenceDate ?: now())->copy()->startOfDay();
         $periodStart = $this->resolvePeriodStart($referenceDate);
 
+        #query mengambil notifikasi yang memenuhi syarat dasar
         return Notification::query()
             ->with(['peminjaman.latestPembayaran'])
             ->whereDate('period_start', $periodStart->toDateString())
-            ->where('status', true)
+            ->where('status', true) #artinya notifikasi pertama sudah pernah terkirim
             ->whereDate('due_date', '<=', $referenceDate->toDateString())
             ->whereNull('follow_up_sent_at')
             ->whereHas('peminjaman', function ($query) {
