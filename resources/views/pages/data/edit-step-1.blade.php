@@ -57,7 +57,7 @@
                             <div class="field-card">
                                 <label class="field-label">Kontak <span class="text-danger">*</span></label>
                                 <input type="text" name="kontak" class="form-control" value="{{ old('kontak', $peminjaman->kontak) }}" required>
-                                <small class="field-hint">Nomor HP akan disimpan dalam format `(+62) 8...`.</small>
+                                <small class="field-hint">Nomor HP akan disimpan dalam format `+62 8...`.</small>
                             </div>
 
                             <div class="field-card is-full">

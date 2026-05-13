@@ -68,6 +68,7 @@ class NotifikasiController extends Controller
             ->withQueryString();
 
         $notificationChannelModeLabel = match (config('services.whatsapp.driver', 'simulator')) {
+            'twilio_sandbox' => 'Twilio Sandbox',
             'api' => 'API WhatsApp',
             default => 'Simulator',
         };

@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('wa:send-notification')
             ->monthlyOn(01, '00:00');
         $schedule->command('wa:send-overdue-followup')
-            ->dailyAt('08:00');
+            ->dailyAt('09:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

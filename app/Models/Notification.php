@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FormatsIndonesianContact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
     use HasFactory;
+    use FormatsIndonesianContact;
 
     protected $fillable = [
         'peminjaman_id',
@@ -29,47 +31,6 @@ class Notification extends Model
         'follow_up_sent_at' => 'datetime',
         'status' => 'boolean',
     ];
-
-    public function setKontakAttribute($value): void
-    {
-        if ($value === null) {
-            $this->attributes['kontak'] = null;
-
-            return;
-        }
-
-        $value = trim((string) $value);
-
-        if ($value === '') {
-            $this->attributes['kontak'] = null;
-
-            return;
-        }
-
-        $digits = preg_replace('/\D+/', '', $value);
-
-        if ($digits === '') {
-            $this->attributes['kontak'] = $value;
-
-            return;
-        }
-
-        if (str_starts_with($digits, '0')) {
-            $digits = '62' . substr($digits, 1);
-        }
-
-        if (! str_starts_with($digits, '62')) {
-            $this->attributes['kontak'] = $value;
-
-            return;
-        }
-
-        $localNumber = ltrim(substr($digits, 2), '0');
-
-        $this->attributes['kontak'] = $localNumber === ''
-            ? '(+62)'
-            : '(+62) ' . $localNumber;
-    }
 
     public function peminjaman()
     {

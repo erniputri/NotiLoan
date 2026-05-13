@@ -1,11 +1,14 @@
 <?php
 namespace App\Models;
 
+use App\Models\Concerns\FormatsIndonesianContact;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Peminjaman extends Model
 {
+    use FormatsIndonesianContact;
+
     protected $table = 'peminjaman';
 
     protected $fillable = [
@@ -50,11 +53,6 @@ class Peminjaman extends Model
     public function setNomorMitraAttribute($value): void
     {
         $this->attributes['nomor_mitra'] = $value === null ? null : trim((string) $value);
-    }
-
-    public function setKontakAttribute($value): void
-    {
-        $this->attributes['kontak'] = $this->normalizeKontak($value);
     }
 
     public function getFormattedVirtualAccountAttribute(): ?string
@@ -302,38 +300,4 @@ class Peminjaman extends Model
             && ! $this->notifikasi->follow_up_sent_at;
     }
 
-    private function normalizeKontak(?string $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        if ($value === '') {
-            return null;
-        }
-
-        $digits = preg_replace('/\D+/', '', $value);
-
-        if ($digits === '') {
-            return $value;
-        }
-
-        if (str_starts_with($digits, '0')) {
-            $digits = '62' . substr($digits, 1);
-        }
-
-        if (! str_starts_with($digits, '62')) {
-            return $value;
-        }
-
-        $localNumber = ltrim(substr($digits, 2), '0');
-
-        if ($localNumber === '') {
-            return '(+62)';
-        }
-
-        return '(+62) ' . $localNumber;
-    }
 }
